@@ -16,6 +16,10 @@ export function Help() {
       <p>You can drop PDF files: each page is read on its own. "PDF report" gives a printable summary of one document or of all of them, including the cross-document checks. "Redact" blacks out identity numbers and dates of birth on a copy of the image; tap any box to hide or show it. On identity documents it also guesses where the portrait photo is and covers it; this is a guess, so check it. Drag on the page to black out anything else, such as a signature.</p>
       <h2>Known forms and templates</h2>
       <p>If a page is a form FormFlow already knows, it is read with a template: every box has a fixed label, so labels cannot be mixed up. A green note at the top of the document says which template was used. Twenty public US tax and personnel forms are built in. To add your own, open a form, press "Teach this form", draw a box around each place a value is written, name each box and the form, and save. The next copy of that form is recognised by its printed words. Templates you teach are stored in this browser only; if you teach from a filled-in copy, the printed words outside your boxes are stored, so teach from a blank copy when you can. "Forget this template" removes it.</p>
+      <h2>Ticks and signatures</h2>
+      <p>On forms, FormFlow also lists each checkbox as "Ticked" or "Not ticked", labelled with the words printed beside it, and each signature line as "Signed" or "Not signed". It only says whether a pen stroke is there. It never checks whose signature it is.</p>
+      <h2>Fixing the page outline</h2>
+      <p>For a photo, open the document and choose "Photo" to see where FormFlow thinks the page is. If the outline is wrong, press "Adjust corners", drag the four yellow dots onto the page corners and press "Read again with these corners".</p>
       <h2>The trust score</h2>
       <p>The ring on each document blends three things: how confident the field extraction is, how sure the type recognition is, and whether the checksums pass (passport check digits, the Emirates ID check digit). Fields you confirm count as certain, so the ring fills as you review.</p>
       <h2>Checks across documents</h2>

@@ -22,6 +22,14 @@ async function gray(file: string) {
   return rgbaToGray(rgba, info.width, info.height);
 }
 
+/** The page as the app's mark detectors see it: grey, resized and deskewed. Coordinates are original pixels x scale. */
+export async function pageGray(file: string) {
+  const g0 = await gray(file);
+  const scale = ocrScale(g0.width, g0.height);
+  const { img } = preprocess(resize(g0, scale), { deskew: true, binarise: false, removeLines: false });
+  return { g: img, scale, width: g0.width, height: g0.height };
+}
+
 /** OCR `files` (names inside `dir`) with `reader`; results cached under ../data/forms20/<cacheName>-<reader>. */
 export async function ocrAll(reader: Reader, dir: string, files: string[], cacheName = 'ocr'): Promise<Map<string, Cached>> {
   const cdir = path.join(DATA, 'forms20', `${cacheName}-${reader}`);

@@ -333,3 +333,10 @@ html { overflow-x: clip; }
 .teachbar .tin:focus { outline: none; border-color: var(--marker); }
 .tplnote { display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; margin-bottom: 0.9rem; padding: 0.6rem 0.85rem; border-radius: var(--r-m); background: var(--good-bg); color: var(--ink); font-size: 0.88rem; border: 1.5px solid var(--good); }
 .teachbar > .grow { flex: 1 1 100%; }
+
+/* corner handles for fixing the page outline by hand */
+.corner { position: absolute; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; background: var(--marker); border: 3px solid #101a3a; box-shadow: 0 2px 10px rgb(0 0 0 / 0.45); cursor: grab; touch-action: none; }
+.corner:active { cursor: grabbing; transform: scale(1.15); }
+.corner:focus-visible { outline: 3px solid var(--indigo); outline-offset: 2px; }
+
+.redactbar > .grow { flex: 1 1 240px; }

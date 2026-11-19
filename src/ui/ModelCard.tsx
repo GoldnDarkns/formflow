@@ -77,6 +77,7 @@ export function ModelCard() {
   const cal = r.calibration;
   const f20 = r.forms20;
   const tpl = r.templates;
+  const marks = r.marks;
   const flo = (Object.entries(e2e).find(([k]) => k.endsWith('florence_1x2')) ?? Object.entries(e2e).find(([k]) => k.startsWith('gradient_boosting_with_florence'))) as [string, any] | undefined;
 
   return (
@@ -275,6 +276,27 @@ export function ModelCard() {
             </tbody>
           </table></div>
           <p className="small">With a template the label can no longer be wrong, so what is left is reading error: the result tracks how well each reader reads the typed text. Matching and reading the boxes takes a few milliseconds. Limits: a template only helps for forms that were taught; boxes made of single-digit cells (such as ID numbers) are still read poorly by Tesseract; the labels in the built-in library were taken automatically from the text printed above each box, and a few are clumsy. Templates you teach yourself stay in this browser.</p>
+        </div>
+      )}
+
+      {marks?.all && (
+        <div className="card">
+          <h2>Ticks and signatures</h2>
+          <p className="small">Not everything on a form is text. Checkboxes are found as small square outlines and read by the ink inside them; a signing line counts as signed when a pen stroke (a long, mostly hollow mark that is not a ruled line or a printed word) sits by the "Signature" caption. Both are classical computer vision with no model, about {ms(marks.all.msPerPage)} per page. Tested on the same 20 forms: {marks.all.checkboxes.boxes} checkboxes, {marks.all.checkboxes.ticked} of them ticked, and {marks.all.signatures.lines} signing lines, {marks.all.signatures.signed} of them signed.</p>
+          <div className="summary">
+            <div className="stat"><b>{f(marks.all.checkboxes.endToEnd)}</b><span>checkboxes found and read correctly, no template</span></div>
+            <div className="stat"><b>{f(marks.all.checkboxesTemplate.stateAccuracy)}</b><span>checkboxes read correctly with a template</span></div>
+            <div className="stat"><b>{f(marks.all.signatures.accuracy)} → {f(marks.all.signaturesTemplate.accuracy)}</b><span>signing lines judged correctly, without → with a template</span></div>
+          </div>
+          <div className="tablewrap"><table className="metrics">
+            <thead><tr><th>Forms</th><th className="num">Boxes found</th><th className="num">False boxes</th><th className="num">State right (found)</th><th className="num">With template</th><th className="num">Signature right</th><th className="num">With template</th></tr></thead>
+            <tbody>
+              {([['all', 'All 20'], ['clean', 'Clean (10)'], ['scanLike', 'Scan-like (10)']] as const).map(([k, label]) => (
+                <tr key={k}><td>{label}</td><td className="num">{f(marks[k].checkboxes.recall)}</td><td className="num">{f(1 - marks[k].checkboxes.precision)}</td><td className="num">{f(marks[k].checkboxes.stateAccuracy)}</td><td className="num">{f(marks[k].checkboxesTemplate.stateAccuracy)}</td><td className="num">{f(marks[k].signatures.accuracy)}</td><td className="num">{f(marks[k].signaturesTemplate.accuracy)}</td></tr>
+              ))}
+            </tbody>
+          </table></div>
+          <p className="small">Limits, stated plainly: the ticks are the PDF's own tick marks and the signatures are synthetic pen scribbles drawn by a script, so real pens, stamps and faint marks are untested. Without a template a signature is only looked for where the reader finds the word "Signature", which it misses on about one line in five here; a template knows the place from the blank form. The app reports whether a line is signed. It does not compare or verify signatures.</p>
         </div>
       )}
 

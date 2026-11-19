@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, MotionConfig, motion } from 'motion/react';
 import { applyTemplate, criticLook, deleteUserTemplate, loadCritic, loadPpReader, loadSecondReader, processDocument, reanalyse, retype, saveUserTemplate, secondRead, warmUp } from './engine/engine';
 import type { Template } from './core/template';
+import type { Quad } from './core/scan';
 import { downloadReport } from './ui/report';
 import { DEFAULT_PRE, type PreprocessOptions } from './core/preprocess';
 import type { DocType } from './core/classify';
@@ -110,6 +111,23 @@ export default function App() {
     patch(doc.id, (d) => ({ ...d, doc, analysis: doc.analysis, fields: toEditable(doc.analysis.fields) }));
     setToast(`Template "${t.name}" saved. The next copy of this form will be read with it.`);
   };
+  const onCorners = async (q: Quad) => {
+    if (!current) return;
+    const old = current.doc.id;
+    setToast('Reading the page again…');
+    try {
+      const doc = await processDocument(current.doc.source, current.doc.fileName, pre, () => {}, undefined, q);
+      const st: DocState = { doc, analysis: doc.analysis, fields: toEditable(doc.analysis.fields), second: 'none' };
+      st.fields = markMrz(st);
+      setDocs((ds) => ds.map((d) => (d.doc.id === old ? st : d)));
+      setOpen(doc.id);
+      setSelected(null);
+      setToast('Read again with your corners');
+      if (criticRef.current) criticLook(doc).then((vision) => patch(doc.id, (d) => ({ ...d, vision }))).catch(() => {});
+    } catch (e: any) {
+      setToast(`Could not read it again: ${e.message ?? e}`);
+    }
+  };
   const onForgetTemplate = async (id: string) => {
     if (!current) return;
     deleteUserTemplate(id);
@@ -161,6 +179,7 @@ export default function App() {
                   secondAvailable={second.enabled && second.status !== 'error'}
                   onTeach={onTeach}
                   onForgetTemplate={onForgetTemplate}
+                  onCorners={onCorners}
                   onRemove={() => { setDocs((ds) => ds.filter((d) => d !== current)); setOpen(null); }}
                 />
               )}

@@ -202,3 +202,46 @@ test('isotonic fit: monotone, and brings an over-confident score back to the tru
   const after = reliability(s.map((x) => ({ conf: applyCurve(c, x.score), ok: x.ok }))).ece;
   assert.ok(after < before / 3, `ECE ${before.toFixed(3)} -> ${after.toFixed(3)}`);
 });
+
+// ---------- checkboxes and signatures ----------
+import { findCheckboxes, findSignatures, checkboxLabel } from '../src/core/marks';
+
+function outline(g: GrayImage, b: Box, t = 2) {
+  fillRect(g, [b[0], b[1], b[2], b[1] + t], 0); fillRect(g, [b[0], b[3] - t, b[2], b[3]], 0);
+  fillRect(g, [b[0], b[1], b[0] + t, b[3]], 0); fillRect(g, [b[2] - t, b[1], b[2], b[3]], 0);
+}
+function cross(g: GrayImage, b: Box) {
+  const n = b[2] - b[0];
+  for (let i = 3; i < n - 3; i++) for (let k = 0; k < 2; k++) { g.data[(b[1] + i) * g.width + b[0] + i + k] = 0; g.data[(b[1] + i) * g.width + b[2] - 1 - i - k] = 0; }
+}
+
+test('checkboxes: outlines are found and a cross inside means ticked', () => {
+  const g = page(1000, 600, 250);
+  const empty: Box = [100, 100, 120, 120], ticked: Box = [300, 100, 320, 120];
+  outline(g, empty); outline(g, ticked); cross(g, ticked);
+  fillRect(g, [500, 100, 520, 120], 0); // a solid block is not a checkbox
+  fillRect(g, [100, 300, 700, 303], 0); // nor is a ruled line
+  const found = findCheckboxes(g);
+  assert.equal(found.length, 2);
+  assert.deepEqual(found.map((c) => c.checked), [false, true]);
+  assert.ok(Math.abs(found[1].box[0] - 300) <= 2);
+});
+
+test('checkbox label: the words printed just right of the box, up to the next box', () => {
+  const words = [W('Individual', 130, 100, 18, 0), W('C', 330, 100, 18, 0), W('corporation', 350, 100, 18, 0)];
+  assert.equal(checkboxLabel([100, 100, 120, 120], words, [[300, 100, 320, 120]]), 'Individual');
+  assert.equal(checkboxLabel([300, 100, 320, 120], words, [[100, 100, 120, 120]]), 'C corporation');
+});
+
+test('signatures: a pen stroke above the caption is "signed", a bare line is not', () => {
+  const make = (signed: boolean) => {
+    const g = page(1000, 400, 250);
+    fillRect(g, [100, 200, 600, 202], 0); // the signing line
+    if (signed) for (let x = 120; x < 420; x++) { const y = Math.round(180 + 14 * Math.sin(x / 9) + 5 * Math.sin(x / 3)); fillRect(g, [x, y, x + 2, y + 5], 0); }
+    return g;
+  };
+  const caption = [{ text: 'Signature', box: [100, 208, 190, 224] as Box, conf: 95, line: 0 }, { text: 'Date', box: [640, 208, 680, 224] as Box, conf: 95, line: 0 }];
+  assert.equal(findSignatures(make(true), caption)[0].signed, true);
+  assert.equal(findSignatures(make(false), caption)[0].signed, false);
+  assert.equal(findSignatures(make(true), [caption[1]]).length, 0, 'no caption, nothing reported');
+});

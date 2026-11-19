@@ -18,6 +18,7 @@ export interface Template {
   aspect: number; // width / height of the taught page
   anchors: Anchor[];
   slots: Slot[];
+  checks?: Slot[]; // checkboxes: label + box, read by ink instead of text
 }
 
 /** a, b, c, d, e, f with  x' = a x + b y + c,  y' = d x + e y + f  (template -> page, normalised) */
@@ -28,7 +29,7 @@ const key = (s: string) => s.toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
 const inside = (x: number, y: number, b: Box, pad = 0) => x >= b[0] - pad && x <= b[2] + pad && y >= b[1] - pad && y <= b[3] + pad;
 
 /** Teach a template from one read page. Words inside a slot are treated as filled-in values, not print. */
-export function buildTemplate(id: string, name: string, words: OcrWord[], W: number, H: number, slots: Slot[], source?: string): Template {
+export function buildTemplate(id: string, name: string, words: OcrWord[], W: number, H: number, slots: Slot[], source?: string, checks?: Slot[]): Template {
   const anchors: Anchor[] = [];
   for (const w of words) {
     const t = key(w.text);
@@ -37,7 +38,9 @@ export function buildTemplate(id: string, name: string, words: OcrWord[], W: num
     if (slots.some((s) => inside(x, y, s.box))) continue;
     anchors.push({ t, x: r4(x), y: r4(y), w: r4((w.box[2] - w.box[0]) / W), h: r4((w.box[3] - w.box[1]) / H) });
   }
-  return { id, name, source, aspect: W / H, anchors, slots: slots.map((s) => ({ label: s.label, box: s.box.map(r4) as Box })) };
+  const t: Template = { id, name, source, aspect: W / H, anchors, slots: slots.map((s) => ({ label: s.label, box: s.box.map(r4) as Box })) };
+  if (checks?.length) t.checks = checks.map((s) => ({ label: s.label, box: s.box.map(r4) as Box }));
+  return t;
 }
 const r4 = (v: number) => Math.round(v * 1e4) / 1e4;
 
@@ -113,6 +116,23 @@ export function matchTemplate(templates: Template[], words: OcrWord[], W: number
     if (m && (!best || m.inliers > best.inliers)) best = m;
   }
   return best && best.score >= MIN_SCORE && best.inliers >= MIN_INLIERS ? best : null;
+}
+
+/** Where the template's checkboxes are on this page, in page pixels. */
+export function templateChecks(match: TemplateMatch, W: number, H: number): { label: string; box: Box }[] {
+  return (match.template.checks ?? []).map((s) => {
+    const [x0, y0] = applyAffine(match.affine, s.box[0], s.box[1]);
+    const [x1, y1] = applyAffine(match.affine, s.box[2], s.box[3]);
+    return { label: s.label, box: [Math.min(x0, x1) * W, Math.min(y0, y1) * H, Math.max(x0, x1) * W, Math.max(y0, y1) * H] as Box };
+  });
+}
+
+/** Where the printed words that pass `test` are on this page (page pixels), e.g. every "Signature" caption. */
+export function templateWords(match: TemplateMatch, W: number, H: number, test: (t: string) => boolean): Box[] {
+  return match.template.anchors.filter((a) => test(a.t)).map((a) => {
+    const [x, y] = applyAffine(match.affine, a.x, a.y);
+    return [(x - a.w / 2) * W, (y - a.h / 2) * H, (x + a.w / 2) * W, (y + a.h / 2) * H] as Box;
+  });
 }
 
 export interface TemplateRead { entities: Entity[]; links: Link[]; fields: Field[] }

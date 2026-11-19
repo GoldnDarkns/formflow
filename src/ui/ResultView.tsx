@@ -5,6 +5,7 @@ import { alertsFor } from '../core/facts';
 import { union } from '../core/layout';
 import type { DocState, EField } from './state';
 import type { Template } from '../core/template';
+import type { Quad } from '../core/scan';
 import { critiqueOf, needsReview, trustOf } from './state';
 import { DocViewer } from './DocViewer';
 import { Ring, pct, typeColor } from './bits';
@@ -27,6 +28,7 @@ interface Props {
   onRemove: () => void;
   onTeach: (t: Template) => void;
   onForgetTemplate: (id: string) => void;
+  onCorners: (q: Quad) => void;
 }
 
 const confClass = (c: number) => (c >= 0.8 ? 'hi' : c >= 0.6 ? 'mid' : 'lo');
@@ -76,7 +78,7 @@ export function ResultView(p: Props) {
         </div>
       )}
       <div className="results">
-        <DocViewer s={s} selected={p.selected} onSelect={p.onSelect} onTeach={p.onTeach} />
+        <DocViewer s={s} selected={p.selected} onSelect={p.onSelect} onTeach={p.onTeach} onCorners={p.onCorners} />
         <div className="stack">
           <div className="sheet stack">
             <div className="trust">

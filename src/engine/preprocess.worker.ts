@@ -9,6 +9,7 @@ export interface PreRequest {
   width: number;
   height: number;
   opts: PreprocessOptions;
+  quad?: Quad; // page corners set by hand, in pixels of this image: used instead of looking for the page
 }
 export interface PreResponse {
   color: ArrayBuffer; // RGBA of the flattened, evenly lit page (baseW x baseH)
@@ -32,9 +33,9 @@ self.onmessage = (e: MessageEvent<PreRequest>) => {
   let W = e.data.width, H = e.data.height;
   let quad: Quad | null = null;
   let lit = false;
-  if (opts.magic) {
+  if (opts.magic || e.data.quad) {
     const g0 = rgbaToGray(color, W, H);
-    quad = detectPage(g0);
+    quad = e.data.quad ?? detectPage(g0);
     if (quad) {
       const w = warpQuad(color, W, H, quad);
       color = w.data as Uint8ClampedArray<ArrayBuffer>;

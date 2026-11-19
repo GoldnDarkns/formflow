@@ -71,6 +71,7 @@ npx tsx scripts/calibrate.ts train    # fit confidence curves on the training sp
 python scripts/make-forms20.py        # rebuild testsets/forms20 (needs ../data/forms20/blank/*.pdf, PyMuPDF)
 npx tsx scripts/eval-forms20.ts       # score the 20 filled forms -> results.json
 npx tsx scripts/eval-templates.ts     # teach templates from the blank forms, score, write public/templates/library.json
+npx tsx scripts/eval-marks.ts         # checkboxes and signatures on the 20 forms (run after eval-templates)
 npx tsx scripts/eval-own.ts ../data/own   # per-type scores on the owner's labelled documents
 ```
 
@@ -92,6 +93,7 @@ src/core/         pure TypeScript, shared by the browser and the Node scripts (n
   critic-vision.ts MobileCLIP-S0 image encoder, zero-shot type opinion
   calibration.ts  isotonic calibration of the field confidence (curves in calibration.json)
   photo.ts        classical finder for the portrait photo on an ID (used by Redact)
+  marks.ts        checkboxes (square outlines + ink) and signature strokes by the "Signature" caption
   template.ts     template mode: teach a form once (anchors + labelled boxes), match, align, read boxes
   mrz.ts          ICAO 9303 parser (TD1, TD2, TD3, MRV-A/B), check digits, guarded repair
   florence.ts     Florence-2 OCR_WITH_REGION wrapper with tiling
@@ -134,9 +136,11 @@ Processing order for one page (`engine.ts → processDocument`): open image → 
 | Vision critic alone | 43 of 50 forms, 5 of 7 samples |
 | Magic scan on 20 simulated desk photos | page found 20/20, corner error 0.4% of diagonal, word recall 56.5% → 69.7% |
 | Confidence calibration error (ECE), Tesseract / PP-OCRv5, before → after | 42.1% → 4.6% / 44.6% → 8.2% |
-| 20 filled public forms (522 typed values): read / extracted / right label, Tesseract | 79.7% / 14.9% / 7.3% |
-| Same, PP-OCRv5 | 93.9% / 10.9% / 5.6% |
-| Template mode on the same forms, right label and value: Tesseract / PP-OCRv5 | 7.3% → 74.9% / 5.6% → 93.7%, right template 20/20 |
+| 20 filled public forms (522 typed values): read / extracted / right label, Tesseract | 79.5% / 15.3% / 7.7% |
+| Same, PP-OCRv5 | 93.7% / 11.9% / 6.1% |
+| Template mode on the same forms, right label and value: Tesseract / PP-OCRv5 | 7.7% → 74.9% / 6.1% → 93.5%, right template 20/20 |
+| Checkboxes on the same forms (196): found and read right, no template / with template | 93.9% / 100% |
+| Signature lines (33, synthetic scribbles): judged right, no template / with template | 72.7% / 87.9% |
 
 Exact numbers are in `public/eval/results.json`.
 
@@ -154,11 +158,11 @@ Exact numbers are in `public/eval/results.json`.
 2. All identity-document results are on synthetic specimens generated for testing. No real passports, Emirates IDs, licences or visas have been tested.
 3. Done: `testsets/forms20` (20 US federal forms, invented data, half scan-like) with results on the Model card. Extraction on them is poor (see negative results).
 4. Done for forms: confidence is calibrated (isotonic, fitted on the FUNSD training split). Not calibrated on identity documents (no labelled ID data) and no separate curve for the second-reader blend. The review flag still thresholds the raw score.
-5. Magic scan needs a page lighter than its background and has no manual corner adjustment.
-6. The sorter is rule-based, not learned.
+5. Magic scan still needs a page lighter than its background to find it automatically. Manual corner adjustment is built (Photo view, "Adjust corners"); tried in the browser on one sample photo with a mouse, not on a touch screen.
+6. The sorter is rule-based, not learned. A learned sorter was considered and not built: there is no labelled identity-document data to train it on (5 synthetic specimens), so it could not be evaluated honestly.
 7. No Arabic reading and no handwriting model. Names in MRZ lines have no check digit, so a misread name is only caught by the cross-document check.
 8. Redaction now guesses the photo area on IDs and lets the person draw boxes. The guess is classical CV, tried only on the synthetic specimens (a flat grey photo box), never on a real face photo.
-9. Template mode is built (`core/template.ts`, built-in library of the 20 public forms, "Teach this form" in the viewer, user templates in localStorage `ff.templates`). Not built: checkbox and signature detection. Template limits: library labels are auto-derived from the PDF text above each box and some are clumsy; digit-cell boxes read poorly with Tesseract; teaching was tried in the browser on one FUNSD sample only; a template field's confidence is the lowest word confidence, not calibrated.
+9. Template mode is built (`core/template.ts`, built-in library of the 20 public forms, "Teach this form" in the viewer, user templates in localStorage `ff.templates`). Checkbox and signature detection are built (`core/marks.ts`, fields with source `mark`); ticks in the test set are PDF tick marks and signatures are synthetic scribbles, so real pen marks are untested, and signatures are only reported as present or absent. Template limits: library labels are auto-derived from the PDF text above each box and some are clumsy; digit-cell boxes read poorly with Tesseract; teaching was tried in the browser on one FUNSD sample only; a template field's confidence is the lowest word confidence, not calibrated.
 10. 16 unit tests for `src/core` in `tests/` (`npm test`, run in CI). No UI tests beyond the headless browser scripts in `scripts/`.
 11. Report, 1-page model card document, demo video and presentation are not started.
 

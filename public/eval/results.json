@@ -930,7 +930,7 @@
   }
  },
  "forms20": {
-  "generated": "2026-11-19T16:54:59.681Z",
+  "generated": "2026-11-19T17:20:54.674Z",
   "set": "20 public US federal forms (IRS, OPM) filled in with invented data; odd-numbered forms degraded to look like a scan",
   "readers": {
    "tesseract": {
@@ -938,64 +938,64 @@
      "forms": 20,
      "sortedAsForm": 20,
      "typedValues": 522,
-     "read": 0.7969348659003831,
-     "extracted": 0.14942528735632185,
-     "labelled": 0.07279693486590039,
-     "fieldsFound": 312,
-     "msPerPage": 3880.4
+     "read": 0.7950191570881227,
+     "extracted": 0.1532567049808429,
+     "labelled": 0.07662835249042145,
+     "fieldsFound": 317,
+     "msPerPage": 3790.5
     },
     "clean": {
      "forms": 10,
      "sortedAsForm": 10,
      "typedValues": 280,
      "read": 0.8392857142857143,
-     "extracted": 0.1357142857142857,
-     "labelled": 0.06428571428571428,
-     "fieldsFound": 174,
-     "msPerPage": 4028.1
+     "extracted": 0.14642857142857144,
+     "labelled": 0.075,
+     "fieldsFound": 180,
+     "msPerPage": 3953.6
     },
     "scanLike": {
      "forms": 10,
      "sortedAsForm": 10,
      "typedValues": 242,
-     "read": 0.7479338842975206,
-     "extracted": 0.1652892561983471,
-     "labelled": 0.08264462809917356,
-     "fieldsFound": 138,
-     "msPerPage": 3732.7
+     "read": 0.743801652892562,
+     "extracted": 0.16115702479338842,
+     "labelled": 0.07851239669421488,
+     "fieldsFound": 137,
+     "msPerPage": 3627.4
     },
     "confidence": {
-     "fields": 132,
-     "meanShown": 0.3562553570359645,
-     "shareRight": 0.2878787878787879,
-     "ece": 0.06837656915717652,
+     "fields": 134,
+     "meanShown": 0.349511221275688,
+     "shareRight": 0.29850746268656714,
+     "ece": 0.05359686775949914,
      "bins": [
       {
        "lo": 0,
        "hi": 0.2,
-       "fields": 26,
-       "meanConfidence": 0.09338313514994437,
-       "correct": 0.07692307692307693
+       "fields": 31,
+       "meanConfidence": 0.09397667240763503,
+       "correct": 0.0967741935483871
       },
       {
        "lo": 0.2,
        "hi": 0.4,
-       "fields": 54,
-       "meanConfidence": 0.3229727277965196,
-       "correct": 0.18518518518518517
+       "fields": 51,
+       "meanConfidence": 0.3259798634770877,
+       "correct": 0.19607843137254902
       },
       {
        "lo": 0.4,
        "hi": 0.6,
        "fields": 41,
-       "meanConfidence": 0.4824655124850307,
-       "correct": 0.4634146341463415
+       "meanConfidence": 0.4856825570962917,
+       "correct": 0.4878048780487805
       },
       {
        "lo": 0.6,
        "hi": 0.8,
        "fields": 11,
-       "meanConfidence": 0.6705574819954937,
+       "meanConfidence": 0.6712062661841872,
        "correct": 0.6363636363636364
       },
       {
@@ -1031,7 +1031,7 @@
       "quality": "clean",
       "type": "form",
       "values": 45,
-      "read": 34,
+      "read": 33,
       "extracted": 8,
       "labelled": 4
      },
@@ -1040,9 +1040,9 @@
       "quality": "scan-like",
       "type": "form",
       "values": 35,
-      "read": 31,
-      "extracted": 16,
-      "labelled": 13
+      "read": 30,
+      "extracted": 15,
+      "labelled": 12
      },
      {
       "file": "f4506.jpg",
@@ -1077,7 +1077,7 @@
       "type": "form",
       "values": 24,
       "read": 17,
-      "extracted": 5,
+      "extracted": 4,
       "labelled": 3
      },
      {
@@ -1095,7 +1095,7 @@
       "type": "form",
       "values": 28,
       "read": 20,
-      "extracted": 3,
+      "extracted": 4,
       "labelled": 1
      },
      {
@@ -1104,8 +1104,8 @@
       "type": "form",
       "values": 22,
       "read": 22,
-      "extracted": 5,
-      "labelled": 5
+      "extracted": 6,
+      "labelled": 6
      },
      {
       "file": "f8822b.jpg",
@@ -1121,9 +1121,9 @@
       "quality": "clean",
       "type": "form",
       "values": 13,
-      "read": 8,
-      "extracted": 3,
-      "labelled": 2
+      "read": 9,
+      "extracted": 4,
+      "labelled": 3
      },
      {
       "file": "f9465.jpg",
@@ -1139,7 +1139,7 @@
       "quality": "clean",
       "type": "form",
       "values": 45,
-      "read": 44,
+      "read": 43,
       "extracted": 3,
       "labelled": 0
      },
@@ -1158,8 +1158,8 @@
       "type": "form",
       "values": 48,
       "read": 31,
-      "extracted": 5,
-      "labelled": 0
+      "extracted": 6,
+      "labelled": 1
      },
      {
       "file": "fw8ben.jpg",
@@ -1175,7 +1175,7 @@
       "quality": "clean",
       "type": "form",
       "values": 15,
-      "read": 9,
+      "read": 10,
       "extracted": 0,
       "labelled": 0
      },
@@ -1321,67 +1321,67 @@
    "ppocr": {
     "all": {
      "forms": 20,
-     "sortedAsForm": 19,
+     "sortedAsForm": 20,
      "typedValues": 522,
-     "read": 0.9386973180076629,
-     "extracted": 0.10919540229885058,
-     "labelled": 0.05555555555555555,
-     "fieldsFound": 239,
-     "msPerPage": 6254.75
+     "read": 0.9367816091954023,
+     "extracted": 0.11877394636015326,
+     "labelled": 0.06130268199233716,
+     "fieldsFound": 250,
+     "msPerPage": 6409.65
     },
     "clean": {
      "forms": 10,
-     "sortedAsForm": 9,
+     "sortedAsForm": 10,
      "typedValues": 280,
      "read": 0.9142857142857143,
-     "extracted": 0.08571428571428572,
-     "labelled": 0.04285714285714286,
-     "fieldsFound": 126,
-     "msPerPage": 7016.3
+     "extracted": 0.1,
+     "labelled": 0.04642857142857143,
+     "fieldsFound": 135,
+     "msPerPage": 7119
     },
     "scanLike": {
      "forms": 10,
      "sortedAsForm": 10,
      "typedValues": 242,
-     "read": 0.9669421487603306,
-     "extracted": 0.13636363636363635,
-     "labelled": 0.07024793388429752,
-     "fieldsFound": 113,
-     "msPerPage": 5493.2
+     "read": 0.9628099173553719,
+     "extracted": 0.14049586776859505,
+     "labelled": 0.07851239669421488,
+     "fieldsFound": 115,
+     "msPerPage": 5700.3
     },
     "confidence": {
-     "fields": 115,
-     "meanShown": 0.3855718410176071,
-     "shareRight": 0.25217391304347825,
-     "ece": 0.13339792797412883,
+     "fields": 119,
+     "meanShown": 0.37640242439381133,
+     "shareRight": 0.2689075630252101,
+     "ece": 0.10749486136860135,
      "bins": [
       {
        "lo": 0,
        "hi": 0.2,
-       "fields": 21,
-       "meanConfidence": 0.1279023316210568,
-       "correct": 0.09523809523809523
+       "fields": 22,
+       "meanConfidence": 0.12254680135238892,
+       "correct": 0.09090909090909091
       },
       {
        "lo": 0.2,
        "hi": 0.4,
-       "fields": 37,
-       "meanConfidence": 0.30074654407882495,
-       "correct": 0.21621621621621623
+       "fields": 41,
+       "meanConfidence": 0.2961397902064707,
+       "correct": 0.21951219512195122
       },
       {
        "lo": 0.4,
        "hi": 0.6,
-       "fields": 37,
-       "meanConfidence": 0.4583448476692285,
-       "correct": 0.35135135135135137
+       "fields": 38,
+       "meanConfidence": 0.4600872233376369,
+       "correct": 0.42105263157894735
       },
       {
        "lo": 0.6,
        "hi": 0.8,
-       "fields": 20,
-       "meanConfidence": 0.6784215629152324,
-       "correct": 0.3
+       "fields": 18,
+       "meanConfidence": 0.692822943767528,
+       "correct": 0.2777777777777778
       },
       {
        "lo": 0.8,
@@ -1408,7 +1408,7 @@
       "type": "form",
       "values": 21,
       "read": 19,
-      "extracted": 2,
+      "extracted": 1,
       "labelled": 1
      },
      {
@@ -1425,7 +1425,7 @@
       "quality": "scan-like",
       "type": "form",
       "values": 35,
-      "read": 34,
+      "read": 33,
       "extracted": 1,
       "labelled": 1
      },
@@ -1462,7 +1462,7 @@
       "type": "form",
       "values": 24,
       "read": 22,
-      "extracted": 10,
+      "extracted": 9,
       "labelled": 8
      },
      {
@@ -1480,8 +1480,8 @@
       "type": "form",
       "values": 28,
       "read": 28,
-      "extracted": 3,
-      "labelled": 3
+      "extracted": 4,
+      "labelled": 4
      },
      {
       "file": "f8822.jpg",
@@ -1525,7 +1525,7 @@
       "type": "form",
       "values": 45,
       "read": 45,
-      "extracted": 4,
+      "extracted": 5,
       "labelled": 0
      },
      {
@@ -1540,10 +1540,10 @@
      {
       "file": "fw7.jpg",
       "quality": "clean",
-      "type": "driving_licence",
+      "type": "form",
       "values": 48,
       "read": 38,
-      "extracted": 2,
+      "extracted": 4,
       "labelled": 0
      },
      {
@@ -1561,8 +1561,8 @@
       "type": "form",
       "values": 15,
       "read": 10,
-      "extracted": 1,
-      "labelled": 0
+      "extracted": 2,
+      "labelled": 1
      },
      {
       "file": "sf1152.jpg",
@@ -1570,8 +1570,8 @@
       "type": "form",
       "values": 30,
       "read": 30,
-      "extracted": 6,
-      "labelled": 0
+      "extracted": 8,
+      "labelled": 1
      }
     ],
     "examples": [
@@ -1678,6 +1678,12 @@
       "why": "misread as \"\""
      },
      {
+      "file": "f3911.jpg",
+      "label": "10. Signature (for business returns, signature of person aut",
+      "value": "Harrow and Vine LLC",
+      "why": "misread as \"Harrow and Vine\""
+     },
+     {
       "file": "f56.jpg",
       "label": "appointment of receiver/fiduciary, or assignment for the ben",
       "value": "Nadia Castellan",
@@ -1687,7 +1693,7 @@
       "file": "f56.jpg",
       "label": "b 709 series c 940 d 941, 943, 944",
       "value": "Leona Lindqvist",
-      "why": "misread as \"Le0na Lindqv\""
+      "why": "misread as \"Lindqvist\""
      },
      {
       "file": "f8332.jpg",
@@ -1712,12 +1718,6 @@
       "label": "b Routing number",
       "value": "239682784",
       "why": "misread as \"2 3 9 6 8 2 7 8 4\""
-     },
-     {
-      "file": "f8888.jpg",
-      "label": "d Account number",
-      "value": "Casper Quintero",
-      "why": "misread as \"C a s pe rQ u in te ro\""
      }
     ]
    }
@@ -2317,7 +2317,7 @@
   }
  },
  "templates": {
-  "generated": "2026-11-19T16:55:02.078Z",
+  "generated": "2026-11-19T17:25:03.678Z",
   "protocol": "Templates taught from the blank form (printed words as anchors, one labelled box per entry field); tested on the filled copies, each matched against all 20 templates",
   "readers": {
    "tesseract": {
@@ -2327,67 +2327,67 @@
      "templateRight": 20,
      "typedValues": 522,
      "labelled": 0.7490421455938697,
-     "exact": 0.6685823754789272,
-     "msPerPage": 4.398455000000832
+     "exact": 0.6666666666666666,
+     "msPerPage": 5.3336950000000005
     },
     "clean": {
      "forms": 10,
      "templateFound": 10,
      "templateRight": 10,
      "typedValues": 280,
-     "labelled": 0.8285714285714286,
+     "labelled": 0.8321428571428572,
      "exact": 0.7928571428571428,
-     "msPerPage": 4.716580000000249
+     "msPerPage": 5.726599999999991
     },
     "scanLike": {
      "forms": 10,
      "templateFound": 10,
      "templateRight": 10,
      "typedValues": 242,
-     "labelled": 0.6570247933884298,
-     "exact": 0.5247933884297521,
-     "msPerPage": 4.080330000001413
+     "labelled": 0.6528925619834711,
+     "exact": 0.5206611570247934,
+     "msPerPage": 4.94079000000001
     },
     "confidence": {
-     "fields": 486,
-     "meanShown": 0.7147119341563771,
-     "shareRight": 0.8045267489711934,
-     "ece": 0.08981481481481535,
+     "fields": 485,
+     "meanShown": 0.7147835051546377,
+     "shareRight": 0.8061855670103093,
+     "ece": 0.09226804123711402,
      "bins": [
       {
        "lo": 0,
        "hi": 0.2,
-       "fields": 77,
-       "meanConfidence": 0.05038961038961038,
-       "correct": 0.2077922077922078
+       "fields": 76,
+       "meanConfidence": 0.050131578947368416,
+       "correct": 0.2236842105263158
       },
       {
        "lo": 0.2,
        "hi": 0.4,
-       "fields": 28,
-       "meanConfidence": 0.28,
-       "correct": 0.32142857142857145
+       "fields": 29,
+       "meanConfidence": 0.28310344827586204,
+       "correct": 0.27586206896551724
       },
       {
        "lo": 0.4,
        "hi": 0.6,
        "fields": 24,
-       "meanConfidence": 0.5125000000000001,
+       "meanConfidence": 0.5133333333333334,
        "correct": 0.625
       },
       {
        "lo": 0.6,
        "hi": 0.8,
-       "fields": 44,
-       "meanConfidence": 0.7113636363636364,
-       "correct": 0.9318181818181818
+       "fields": 45,
+       "meanConfidence": 0.7111111111111111,
+       "correct": 0.9333333333333333
       },
       {
        "lo": 0.8,
        "hi": 1,
-       "fields": 313,
-       "meanConfidence": 0.9330031948881781,
-       "correct": 0.9904153354632588
+       "fields": 311,
+       "meanConfidence": 0.9335369774919604,
+       "correct": 0.9935691318327974
       }
      ]
     },
@@ -2404,7 +2404,7 @@
       "file": "f2553.jpg",
       "quality": "scan-like",
       "matched": "f2553",
-      "score": 0.961864406779661,
+      "score": 0.9661016949152542,
       "values": 21,
       "ok": 11
      },
@@ -2420,15 +2420,15 @@
       "file": "f3911.jpg",
       "quality": "scan-like",
       "matched": "f3911",
-      "score": 0.9536679536679536,
+      "score": 0.9382239382239382,
       "values": 35,
-      "ok": 30
+      "ok": 29
      },
      {
       "file": "f4506.jpg",
       "quality": "clean",
       "matched": "f4506",
-      "score": 0.9806094182825484,
+      "score": 0.9709141274238227,
       "values": 38,
       "ok": 36
      },
@@ -2436,7 +2436,7 @@
       "file": "f4506t.jpg",
       "quality": "scan-like",
       "matched": "f4506t",
-      "score": 0.7122153209109731,
+      "score": 0.7060041407867494,
       "values": 22,
       "ok": 6
      },
@@ -2460,7 +2460,7 @@
       "file": "f8332.jpg",
       "quality": "clean",
       "matched": "f8332",
-      "score": 0.9952153110047847,
+      "score": 0.9916267942583732,
       "values": 11,
       "ok": 11
      },
@@ -2468,9 +2468,9 @@
       "file": "f8821.jpg",
       "quality": "scan-like",
       "matched": "f8821",
-      "score": 0.8808988764044944,
+      "score": 0.8651685393258427,
       "values": 28,
-      "ok": 19
+      "ok": 20
      },
      {
       "file": "f8822.jpg",
@@ -2494,7 +2494,7 @@
       "matched": "f8888",
       "score": 0.9862068965517241,
       "values": 13,
-      "ok": 8
+      "ok": 9
      },
      {
       "file": "f9465.jpg",
@@ -2502,21 +2502,21 @@
       "matched": "f9465",
       "score": 0.9441489361702128,
       "values": 30,
-      "ok": 24
+      "ok": 23
      },
      {
       "file": "fss4.jpg",
       "quality": "clean",
       "matched": "fss4",
-      "score": 0.983433734939759,
+      "score": 0.9728915662650602,
       "values": 45,
-      "ok": 44
+      "ok": 43
      },
      {
       "file": "fw4.jpg",
       "quality": "scan-like",
       "matched": "fw4",
-      "score": 0.82,
+      "score": 0.8186666666666667,
       "values": 14,
       "ok": 7
      },
@@ -2524,7 +2524,7 @@
       "file": "fw7.jpg",
       "quality": "clean",
       "matched": "fw7",
-      "score": 0.9615384615384616,
+      "score": 0.9407051282051282,
       "values": 48,
       "ok": 30
      },
@@ -2540,15 +2540,15 @@
       "file": "fw9.jpg",
       "quality": "clean",
       "matched": "fw9",
-      "score": 0.9775678866587958,
+      "score": 0.9645808736717828,
       "values": 15,
-      "ok": 9
+      "ok": 10
      },
      {
       "file": "sf1152.jpg",
       "quality": "scan-like",
       "matched": "sf1152",
-      "score": 0.6882716049382716,
+      "score": 0.6790123456790124,
       "values": 30,
       "ok": 21
      }
@@ -2648,7 +2648,7 @@
       "file": "f2848.jpg",
       "label": "No.",
       "truth": "Mira Okonjo",
-      "got": "Mira afc Okonjo JOR SRR."
+      "got": "Mira afc Okonjo JOR. SRR."
      }
     ]
    },
@@ -2658,9 +2658,9 @@
      "templateFound": 20,
      "templateRight": 20,
      "typedValues": 522,
-     "labelled": 0.9367816091954023,
-     "exact": 0.9137931034482759,
-     "msPerPage": 3.3393799999990734
+     "labelled": 0.9348659003831418,
+     "exact": 0.9061302681992337,
+     "msPerPage": 3.140744999999998
     },
     "clean": {
      "forms": 10,
@@ -2668,23 +2668,23 @@
      "templateRight": 10,
      "typedValues": 280,
      "labelled": 0.9107142857142857,
-     "exact": 0.9,
-     "msPerPage": 3.7003599999996366
+     "exact": 0.8928571428571429,
+     "msPerPage": 3.5558700000000103
     },
     "scanLike": {
      "forms": 10,
      "templateFound": 10,
      "templateRight": 10,
      "typedValues": 242,
-     "labelled": 0.9669421487603306,
-     "exact": 0.9297520661157025,
-     "msPerPage": 2.97839999999851
+     "labelled": 0.9628099173553719,
+     "exact": 0.9214876033057852,
+     "msPerPage": 2.7256199999999864
     },
     "confidence": {
      "fields": 518,
-     "meanShown": 0.9886313674573318,
-     "shareRight": 0.944015444015444,
-     "ece": 0.04626432786522244,
+     "meanShown": 0.9882083757963716,
+     "shareRight": 0.9420849420849421,
+     "ece": 0.04777183813476393,
      "bins": [
       {
        "lo": 0,
@@ -2703,23 +2703,23 @@
       {
        "lo": 0.4,
        "hi": 0.6,
-       "fields": 2,
-       "meanConfidence": 0.5828444063663483,
-       "correct": 0.5
+       "fields": 3,
+       "meanConfidence": 0.5222177108128866,
+       "correct": 0.3333333333333333
       },
       {
        "lo": 0.6,
        "hi": 0.8,
-       "fields": 3,
-       "meanConfidence": 0.7269310024049548,
+       "fields": 1,
+       "meanConfidence": 0.6441088914871216,
        "correct": 0
       },
       {
        "lo": 0.8,
        "hi": 1,
-       "fields": 511,
-       "meanConfidence": 0.9945039202907907,
-       "correct": 0.9530332681017613
+       "fields": 512,
+       "meanConfidence": 0.9943517839535905,
+       "correct": 0.94921875
       }
      ]
     },
@@ -2744,7 +2744,7 @@
       "file": "f2848.jpg",
       "quality": "clean",
       "matched": "f2848",
-      "score": 0.9619565217391305,
+      "score": 0.9565217391304348,
       "values": 45,
       "ok": 43
      },
@@ -2752,15 +2752,15 @@
       "file": "f3911.jpg",
       "quality": "scan-like",
       "matched": "f3911",
-      "score": 0.918918918918919,
+      "score": 0.9121621621621622,
       "values": 35,
-      "ok": 34
+      "ok": 33
      },
      {
       "file": "f4506.jpg",
       "quality": "clean",
       "matched": "f4506",
-      "score": 0.9205298013245033,
+      "score": 0.9139072847682119,
       "values": 38,
       "ok": 37
      },
@@ -2768,7 +2768,7 @@
       "file": "f4506t.jpg",
       "quality": "scan-like",
       "matched": "f4506t",
-      "score": 0.7142857142857143,
+      "score": 0.691609977324263,
       "values": 22,
       "ok": 22
      },
@@ -2784,7 +2784,7 @@
       "file": "f56.jpg",
       "quality": "scan-like",
       "matched": "f56",
-      "score": 0.9404388714733543,
+      "score": 0.9435736677115988,
       "values": 24,
       "ok": 22
      },
@@ -2792,7 +2792,7 @@
       "file": "f8332.jpg",
       "quality": "clean",
       "matched": "f8332",
-      "score": 0.995221027479092,
+      "score": 0.991636798088411,
       "values": 11,
       "ok": 10
      },
@@ -2800,7 +2800,7 @@
       "file": "f8821.jpg",
       "quality": "scan-like",
       "matched": "f8821",
-      "score": 0.9521640091116174,
+      "score": 0.9202733485193622,
       "values": 28,
       "ok": 28
      },
@@ -2824,7 +2824,7 @@
       "file": "f8888.jpg",
       "quality": "clean",
       "matched": "f8888",
-      "score": 0.9931972789115646,
+      "score": 0.9863945578231292,
       "values": 13,
       "ok": 7
      },
@@ -2840,7 +2840,7 @@
       "file": "fss4.jpg",
       "quality": "clean",
       "matched": "fss4",
-      "score": 0.9914675767918089,
+      "score": 0.9829351535836177,
       "values": 45,
       "ok": 45
      },
@@ -2856,7 +2856,7 @@
       "file": "fw7.jpg",
       "quality": "clean",
       "matched": "fw7",
-      "score": 0.9794776119402985,
+      "score": 0.960820895522388,
       "values": 48,
       "ok": 38
      },
@@ -2872,7 +2872,7 @@
       "file": "fw9.jpg",
       "quality": "clean",
       "matched": "fw9",
-      "score": 0.9911634756995582,
+      "score": 0.9926362297496318,
       "values": 15,
       "ok": 10
      },
@@ -2880,7 +2880,7 @@
       "file": "sf1152.jpg",
       "quality": "scan-like",
       "matched": "sf1152",
-      "score": 0.8539682539682539,
+      "score": 0.8507936507936508,
       "values": 30,
       "ok": 30
      }
@@ -2917,6 +2917,12 @@
       "got": ""
      },
      {
+      "file": "f3911.jpg",
+      "label": "10. Signature (for business returns, signature of ",
+      "truth": "Harrow and Vine LLC",
+      "got": "Harrow and Vine"
+     },
+     {
       "file": "f4506.jpg",
       "label": "1a Name shown on tax return. If a joint return, en",
       "truth": "Nadia Quintero",
@@ -2932,7 +2938,7 @@
       "file": "f56.jpg",
       "label": "b 709 series c 940 d 941, 943, 944",
       "truth": "Leona Lindqvist",
-      "got": "Le0na Lindqv"
+      "got": "Lindqvist"
      },
      {
       "file": "f8332.jpg",
@@ -2975,15 +2981,334 @@
       "label": "d Account number",
       "truth": "Casper Belmore",
       "got": "Caspe r Be m 0 r e"
-     },
-     {
-      "file": "f9465.jpg",
-      "label": "most convenient way to make your",
-      "truth": "815446776",
-      "got": "8 1 5 4 4 6 7 7 6"
      }
     ]
    }
   }
+ },
+ "marks": {
+  "generated": "2026-11-19T17:38:31.610Z",
+  "note": "Ticks come from the PDF form fields; signatures are synthetic pen scribbles, not real signatures.",
+  "all": {
+   "forms": 20,
+   "checkboxes": {
+    "boxes": 196,
+    "ticked": 70,
+    "recall": 0.9387755102040817,
+    "precision": 0.983957219251337,
+    "stateAccuracy": 1,
+    "tickedRecall": 0.9142857142857143,
+    "endToEnd": 0.9387755102040817
+   },
+   "checkboxesTemplate": {
+    "boxes": 196,
+    "stateAccuracy": 1,
+    "tickedRecall": 1,
+    "falseTicks": 0
+   },
+   "signatures": {
+    "lines": 33,
+    "signed": 13,
+    "captionFound": 0.8181818181818182,
+    "accuracy": 0.7272727272727273,
+    "signedRecall": 0.7692307692307693,
+    "falseSigned": 1
+   },
+   "signaturesTemplate": {
+    "lines": 33,
+    "accuracy": 0.8787878787878788,
+    "signedRecall": 0.8461538461538461,
+    "falseSigned": 2
+   },
+   "msPerPage": 67.01643500000003
+  },
+  "clean": {
+   "forms": 10,
+   "checkboxes": {
+    "boxes": 119,
+    "ticked": 40,
+    "recall": 0.9831932773109243,
+    "precision": 1,
+    "stateAccuracy": 1,
+    "tickedRecall": 0.975,
+    "endToEnd": 0.9831932773109243
+   },
+   "checkboxesTemplate": {
+    "boxes": 119,
+    "stateAccuracy": 1,
+    "tickedRecall": 1,
+    "falseTicks": 0
+   },
+   "signatures": {
+    "lines": 13,
+    "signed": 7,
+    "captionFound": 0.9230769230769231,
+    "accuracy": 0.9230769230769231,
+    "signedRecall": 0.8571428571428571,
+    "falseSigned": 0
+   },
+   "signaturesTemplate": {
+    "lines": 13,
+    "accuracy": 1,
+    "signedRecall": 1,
+    "falseSigned": 0
+   },
+   "msPerPage": 62.518210000000025
+  },
+  "scanLike": {
+   "forms": 10,
+   "checkboxes": {
+    "boxes": 77,
+    "ticked": 30,
+    "recall": 0.8701298701298701,
+    "precision": 0.9571428571428572,
+    "stateAccuracy": 1,
+    "tickedRecall": 0.8333333333333334,
+    "endToEnd": 0.8701298701298701
+   },
+   "checkboxesTemplate": {
+    "boxes": 77,
+    "stateAccuracy": 1,
+    "tickedRecall": 1,
+    "falseTicks": 0
+   },
+   "signatures": {
+    "lines": 20,
+    "signed": 6,
+    "captionFound": 0.75,
+    "accuracy": 0.6,
+    "signedRecall": 0.6666666666666666,
+    "falseSigned": 1
+   },
+   "signaturesTemplate": {
+    "lines": 20,
+    "accuracy": 0.8,
+    "signedRecall": 0.6666666666666666,
+    "falseSigned": 2
+   },
+   "msPerPage": 71.51466000000003
+  },
+  "perForm": [
+   {
+    "file": "f14039.jpg",
+    "quality": "clean",
+    "checkboxes": 12,
+    "found": 12,
+    "stateOk": 12,
+    "extraDetections": 0,
+    "templateOk": 12,
+    "signatureLines": 0,
+    "signatureOk": 0
+   },
+   {
+    "file": "f2553.jpg",
+    "quality": "scan-like",
+    "checkboxes": 7,
+    "found": 7,
+    "stateOk": 7,
+    "extraDetections": 1,
+    "templateOk": 7,
+    "signatureLines": 1,
+    "signatureOk": 1
+   },
+   {
+    "file": "f2848.jpg",
+    "quality": "clean",
+    "checkboxes": 20,
+    "found": 20,
+    "stateOk": 20,
+    "extraDetections": 0,
+    "templateOk": 20,
+    "signatureLines": 0,
+    "signatureOk": 0
+   },
+   {
+    "file": "f3911.jpg",
+    "quality": "scan-like",
+    "checkboxes": 14,
+    "found": 13,
+    "stateOk": 13,
+    "extraDetections": 0,
+    "templateOk": 14,
+    "signatureLines": 3,
+    "signatureOk": 2
+   },
+   {
+    "file": "f4506.jpg",
+    "quality": "clean",
+    "checkboxes": 3,
+    "found": 3,
+    "stateOk": 3,
+    "extraDetections": 0,
+    "templateOk": 3,
+    "signatureLines": 4,
+    "signatureOk": 4
+   },
+   {
+    "file": "f4506t.jpg",
+    "quality": "scan-like",
+    "checkboxes": 6,
+    "found": 6,
+    "stateOk": 6,
+    "extraDetections": 0,
+    "templateOk": 6,
+    "signatureLines": 4,
+    "signatureOk": 1
+   },
+   {
+    "file": "f4868.jpg",
+    "quality": "clean",
+    "checkboxes": 2,
+    "found": 2,
+    "stateOk": 2,
+    "extraDetections": 0,
+    "templateOk": 2,
+    "signatureLines": 0,
+    "signatureOk": 0
+   },
+   {
+    "file": "f56.jpg",
+    "quality": "scan-like",
+    "checkboxes": 25,
+    "found": 21,
+    "stateOk": 21,
+    "extraDetections": 0,
+    "templateOk": 25,
+    "signatureLines": 0,
+    "signatureOk": 0
+   },
+   {
+    "file": "f8332.jpg",
+    "quality": "clean",
+    "checkboxes": 0,
+    "found": 0,
+    "stateOk": 0,
+    "extraDetections": 0,
+    "templateOk": 0,
+    "signatureLines": 3,
+    "signatureOk": 3
+   },
+   {
+    "file": "f8821.jpg",
+    "quality": "scan-like",
+    "checkboxes": 12,
+    "found": 9,
+    "stateOk": 9,
+    "extraDetections": 0,
+    "templateOk": 12,
+    "signatureLines": 2,
+    "signatureOk": 1
+   },
+   {
+    "file": "f8822.jpg",
+    "quality": "clean",
+    "checkboxes": 3,
+    "found": 2,
+    "stateOk": 2,
+    "extraDetections": 0,
+    "templateOk": 3,
+    "signatureLines": 2,
+    "signatureOk": 1
+   },
+   {
+    "file": "f8822b.jpg",
+    "quality": "scan-like",
+    "checkboxes": 4,
+    "found": 3,
+    "stateOk": 3,
+    "extraDetections": 0,
+    "templateOk": 4,
+    "signatureLines": 2,
+    "signatureOk": 1
+   },
+   {
+    "file": "f8888.jpg",
+    "quality": "clean",
+    "checkboxes": 6,
+    "found": 6,
+    "stateOk": 6,
+    "extraDetections": 0,
+    "templateOk": 6,
+    "signatureLines": 0,
+    "signatureOk": 0
+   },
+   {
+    "file": "f9465.jpg",
+    "quality": "scan-like",
+    "checkboxes": 2,
+    "found": 2,
+    "stateOk": 2,
+    "extraDetections": 2,
+    "templateOk": 2,
+    "signatureLines": 2,
+    "signatureOk": 2
+   },
+   {
+    "file": "fss4.jpg",
+    "quality": "clean",
+    "checkboxes": 44,
+    "found": 43,
+    "stateOk": 43,
+    "extraDetections": 0,
+    "templateOk": 44,
+    "signatureLines": 1,
+    "signatureOk": 1
+   },
+   {
+    "file": "fw4.jpg",
+    "quality": "scan-like",
+    "checkboxes": 5,
+    "found": 4,
+    "stateOk": 4,
+    "extraDetections": 0,
+    "templateOk": 5,
+    "signatureLines": 1,
+    "signatureOk": 1
+   },
+   {
+    "file": "fw7.jpg",
+    "quality": "clean",
+    "checkboxes": 21,
+    "found": 21,
+    "stateOk": 21,
+    "extraDetections": 0,
+    "templateOk": 21,
+    "signatureLines": 2,
+    "signatureOk": 2
+   },
+   {
+    "file": "fw8ben.jpg",
+    "quality": "scan-like",
+    "checkboxes": 2,
+    "found": 2,
+    "stateOk": 2,
+    "extraDetections": 0,
+    "templateOk": 2,
+    "signatureLines": 1,
+    "signatureOk": 1
+   },
+   {
+    "file": "fw9.jpg",
+    "quality": "clean",
+    "checkboxes": 8,
+    "found": 8,
+    "stateOk": 8,
+    "extraDetections": 0,
+    "templateOk": 8,
+    "signatureLines": 1,
+    "signatureOk": 1
+   },
+   {
+    "file": "sf1152.jpg",
+    "quality": "scan-like",
+    "checkboxes": 0,
+    "found": 0,
+    "stateOk": 0,
+    "extraDetections": 0,
+    "templateOk": 0,
+    "signatureLines": 4,
+    "signatureOk": 2
+   }
+  ]
  }
 }

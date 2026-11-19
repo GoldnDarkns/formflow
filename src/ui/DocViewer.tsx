@@ -6,6 +6,7 @@ import { ID_TYPES } from '../core/classify';
 import { findPhotoArea } from '../core/photo';
 import { rgbaToGray } from '../core/preprocess';
 import type { Box } from '../core/types';
+import type { Quad } from '../core/scan';
 import { union } from '../core/layout';
 import { buildTemplate, type Template } from '../core/template';
 
@@ -39,9 +40,10 @@ interface Props {
   selected: string | null;
   onSelect: (uid: string | null) => void;
   onTeach?: (t: Template) => void;
+  onCorners?: (q: Quad) => void;
 }
 
-export function DocViewer({ s, selected, onSelect, onTeach }: Props) {
+export function DocViewer({ s, selected, onSelect, onTeach, onCorners }: Props) {
   const [mode, setMode] = useState<'page' | 'reader' | 'photo'>('page');
   const processed = mode === 'reader';
   const [redact, setRedact] = useState(false);
@@ -52,6 +54,17 @@ export function DocViewer({ s, selected, onSelect, onTeach }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const drag = useRef<{ x: number; y: number } | null>(null);
   const nextId = useRef(1);
+  // corner mode: drag the four page corners on the photo, then read the page again
+  const FULL: Quad = [[0.04, 0.04], [0.96, 0.04], [0.96, 0.96], [0.04, 0.96]];
+  const [corners, setCorners] = useState<Quad | null>(null);
+  const photoRef = useRef<HTMLDivElement>(null);
+  const moveCorner = (i: number, ev: React.PointerEvent) => {
+    if (!(ev.buttons & 1) && ev.pointerType === 'mouse') return;
+    const r = photoRef.current!.getBoundingClientRect();
+    const x = Math.min(1, Math.max(0, (ev.clientX - r.left) / r.width)), y = Math.min(1, Math.max(0, (ev.clientY - r.top) / r.height));
+    setCorners((q) => q && (q.map((p, j) => (j === i ? [x, y] : p)) as Quad));
+  };
+  useEffect(() => { setCorners(null); }, [s.doc.id]);
   // teach mode: the person draws one labelled box per place a value goes, and the page becomes a template
   const [teach, setTeach] = useState(false);
   const [slots, setSlots] = useState<{ id: number; box: Box; label: string }[]>([]);
@@ -132,7 +145,7 @@ export function DocViewer({ s, selected, onSelect, onTeach }: Props) {
       <div className="row">
         <span className="grow small muted">{doc.fileName}, read in {(doc.totalMs / 1000).toFixed(1)}s</span>
         <div className="seg">
-          {doc.quad && <button className={mode === 'photo' ? 'on' : ''} onClick={() => setMode('photo')}>Photo</button>}
+          {(doc.quad || onCorners) && <button className={mode === 'photo' ? 'on' : ''} onClick={() => { setMode('photo'); setRedact(false); setTeach(false); }}>Photo</button>}
           <button className={mode === 'page' ? 'on' : ''} onClick={() => setMode('page')}>{doc.quad ? 'Cut out' : 'Page'}</button>
           <button className={mode === 'reader' ? 'on' : ''} onClick={() => setMode('reader')}>What the reader saw</button>
         </div>
@@ -158,13 +171,33 @@ export function DocViewer({ s, selected, onSelect, onTeach }: Props) {
           <button className="btn sm ghost" style={{ color: 'var(--sheet)' }} onClick={() => setTeach(false)}>Cancel</button>
         </div>
       )}
-      {mode === 'photo' && doc.quad ? (
-        <div className="docwrap">
+      {mode === 'photo' && onCorners && (
+        <div className="redactbar">
+          {corners ? (
+            <>
+              <span className="grow">Drag each yellow dot onto a corner of the page, then read it again.</span>
+              <button className="btn sm" style={{ color: 'var(--ink)' }} onClick={() => { onCorners(corners); setCorners(null); }}>Read again with these corners</button>
+              <button className="btn sm ghost" style={{ color: 'var(--sheet)' }} onClick={() => setCorners(null)}>Cancel</button>
+            </>
+          ) : (
+            <>
+              <span className="grow">{doc.quad ? (doc.manualQuad ? 'The page corners were set by hand.' : 'The outline shows where FormFlow found the page.') : 'No page outline was found, so the whole picture was used.'} If the outline is wrong, fix it.</span>
+              <button className="btn sm" style={{ color: 'var(--ink)' }} onClick={() => setCorners(doc.quad ?? FULL)}>Adjust corners</button>
+            </>
+          )}
+        </div>
+      )}
+      {mode === 'photo' && (doc.quad || onCorners) ? (
+        <div className="docwrap" ref={photoRef} style={corners ? { touchAction: 'none' } : undefined}>
           <img src={doc.original} alt="The photo as taken" />
           <svg viewBox="0 0 100 100" preserveAspectRatio="none">
-            <path fillRule="evenodd" fill="rgb(8 12 30 / 0.6)" d={`M0 0H100V100H0Z M${doc.quad.map(([x, y]) => `${x * 100} ${y * 100}`).join(' L')}Z`} />
-            <polygon points={doc.quad.map(([x, y]) => `${x * 100},${y * 100}`).join(' ')} fill="none" stroke="var(--marker)" strokeWidth="2.5" vectorEffect="non-scaling-stroke" />
+            {(corners ?? doc.quad) && <path fillRule="evenodd" fill="rgb(8 12 30 / 0.6)" d={`M0 0H100V100H0Z M${(corners ?? doc.quad)!.map(([x, y]) => `${x * 100} ${y * 100}`).join(' L')}Z`} />}
+            {(corners ?? doc.quad) && <polygon points={(corners ?? doc.quad)!.map(([x, y]) => `${x * 100},${y * 100}`).join(' ')} fill="none" stroke="var(--marker)" strokeWidth="2.5" vectorEffect="non-scaling-stroke" />}
           </svg>
+          {corners?.map(([x, y], i) => (
+            <div key={i} className="corner" role="slider" aria-label={`Page corner ${i + 1}`} aria-valuenow={Math.round(x * 100)} tabIndex={0} style={{ left: `${x * 100}%`, top: `${y * 100}%` }}
+              onPointerDown={(ev) => ev.currentTarget.setPointerCapture(ev.pointerId)} onPointerMove={(ev) => ev.currentTarget.hasPointerCapture(ev.pointerId) && moveCorner(i, ev)} />
+          ))}
         </div>
       ) : (
       <div className="docwrap">

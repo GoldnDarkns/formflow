@@ -40,7 +40,8 @@ for (const reader of ['tesseract', 'ppocr'] as Reader[]) {
     const b = blank.get(f.file)!;
     const slots: Slot[] = f.fields.map((x: any, i: number) => ({ label: (x.label || x.tooltip || `Box ${i + 1}`).trim(), box: [x.box[0] / f.width, x.box[1] / f.height, x.box[2] / f.width, x.box[3] / f.height] as Box }));
     const id = f.file.replace(/\.\w+$/, '');
-    return buildTemplate(id, NAMES[id] ?? id, b.words, b.width, b.height, slots, f.source);
+    const checks: Slot[] = (f.checkboxes ?? []).map((x: any, i: number) => ({ label: (x.label || `Checkbox ${i + 1}`).trim(), box: [x.box[0] / f.width, x.box[1] / f.height, x.box[2] / f.width, x.box[3] / f.height] as Box }));
+    return buildTemplate(id, NAMES[id] ?? id, b.words, b.width, b.height, slots, f.source, checks);
   });
   if (reader === 'tesseract') library = templates; // the app's default reader
 
