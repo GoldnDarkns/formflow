@@ -76,6 +76,7 @@ export function ModelCard() {
   const e2e = r.end_to_end;
   const cal = r.calibration;
   const f20 = r.forms20;
+  const tpl = r.templates;
   const flo = (Object.entries(e2e).find(([k]) => k.endsWith('florence_1x2')) ?? Object.entries(e2e).find(([k]) => k.startsWith('gradient_boosting_with_florence'))) as [string, any] | undefined;
 
   return (
@@ -250,8 +251,30 @@ export function ModelCard() {
               )))}
             </tbody>
           </table></div>
-          <p className="small"><b>What went wrong:</b> the readers cope well with these forms, but the layout models do not. They were trained on 1980s–90s faxes where a label usually sits to the left of its value. Modern tax forms print a small label inside the box, directly above the typed value, and the grouping step often glues the two together ("Last name Ashdown"), so no label and value pair is formed. This is a domain-shift failure, not a reading failure, and it is the case for a template mode for known forms.</p>
+          <p className="small"><b>What went wrong:</b> the readers cope well with these forms, but the layout models do not. They were trained on 1980s–90s faxes where a label usually sits to the left of its value. Modern tax forms print a small label inside the box, directly above the typed value, and the grouping step often glues the two together ("Last name Ashdown"), so no label and value pair is formed. This is a domain-shift failure, not a reading failure, and it is why template mode (next section) exists.</p>
           <p className="small">The calibrated confidence did transfer: on the fields found here the app showed {f(f20.readers.tesseract?.confidence.meanShown)} on average and {f(f20.readers.tesseract?.confidence.shareRight)} were right (Tesseract reader), so it no longer over-promises on forms it has never seen.</p>
+        </div>
+      )}
+
+      {tpl?.readers && f20?.readers && (
+        <div className="card">
+          <h2>Template mode: teach a form once</h2>
+          <p className="small">For a form the office sees often, a template stores where the printed words are and one labelled box for each place a value goes. A new page is recognised by its printed words, lined up with the template, and each box is read directly. In this test every template was taught from the <b>blank</b> form, then the 20 filled copies were each matched against all 20 templates.</p>
+          <div className="summary">
+            {Object.entries(tpl.readers).map(([name, v]: [string, any]) => (
+              <div className="stat" key={name}><b>{f(f20.readers[name]?.all.labelled)} → {f(v.all.labelled)}</b><span>typed values with the right label and value, {READER[name] ?? name} reader</span></div>
+            ))}
+            <div className="stat"><b>{tpl.readers.tesseract?.all.templateRight}/{tpl.readers.tesseract?.all.forms}</b><span>pages matched to the right template</span></div>
+          </div>
+          <div className="tablewrap"><table className="metrics">
+            <thead><tr><th>Reader</th><th>Forms</th><th className="num">Right template</th><th className="num">Without template</th><th className="num">With template ↑</th><th className="num">Exactly equal</th><th></th></tr></thead>
+            <tbody>
+              {Object.entries(tpl.readers).flatMap(([name, v]: [string, any]) => ([['all', 'All 20'], ['clean', 'Clean (10)'], ['scanLike', 'Scan-like (10)']] as const).map(([k, label]) => (
+                <tr key={name + k}><td>{k === 'all' ? READER[name] ?? name : ''}</td><td>{label}</td><td className="num">{v[k].templateRight}/{v[k].forms}</td><td className="num">{f(f20.readers[name]?.[k].labelled)}</td><td className="num">{f(v[k].labelled)}</td><td className="num">{f(v[k].exact)}</td><td style={{ width: '18%' }}><Bar v={v[k].labelled} /></td></tr>
+              )))}
+            </tbody>
+          </table></div>
+          <p className="small">With a template the label can no longer be wrong, so what is left is reading error: the result tracks how well each reader reads the typed text. Matching and reading the boxes takes a few milliseconds. Limits: a template only helps for forms that were taught; boxes made of single-digit cells (such as ID numbers) are still read poorly by Tesseract; the labels in the built-in library were taken automatically from the text printed above each box, and a few are clumsy. Templates you teach yourself stay in this browser.</p>
         </div>
       )}
 

@@ -4,6 +4,7 @@ import { DOC_LABEL, DOC_TYPES, type DocType } from '../core/classify';
 import { alertsFor } from '../core/facts';
 import { union } from '../core/layout';
 import type { DocState, EField } from './state';
+import type { Template } from '../core/template';
 import { critiqueOf, needsReview, trustOf } from './state';
 import { DocViewer } from './DocViewer';
 import { Ring, pct, typeColor } from './bits';
@@ -24,6 +25,8 @@ interface Props {
   onSecond: () => void;
   secondAvailable: boolean;
   onRemove: () => void;
+  onTeach: (t: Template) => void;
+  onForgetTemplate: (id: string) => void;
 }
 
 const confClass = (c: number) => (c >= 0.8 ? 'hi' : c >= 0.6 ? 'mid' : 'lo');
@@ -66,8 +69,14 @@ export function ResultView(p: Props) {
         </label>
       </div>
 
+      {doc.template && (
+        <div className="tplnote">
+          <span className="grow"><b>Read with a template:</b> {doc.template.template.name}. {Math.round(doc.template.score * 100)}% of the form's printed words were found in place, so each box is read directly and its label comes from the template.</span>
+          {doc.template.template.id.startsWith('user-') && <button className="btn sm" onClick={() => p.onForgetTemplate(doc.template!.template.id)}>Forget this template</button>}
+        </div>
+      )}
       <div className="results">
-        <DocViewer s={s} selected={p.selected} onSelect={p.onSelect} />
+        <DocViewer s={s} selected={p.selected} onSelect={p.onSelect} onTeach={p.onTeach} />
         <div className="stack">
           <div className="sheet stack">
             <div className="trust">

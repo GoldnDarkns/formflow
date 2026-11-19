@@ -147,3 +147,58 @@ test('layout models: "Name: Anna Eriksson" becomes a field', async () => {
   assert.equal(name!.value, 'Anna Eriksson');
   for (const f of an.fields) assert.ok(f.confidence >= 0 && f.confidence <= 1);
 });
+
+// ---------- template mode ----------
+import { buildTemplate, matchTemplate, readTemplate } from '../src/core/template';
+import { fitIsotonic, applyCurve, reliability } from '../src/core/calibration';
+
+const PRINT = ['Request', 'for', 'Taxpayer', 'Identification', 'Number', 'and', 'Certification', 'Name', 'Business', 'Address', 'City', 'State', 'Signature', 'Date', 'Department', 'Treasury', 'Internal', 'Revenue', 'Service', 'Purpose', 'Instructions', 'Exemptions', 'Requester', 'Account'];
+function blankPage(): OcrWord[] {
+  // printed words on a 4-column grid of an 850 x 1100 page
+  return PRINT.map((t, i) => W(t, 60 + (i % 4) * 190, 80 + Math.floor(i / 4) * 150, 18, i));
+}
+const SLOTS = [{ label: 'Name', box: [0.07, 0.10, 0.45, 0.13] as Box }, { label: 'City', box: [0.07, 0.24, 0.45, 0.27] as Box }, { label: 'Date', box: [0.55, 0.10, 0.9, 0.13] as Box }];
+const moved = (ws: OcrWord[], k: number, dx: number, dy: number): OcrWord[] => ws.map((w) => ({ ...w, box: [w.box[0] * k + dx, w.box[1] * k + dy, w.box[2] * k + dx, w.box[3] * k + dy] as Box }));
+
+test('template: a shifted, resized copy is recognised and its boxes are read', () => {
+  const t = buildTemplate('t1', 'Test form', blankPage(), 850, 1100, SLOTS);
+  const filled = [...blankPage(), W('Mira', 70, 118, 18, 90), W('Halvorsen', 130, 118, 18, 90), W('Fairhaven', 70, 272, 18, 91), W('03/14/2025', 480, 118, 18, 92)];
+  const page = moved(filled, 1.04, 14, -9);
+  const m = matchTemplate([t], page, 850, 1100)!;
+  assert.ok(m, 'template matches');
+  assert.ok(m.score > 0.9);
+  const r = readTemplate(m, page, 850, 1100);
+  assert.deepEqual(r.fields.map((f) => [f.key, f.value]), [['Name', 'Mira Halvorsen'], ['City', 'Fairhaven'], ['Date', '03/14/2025']]);
+  assert.ok(r.fields.every((f) => f.source === 'template'));
+});
+
+test('template: an empty box is reported as empty, not invented', () => {
+  const t = buildTemplate('t1', 'Test form', blankPage(), 850, 1100, SLOTS);
+  const m = matchTemplate([t], blankPage(), 850, 1100)!;
+  const r = readTemplate(m, blankPage(), 850, 1100);
+  assert.ok(r.fields.every((f) => f.value === '' && f.status === 'empty'));
+});
+
+test('template: an unrelated page does not match', () => {
+  const t = buildTemplate('t1', 'Test form', blankPage(), 850, 1100, SLOTS);
+  const other = ['Invoice', 'Total', 'Quantity', 'Price', 'Customer', 'Order', 'Shipping', 'Thank', 'you', 'Payment', 'Terms', 'Net'].map((x, i) => W(x, 60 + (i % 3) * 200, 100 + Math.floor(i / 3) * 120, 18, i));
+  assert.equal(matchTemplate([t], other, 850, 1100), null);
+});
+
+test('template: the right one is chosen among several', () => {
+  const a = buildTemplate('a', 'Form A', blankPage(), 850, 1100, SLOTS);
+  const bWords = blankPage().map((w, i) => ({ ...w, text: 'Other' + i }));
+  const b = buildTemplate('b', 'Form B', bWords, 850, 1100, SLOTS);
+  assert.equal(matchTemplate([b, a], moved(blankPage(), 0.98, 5, 5), 850, 1100)!.template.id, 'a');
+});
+
+test('isotonic fit: monotone, and brings an over-confident score back to the truth', () => {
+  // a score that says 0.9 while only about half are right
+  const s: { score: number; ok: boolean }[] = [];
+  for (let i = 0; i < 400; i++) { const score = 0.5 + (i % 50) / 100; s.push({ score, ok: (i * 7919) % 100 < score * 55 }); }
+  const c = fitIsotonic(s);
+  for (let i = 1; i < c.y.length; i++) assert.ok(c.y[i] >= c.y[i - 1]);
+  const before = reliability(s.map((x) => ({ conf: x.score, ok: x.ok }))).ece;
+  const after = reliability(s.map((x) => ({ conf: applyCurve(c, x.score), ok: x.ok }))).ece;
+  assert.ok(after < before / 3, `ECE ${before.toFixed(3)} -> ${after.toFixed(3)}`);
+});

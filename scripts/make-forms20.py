@@ -22,6 +22,7 @@ from PIL import Image, ImageFilter
 HERE = os.path.dirname(os.path.abspath(__file__))
 BLANK = os.path.join(HERE, '..', '..', 'data', 'forms20', 'blank')
 OUT = os.path.join(HERE, '..', 'testsets', 'forms20')
+BLANK_IMG = os.path.join(HERE, '..', '..', 'data', 'forms20', 'blank-img')
 FORMS = ['f14039', 'f2553', 'f2848', 'f3911', 'f4506', 'f4506t', 'f4868', 'f56', 'f8332', 'f8821',
          'f8822', 'f8822b', 'f8888', 'f9465', 'fss4', 'fw4', 'fw7', 'fw8ben', 'fw9', 'sf1152']
 SOURCE = {f: f'https://www.irs.gov/pub/irs-pdf/{f}.pdf' for f in FORMS}
@@ -112,6 +113,10 @@ def main():
         k = DPI / 72
         fields = []
         words = page.get_text('words')
+        # the blank page, for teaching a template (not committed)
+        os.makedirs(BLANK_IMG, exist_ok=True)
+        bp = page.get_pixmap(dpi=DPI, annots=True)
+        Image.frombytes('RGB', (bp.width, bp.height), bp.samples).convert('L').save(os.path.join(BLANK_IMG, form + '.jpg'), 'JPEG', quality=85)
         for w in page.widgets():
             if w.field_type_string != 'Text' or (w.field_flags & 1):  # skip read-only
                 continue

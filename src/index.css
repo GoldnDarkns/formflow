@@ -327,3 +327,9 @@ html { overflow-x: clip; }
 .relfig figcaption { font-size: 0.82rem; font-weight: 650; color: var(--ink); }
 .relfig svg { width: 100%; height: auto; }
 .relfig .tick { font-size: 10px; fill: var(--ink-3); font-family: var(--body); }
+
+/* template mode */
+.teachbar .tin { font: inherit; font-size: 0.85rem; padding: 0.35rem 0.55rem; border-radius: var(--r-s); border: 1.5px solid transparent; background: var(--sheet); color: var(--ink); min-width: 0; flex: 1 1 150px; }
+.teachbar .tin:focus { outline: none; border-color: var(--marker); }
+.tplnote { display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; margin-bottom: 0.9rem; padding: 0.6rem 0.85rem; border-radius: var(--r-m); background: var(--good-bg); color: var(--ink); font-size: 0.88rem; border: 1.5px solid var(--good); }
+.teachbar > .grow { flex: 1 1 100%; }

@@ -70,6 +70,7 @@ npx tsx scripts/evaluate.ts
 npx tsx scripts/calibrate.ts train    # fit confidence curves on the training split -> src/core/calibration.json + results.json
 python scripts/make-forms20.py        # rebuild testsets/forms20 (needs ../data/forms20/blank/*.pdf, PyMuPDF)
 npx tsx scripts/eval-forms20.ts       # score the 20 filled forms -> results.json
+npx tsx scripts/eval-templates.ts     # teach templates from the blank forms, score, write public/templates/library.json
 npx tsx scripts/eval-own.ts ../data/own   # per-type scores on the owner's labelled documents
 ```
 
@@ -91,6 +92,7 @@ src/core/         pure TypeScript, shared by the browser and the Node scripts (n
   critic-vision.ts MobileCLIP-S0 image encoder, zero-shot type opinion
   calibration.ts  isotonic calibration of the field confidence (curves in calibration.json)
   photo.ts        classical finder for the portrait photo on an ID (used by Redact)
+  template.ts     template mode: teach a form once (anchors + labelled boxes), match, align, read boxes
   mrz.ts          ICAO 9303 parser (TD1, TD2, TD3, MRV-A/B), check digits, guarded repair
   florence.ts     Florence-2 OCR_WITH_REGION wrapper with tiling
   classifier.ts   ONNX Runtime wrapper for the two tree models (web and node)
@@ -99,6 +101,9 @@ src/ui/           React UI: ScanPage, Sorted (trays), ResultView, DocViewer, Mod
 scripts/          OCR caching, dataset building, training, tree2onnx.py, evaluation, browser tests
 public/models/    entity_gbdt.onnx, link_gbdt.onnx, critic-text.json, ppocr/
 public/eval/      results.json (evaluation output shown in the app)
+public/templates/ library.json (built-in templates, written by scripts/eval-templates.ts)
+testsets/forms20/ 20 public forms filled with invented data + truth.json
+tests/            unit tests (npm test)
 ```
 
 Processing order for one page (`engine.ts → processDocument`): open image → preprocess worker (magic scan, deskew, binarise) → reader (Tesseract or PP-OCRv5) → MRZ read (Tesseract with an OCR-B whitelist, best of several crops) → document type → layout models → key facts. Florence-2 and the vision critic run afterwards and refine the result.
@@ -131,6 +136,7 @@ Processing order for one page (`engine.ts → processDocument`): open image → 
 | Confidence calibration error (ECE), Tesseract / PP-OCRv5, before → after | 42.1% → 4.6% / 44.6% → 8.2% |
 | 20 filled public forms (522 typed values): read / extracted / right label, Tesseract | 79.7% / 14.9% / 7.3% |
 | Same, PP-OCRv5 | 93.9% / 10.9% / 5.6% |
+| Template mode on the same forms, right label and value: Tesseract / PP-OCRv5 | 7.3% → 74.9% / 5.6% → 93.7%, right template 20/20 |
 
 Exact numbers are in `public/eval/results.json`.
 
@@ -152,7 +158,7 @@ Exact numbers are in `public/eval/results.json`.
 6. The sorter is rule-based, not learned.
 7. No Arabic reading and no handwriting model. Names in MRZ lines have no check digit, so a misread name is only caught by the cross-document check.
 8. Redaction now guesses the photo area on IDs and lets the person draw boxes. The guess is classical CV, tried only on the synthetic specimens (a flat grey photo box), never on a real face photo.
-9. Not built: checkbox and signature detection, template mode for known forms (both are the brief's stretch goals).
+9. Template mode is built (`core/template.ts`, built-in library of the 20 public forms, "Teach this form" in the viewer, user templates in localStorage `ff.templates`). Not built: checkbox and signature detection. Template limits: library labels are auto-derived from the PDF text above each box and some are clumsy; digit-cell boxes read poorly with Tesseract; teaching was tried in the browser on one FUNSD sample only; a template field's confidence is the lowest word confidence, not calibrated.
 10. 16 unit tests for `src/core` in `tests/` (`npm test`, run in CI). No UI tests beyond the headless browser scripts in `scripts/`.
 11. Report, 1-page model card document, demo video and presentation are not started.
 

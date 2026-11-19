@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, MotionConfig, motion } from 'motion/react';
-import { criticLook, loadCritic, loadPpReader, loadSecondReader, processDocument, reanalyse, retype, secondRead, warmUp } from './engine/engine';
+import { applyTemplate, criticLook, deleteUserTemplate, loadCritic, loadPpReader, loadSecondReader, processDocument, reanalyse, retype, saveUserTemplate, secondRead, warmUp } from './engine/engine';
+import type { Template } from './core/template';
 import { downloadReport } from './ui/report';
 import { DEFAULT_PRE, type PreprocessOptions } from './core/preprocess';
 import type { DocType } from './core/classify';
@@ -101,6 +102,22 @@ export default function App() {
     setToast('Sorted again');
   };
 
+  const onTeach = (t: Template) => {
+    if (!current) return;
+    saveUserTemplate(t);
+    const doc = applyTemplate(current.doc, t);
+    if (!doc) { setToast('Template saved. It did not line up with this page well enough to read it.'); return; }
+    patch(doc.id, (d) => ({ ...d, doc, analysis: doc.analysis, fields: toEditable(doc.analysis.fields) }));
+    setToast(`Template "${t.name}" saved. The next copy of this form will be read with it.`);
+  };
+  const onForgetTemplate = async (id: string) => {
+    if (!current) return;
+    deleteUserTemplate(id);
+    const doc = await retype(current.doc, 'form', current.doc.second);
+    patch(doc.id, (d) => ({ ...d, doc: { ...doc, classification: current.doc.classification }, analysis: doc.analysis, fields: toEditable(doc.analysis.fields) }));
+    setToast('Template forgotten');
+  };
+
   const nav: [Tab, string, typeof IScan][] = [['scan', 'Scan', IScan], ['sorted', 'Trays', IList], ['model', 'Model card', IChart], ['help', 'Help', IHelp]];
 
   return (
@@ -142,6 +159,8 @@ export default function App() {
                   criticOn={critic}
                   onSecond={() => runSecond(current)}
                   secondAvailable={second.enabled && second.status !== 'error'}
+                  onTeach={onTeach}
+                  onForgetTemplate={onForgetTemplate}
                   onRemove={() => { setDocs((ds) => ds.filter((d) => d !== current)); setOpen(null); }}
                 />
               )}

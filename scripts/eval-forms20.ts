@@ -11,70 +11,17 @@
 // usage: npx tsx scripts/eval-forms20.ts        (OCR is cached in ../data/forms20)
 import fs from 'node:fs';
 import path from 'node:path';
-import sharp from 'sharp';
-import { PNG } from 'pngjs';
 import * as ortNode from 'onnxruntime-node';
-import { createWorker, PSM } from 'tesseract.js';
-import type { Box, OcrWord } from '../src/core/types';
-import { rgbaToGray, grayToRgba, preprocess, resize, ocrScale } from '../src/core/preprocess';
-import { wordsFromTesseract, cleanWords } from '../src/core/ocr';
-import { loadPpOcr } from '../src/core/ppocr';
+import type { Box } from '../src/core/types';
 import { analyse } from '../src/core/pipeline';
 import { loadClassifiers } from '../src/core/classifier';
 import { classifyDocument } from '../src/core/classify';
 import { reliability } from '../src/core/calibration';
 import { clean, sim } from './match';
-import { DATA } from './funsd';
+import { ocrAll, ROOT, type Reader } from './forms20-ocr';
 
-const ROOT = path.resolve(import.meta.dirname, '..');
 const SET = path.join(ROOT, 'testsets/forms20');
 const truth = JSON.parse(fs.readFileSync(path.join(SET, 'truth.json'), 'utf8'));
-type Reader = 'tesseract' | 'ppocr';
-interface Cached { width: number; height: number; ms: number; words: OcrWord[] }
-
-async function gray(file: string) {
-  const { data, info } = await sharp(path.join(SET, file)).greyscale().raw().toBuffer({ resolveWithObject: true });
-  const rgba = new Uint8Array(info.width * info.height * 4);
-  for (let i = 0; i < data.length; i++) { rgba[i * 4] = rgba[i * 4 + 1] = rgba[i * 4 + 2] = data[i]; rgba[i * 4 + 3] = 255; }
-  return rgbaToGray(rgba, info.width, info.height);
-}
-
-async function ocrAll(reader: Reader): Promise<Map<string, Cached>> {
-  const dir = path.join(DATA, 'forms20', 'ocr-' + reader);
-  fs.mkdirSync(dir, { recursive: true });
-  const out = new Map<string, Cached>();
-  let worker: Awaited<ReturnType<typeof createWorker>> | null = null;
-  let pp: Awaited<ReturnType<typeof loadPpOcr>> | null = null;
-  for (const f of truth.forms) {
-    const cache = path.join(dir, f.file.replace(/\.\w+$/, '.json'));
-    if (fs.existsSync(cache)) { const j = JSON.parse(fs.readFileSync(cache, 'utf8')); out.set(f.file, { ...j, words: cleanWords(j.words) }); continue; }
-    let g = await gray(f.file);
-    const W = g.width, H = g.height;
-    const scale = ocrScale(W, H);
-    let words: OcrWord[];
-    const t = Date.now();
-    if (reader === 'tesseract') {
-      // same steps as the app: resize, deskew, binarise, remove ruling lines, sparse-text Tesseract
-      ({ img: g } = preprocess(resize(g, scale)));
-      worker ??= await createWorker('eng', 1, { langPath: path.join(ROOT, 'node_modules/@tesseract.js-data/eng/4.0.0_best_int'), cacheMethod: 'none' });
-      await worker.setParameters({ tessedit_pageseg_mode: PSM.SPARSE_TEXT, preserve_interword_spaces: '1' });
-      const enc = new PNG({ width: g.width, height: g.height });
-      enc.data = Buffer.from(grayToRgba(g));
-      const { data } = await worker.recognize(PNG.sync.write(enc), {}, { blocks: true });
-      words = wordsFromTesseract(data.blocks as any, scale);
-    } else {
-      ({ img: g } = preprocess(resize(g, scale), { deskew: true, binarise: false, removeLines: false }));
-      pp ??= await loadPpOcr(ortNode as any, path.join(ROOT, 'public/models/ppocr/det.onnx'), path.join(ROOT, 'public/models/ppocr/rec.onnx'), fs.readFileSync(path.join(ROOT, 'public/models/ppocr/dict.txt'), 'utf8'), undefined, { maxSide: 1600, boxThresh: 0.55, unclip: 0.8 });
-      words = (await pp.read(grayToRgba(g), g.width, g.height)).map((w) => ({ ...w, box: w.box.map((v) => v / scale) as Box }));
-    }
-    const c = { file: f.file, width: W, height: H, ms: Date.now() - t, words };
-    fs.writeFileSync(cache, JSON.stringify(c));
-    out.set(f.file, { ...c, words: cleanWords(words) });
-    process.stdout.write(`${reader} ${f.file} ${words.length} words ${c.ms} ms\n`);
-  }
-  await worker?.terminate();
-  return out;
-}
 
 const clf = await loadClassifiers(ortNode as any, path.join(ROOT, 'public/models/entity_gbdt.onnx'), path.join(ROOT, 'public/models/link_gbdt.onnx'));
 const inter = (a: Box, b: Box) => Math.max(0, Math.min(a[2], b[2]) - Math.max(a[0], b[0])) * Math.max(0, Math.min(a[3], b[3]) - Math.max(a[1], b[1]));
@@ -92,7 +39,7 @@ const rate = (t: Tot) => ({ forms: t.forms, sortedAsForm: t.asForm, typedValues:
 
 const R: any = { generated: new Date().toISOString(), set: '20 public US federal forms (IRS, OPM) filled in with invented data; odd-numbered forms degraded to look like a scan', readers: {} };
 for (const reader of ['tesseract', 'ppocr'] as Reader[]) {
-  const ocr = await ocrAll(reader);
+  const ocr = await ocrAll(reader, SET, truth.forms.map((x: any) => x.file));
   const groups: Record<string, Tot> = { all: zero(), clean: zero(), 'scan-like': zero() };
   const conf: { conf: number; ok: boolean }[] = [];
   const perForm: any[] = [];

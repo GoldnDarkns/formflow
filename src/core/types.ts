@@ -51,5 +51,5 @@ export interface Field {
   status: FieldStatus;
   reasons: string[]; // why it needs review
   alt?: string; // second reader's version of the value, when it differs
-  source: 'layout' | 'mrz';
+  source: 'layout' | 'mrz' | 'template';
 }

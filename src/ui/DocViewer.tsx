@@ -6,6 +6,8 @@ import { ID_TYPES } from '../core/classify';
 import { findPhotoArea } from '../core/photo';
 import { rgbaToGray } from '../core/preprocess';
 import type { Box } from '../core/types';
+import { union } from '../core/layout';
+import { buildTemplate, type Template } from '../core/template';
 
 async function loadImage(src: string) {
   const img = new Image();
@@ -36,9 +38,10 @@ interface Props {
   s: DocState;
   selected: string | null;
   onSelect: (uid: string | null) => void;
+  onTeach?: (t: Template) => void;
 }
 
-export function DocViewer({ s, selected, onSelect }: Props) {
+export function DocViewer({ s, selected, onSelect, onTeach }: Props) {
   const [mode, setMode] = useState<'page' | 'reader' | 'photo'>('page');
   const processed = mode === 'reader';
   const [redact, setRedact] = useState(false);
@@ -49,7 +52,29 @@ export function DocViewer({ s, selected, onSelect }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const drag = useRef<{ x: number; y: number } | null>(null);
   const nextId = useRef(1);
-  useEffect(() => { setRedact(false); setMode('page'); setExtra([]); }, [s.doc.id]);
+  // teach mode: the person draws one labelled box per place a value goes, and the page becomes a template
+  const [teach, setTeach] = useState(false);
+  const [slots, setSlots] = useState<{ id: number; box: Box; label: string }[]>([]);
+  const [selSlot, setSelSlot] = useState<number | null>(null);
+  const [tplName, setTplName] = useState('');
+  const labelRef = useRef<HTMLInputElement>(null);
+  const startTeach = () => {
+    // start from the boxes the app already found, so only the wrong ones need fixing
+    const seed = s.fields.filter((f) => f.qId !== undefined && f.key.trim()).map((f) => {
+      const boxes = s.analysis.links.filter((l) => l.q === f.qId).map((l) => s.analysis.entities[l.a]?.box).filter(Boolean) as Box[];
+      return boxes.length ? { id: nextId.current++, box: union(boxes), label: f.key } : null;
+    }).filter((x): x is { id: number; box: Box; label: string } => !!x);
+    setSlots(seed); setSelSlot(null); setTplName(s.doc.template?.template.name ?? ''); setTeach(true); setRedact(false); setMode('page');
+  };
+  const saveTemplate = () => {
+    const good = slots.filter((x) => x.label.trim());
+    if (!good.length || !tplName.trim() || !onTeach) return;
+    const W = s.doc.width, H = s.doc.height;
+    const t = buildTemplate('user-' + Date.now(), tplName.trim(), s.doc.words, W, H, good.map((x) => ({ label: x.label.trim(), box: [x.box[0] / W, x.box[1] / H, x.box[2] / W, x.box[3] / H] as Box })));
+    onTeach({ ...t, filled: true });
+    setTeach(false);
+  };
+  useEffect(() => { setRedact(false); setMode('page'); setExtra([]); setTeach(false); }, [s.doc.id]);
   const startRedact = () => {
     setHidden(sensitiveEntities(s)); setRedact(true); setMode('page'); setExtra([]);
     guessPhoto(s).then((b) => { if (b) setExtra((e) => (e.some((x) => x.photo) ? e : [...e, { id: nextId.current++, box: b, photo: true }])); }).catch(() => {});
@@ -70,7 +95,10 @@ export function DocViewer({ s, selected, onSelect }: Props) {
   const onUp = () => {
     drag.current = null;
     setDraft((b) => {
-      if (b && b[2] - b[0] > s.doc.width * 0.015 && b[3] - b[1] > s.doc.height * 0.01) setExtra((e) => [...e, { id: nextId.current++, box: b }]);
+      if (b && b[2] - b[0] > s.doc.width * 0.015 && b[3] - b[1] > s.doc.height * 0.01) {
+        if (teach) { const id = nextId.current++; setSlots((e) => [...e, { id, box: b, label: '' }]); setSelSlot(id); setTimeout(() => labelRef.current?.focus(), 30); }
+        else setExtra((e) => [...e, { id: nextId.current++, box: b }]);
+      }
       return null;
     });
   };
@@ -116,6 +144,20 @@ export function DocViewer({ s, selected, onSelect }: Props) {
           <button className="btn sm ghost" style={{ color: 'var(--sheet)' }} onClick={() => setRedact(false)}>Done</button>
         </div>
       )}
+      {teach && (
+        <div className="redactbar teachbar">
+          <span className="grow">Draw a box around each place a value is written and name it. Boxes found already are a starting point: tap one to rename or remove it.</span>
+          <input className="tin" placeholder="Name of this form" value={tplName} onChange={(e) => setTplName(e.target.value)} aria-label="Name of this form" />
+          {selSlot !== null && (
+            <>
+              <input ref={labelRef} className="tin" placeholder="Label for the selected box" value={slots.find((x) => x.id === selSlot)?.label ?? ''} onChange={(e) => setSlots((ss) => ss.map((x) => (x.id === selSlot ? { ...x, label: e.target.value } : x)))} aria-label="Label for the selected box" />
+              <button className="btn sm ghost" style={{ color: 'var(--sheet)' }} onClick={() => { setSlots((ss) => ss.filter((x) => x.id !== selSlot)); setSelSlot(null); }}>Remove box</button>
+            </>
+          )}
+          <button className="btn sm" style={{ color: 'var(--ink)' }} disabled={!tplName.trim() || !slots.some((x) => x.label.trim())} onClick={saveTemplate}>Save template ({slots.filter((x) => x.label.trim()).length} boxes)</button>
+          <button className="btn sm ghost" style={{ color: 'var(--sheet)' }} onClick={() => setTeach(false)}>Cancel</button>
+        </div>
+      )}
       {mode === 'photo' && doc.quad ? (
         <div className="docwrap">
           <img src={doc.original} alt="The photo as taken" />
@@ -127,9 +169,9 @@ export function DocViewer({ s, selected, onSelect }: Props) {
       ) : (
       <div className="docwrap">
         <img src={processed ? doc.processedView : doc.view} alt="Scanned document" />
-        <svg ref={svgRef} viewBox={`0 0 ${doc.width} ${doc.height}`} preserveAspectRatio="none" style={redact ? { touchAction: 'none' } : undefined}>
+        <svg ref={svgRef} viewBox={`0 0 ${doc.width} ${doc.height}`} preserveAspectRatio="none" style={redact || teach ? { touchAction: 'none' } : undefined}>
           {/* in redact mode, dragging on empty page draws a new black box */}
-          {redact && <rect x={0} y={0} width={doc.width} height={doc.height} fill="transparent" style={{ cursor: 'crosshair' }} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp} />}
+          {(redact || teach) && <rect x={0} y={0} width={doc.width} height={doc.height} fill="transparent" style={{ cursor: 'crosshair' }} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp} />}
           <defs>
             <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--ink-3)" /></marker>
           </defs>
@@ -140,12 +182,12 @@ export function DocViewer({ s, selected, onSelect }: Props) {
           {layers.second && doc.second?.map((r, i) => (
             <rect key={'s' + i} x={r.box[0]} y={r.box[1]} width={r.box[2] - r.box[0]} height={r.box[3] - r.box[1]} fill="none" stroke="var(--t-visa)" strokeWidth={lw} strokeDasharray={`${lw * 3} ${lw * 2}`} />
           ))}
-          {layers.links && analysis.links.map((l, i) => {
+          {layers.links && !teach && analysis.links.filter((l) => ents[l.q].words.length > 0).map((l, i) => {
             const q = ents[l.q].box, a = ents[l.a].box;
             const right = a[0] >= q[2] - 5;
             return <line key={i} x1={right ? q[2] : cx(q)} y1={right ? cy(q) : q[3]} x2={right ? a[0] : cx(a)} y2={right ? cy(a) : a[1]} stroke="var(--ink-3)" strokeWidth={lw * 1.2} opacity={0.35 + 0.65 * l.p} markerEnd="url(#arr)" />;
           })}
-          {layers.boxes && ents.map((e) => {
+          {layers.boxes && !teach && ents.filter((e) => e.box[2] - e.box[0] > 2).map((e) => {
             const warn = reviewA.has(e.id);
             return (
               <rect key={e.id} x={e.box[0] - 2} y={e.box[1] - 2} width={e.box[2] - e.box[0] + 4} height={e.box[3] - e.box[1] + 4} rx={3}
@@ -163,7 +205,13 @@ export function DocViewer({ s, selected, onSelect }: Props) {
               <title>{x.photo ? 'Photo area (guess). Tap to show it again.' : 'Tap to remove this box.'}</title>
             </motion.rect>
           ))}
-          {redact && draft && <rect x={draft[0]} y={draft[1]} width={draft[2] - draft[0]} height={draft[3] - draft[1]} fill="#000" fillOpacity={0.6} stroke="var(--marker)" strokeWidth={lw} pointerEvents="none" />}
+          {teach && slots.map((x) => (
+            <g key={'t' + x.id} style={{ cursor: 'pointer' }} onClick={() => { setSelSlot(x.id); setTimeout(() => labelRef.current?.focus(), 30); }}>
+              <rect x={x.box[0]} y={x.box[1]} width={x.box[2] - x.box[0]} height={x.box[3] - x.box[1]} rx={3} fill="var(--marker)" fillOpacity={x.id === selSlot ? 0.45 : 0.22} stroke={x.label.trim() ? 'var(--indigo)' : 'var(--warn)'} strokeWidth={x.id === selSlot ? lw * 2.4 : lw * 1.3} strokeDasharray={x.label.trim() ? undefined : `${lw * 3} ${lw * 2}`} />
+              <title>{x.label || 'No label yet'}</title>
+            </g>
+          ))}
+          {(redact || teach) && draft && <rect x={draft[0]} y={draft[1]} width={draft[2] - draft[0]} height={draft[3] - draft[1]} fill="#000" fillOpacity={0.6} stroke="var(--marker)" strokeWidth={lw} pointerEvents="none" />}
         </svg>
       </div>
       )}
@@ -178,7 +226,8 @@ export function DocViewer({ s, selected, onSelect }: Props) {
           <label><input type="checkbox" checked={layers.boxes} onChange={(e) => setLayers({ ...layers, boxes: e.target.checked })} /> Boxes</label>
           <label><input type="checkbox" checked={layers.links} onChange={(e) => setLayers({ ...layers, links: e.target.checked })} /> Links</label>
           {doc.second && <label><input type="checkbox" checked={layers.second} onChange={(e) => setLayers({ ...layers, second: e.target.checked })} /> Second reader</label>}
-          {!redact && <button className="btn sm" onClick={startRedact}>Redact</button>}
+          {!redact && !teach && onTeach && doc.kind === 'form' && <button className="btn sm" onClick={startTeach}>{doc.template ? 'Edit template' : 'Teach this form'}</button>}
+          {!redact && !teach && <button className="btn sm" onClick={startRedact}>Redact</button>}
         </div>
       </div>
     </div>

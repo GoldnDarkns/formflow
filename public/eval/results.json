@@ -930,7 +930,7 @@
   }
  },
  "forms20": {
-  "generated": "2026-11-19T16:45:28.693Z",
+  "generated": "2026-11-19T16:54:59.681Z",
   "set": "20 public US federal forms (IRS, OPM) filled in with invented data; odd-numbered forms degraded to look like a scan",
   "readers": {
    "tesseract": {
@@ -2313,6 +2313,676 @@
       "n": 492
      }
     }
+   }
+  }
+ },
+ "templates": {
+  "generated": "2026-11-19T16:55:02.078Z",
+  "protocol": "Templates taught from the blank form (printed words as anchors, one labelled box per entry field); tested on the filled copies, each matched against all 20 templates",
+  "readers": {
+   "tesseract": {
+    "all": {
+     "forms": 20,
+     "templateFound": 20,
+     "templateRight": 20,
+     "typedValues": 522,
+     "labelled": 0.7490421455938697,
+     "exact": 0.6685823754789272,
+     "msPerPage": 4.398455000000832
+    },
+    "clean": {
+     "forms": 10,
+     "templateFound": 10,
+     "templateRight": 10,
+     "typedValues": 280,
+     "labelled": 0.8285714285714286,
+     "exact": 0.7928571428571428,
+     "msPerPage": 4.716580000000249
+    },
+    "scanLike": {
+     "forms": 10,
+     "templateFound": 10,
+     "templateRight": 10,
+     "typedValues": 242,
+     "labelled": 0.6570247933884298,
+     "exact": 0.5247933884297521,
+     "msPerPage": 4.080330000001413
+    },
+    "confidence": {
+     "fields": 486,
+     "meanShown": 0.7147119341563771,
+     "shareRight": 0.8045267489711934,
+     "ece": 0.08981481481481535,
+     "bins": [
+      {
+       "lo": 0,
+       "hi": 0.2,
+       "fields": 77,
+       "meanConfidence": 0.05038961038961038,
+       "correct": 0.2077922077922078
+      },
+      {
+       "lo": 0.2,
+       "hi": 0.4,
+       "fields": 28,
+       "meanConfidence": 0.28,
+       "correct": 0.32142857142857145
+      },
+      {
+       "lo": 0.4,
+       "hi": 0.6,
+       "fields": 24,
+       "meanConfidence": 0.5125000000000001,
+       "correct": 0.625
+      },
+      {
+       "lo": 0.6,
+       "hi": 0.8,
+       "fields": 44,
+       "meanConfidence": 0.7113636363636364,
+       "correct": 0.9318181818181818
+      },
+      {
+       "lo": 0.8,
+       "hi": 1,
+       "fields": 313,
+       "meanConfidence": 0.9330031948881781,
+       "correct": 0.9904153354632588
+      }
+     ]
+    },
+    "perForm": [
+     {
+      "file": "f14039.jpg",
+      "quality": "clean",
+      "matched": "f14039",
+      "score": 0.9904,
+      "values": 29,
+      "ok": 26
+     },
+     {
+      "file": "f2553.jpg",
+      "quality": "scan-like",
+      "matched": "f2553",
+      "score": 0.961864406779661,
+      "values": 21,
+      "ok": 11
+     },
+     {
+      "file": "f2848.jpg",
+      "quality": "clean",
+      "matched": "f2848",
+      "score": 0.9892241379310345,
+      "values": 45,
+      "ok": 33
+     },
+     {
+      "file": "f3911.jpg",
+      "quality": "scan-like",
+      "matched": "f3911",
+      "score": 0.9536679536679536,
+      "values": 35,
+      "ok": 30
+     },
+     {
+      "file": "f4506.jpg",
+      "quality": "clean",
+      "matched": "f4506",
+      "score": 0.9806094182825484,
+      "values": 38,
+      "ok": 36
+     },
+     {
+      "file": "f4506t.jpg",
+      "quality": "scan-like",
+      "matched": "f4506t",
+      "score": 0.7122153209109731,
+      "values": 22,
+      "ok": 6
+     },
+     {
+      "file": "f4868.jpg",
+      "quality": "clean",
+      "matched": "f4868",
+      "score": 0.9900662251655629,
+      "values": 14,
+      "ok": 13
+     },
+     {
+      "file": "f56.jpg",
+      "quality": "scan-like",
+      "matched": "f56",
+      "score": 0.8610271903323263,
+      "values": 24,
+      "ok": 13
+     },
+     {
+      "file": "f8332.jpg",
+      "quality": "clean",
+      "matched": "f8332",
+      "score": 0.9952153110047847,
+      "values": 11,
+      "ok": 11
+     },
+     {
+      "file": "f8821.jpg",
+      "quality": "scan-like",
+      "matched": "f8821",
+      "score": 0.8808988764044944,
+      "values": 28,
+      "ok": 19
+     },
+     {
+      "file": "f8822.jpg",
+      "quality": "clean",
+      "matched": "f8822",
+      "score": 0.9758308157099698,
+      "values": 22,
+      "ok": 22
+     },
+     {
+      "file": "f8822b.jpg",
+      "quality": "scan-like",
+      "matched": "f8822b",
+      "score": 0.8854415274463007,
+      "values": 18,
+      "ok": 15
+     },
+     {
+      "file": "f8888.jpg",
+      "quality": "clean",
+      "matched": "f8888",
+      "score": 0.9862068965517241,
+      "values": 13,
+      "ok": 8
+     },
+     {
+      "file": "f9465.jpg",
+      "quality": "scan-like",
+      "matched": "f9465",
+      "score": 0.9441489361702128,
+      "values": 30,
+      "ok": 24
+     },
+     {
+      "file": "fss4.jpg",
+      "quality": "clean",
+      "matched": "fss4",
+      "score": 0.983433734939759,
+      "values": 45,
+      "ok": 44
+     },
+     {
+      "file": "fw4.jpg",
+      "quality": "scan-like",
+      "matched": "fw4",
+      "score": 0.82,
+      "values": 14,
+      "ok": 7
+     },
+     {
+      "file": "fw7.jpg",
+      "quality": "clean",
+      "matched": "fw7",
+      "score": 0.9615384615384616,
+      "values": 48,
+      "ok": 30
+     },
+     {
+      "file": "fw8ben.jpg",
+      "quality": "scan-like",
+      "matched": "fw8ben",
+      "score": 0.8407460545193687,
+      "values": 20,
+      "ok": 13
+     },
+     {
+      "file": "fw9.jpg",
+      "quality": "clean",
+      "matched": "fw9",
+      "score": 0.9775678866587958,
+      "values": 15,
+      "ok": 9
+     },
+     {
+      "file": "sf1152.jpg",
+      "quality": "scan-like",
+      "matched": "sf1152",
+      "score": 0.6882716049382716,
+      "values": 30,
+      "ok": 21
+     }
+    ],
+    "examples": [
+     {
+      "file": "f14039.jpg",
+      "label": "attach additional information and/or pages to this",
+      "truth": "Nadia Pemberton",
+      "got": "attach Nadia Pemberton ee eee ee me ee re ee ee re em ee ee em ee em ee ee oe So a So C"
+     },
+     {
+      "file": "f14039.jpg",
+      "label": "",
+      "truth": "30873",
+      "got": "30873-8214"
+     },
+     {
+      "file": "f14039.jpg",
+      "label": "-",
+      "truth": "8214",
+      "got": ""
+     },
+     {
+      "file": "f2553.jpg",
+      "label": "name or address",
+      "truth": "45",
+      "got": "rr"
+     },
+     {
+      "file": "f2553.jpg",
+      "label": "",
+      "truth": "Marcus Ashdown",
+      "got": "Marcus Ashdown Fath 00 0 10000 0G OH"
+     },
+     {
+      "file": "f2553.jpg",
+      "label": "",
+      "truth": "Mira Okonjo",
+      "got": "Mira Okonjo dee Gp RUPP PPPP UR PPPRN"
+     },
+     {
+      "file": "f2553.jpg",
+      "label": "",
+      "truth": "Tobias Pemberton",
+      "got": ""
+     },
+     {
+      "file": "f2553.jpg",
+      "label": "",
+      "truth": "Nadia Pemberton",
+      "got": "Nadia Pemberton Fh 00000000"
+     },
+     {
+      "file": "f2553.jpg",
+      "label": "",
+      "truth": "Leona Quintero",
+      "got": "Leona Quintero ee eee tet e eatin eto icaimtmaebessasaramsttasaan ames stasassnsnnnsensasssssssssnniessstssessiosssanarasssssnbonnnnanns"
+     },
+     {
+      "file": "f2553.jpg",
+      "label": "",
+      "truth": "Ingrid Fenwick",
+      "got": "Ingrid Fenwick FR 5000000000000 000000 OL"
+     },
+     {
+      "file": "f2553.jpg",
+      "label": "",
+      "truth": "Marcus Quintero",
+      "got": "eho Marcus Quintero tho RU SOR OU"
+     },
+     {
+      "file": "f2553.jpg",
+      "label": "",
+      "truth": "Odette Marlowe",
+      "got": "Odette Pur tindrors Marlowe thie OOS UO PU UE SU RY"
+     },
+     {
+      "file": "f2553.jpg",
+      "label": "",
+      "truth": "Nadia Quintero",
+      "got": "Nadia Quintero C00 FRO SOUR"
+     },
+     {
+      "file": "f2848.jpg",
+      "label": "No.",
+      "truth": "03219113030",
+      "got": ""
+     },
+     {
+      "file": "f2848.jpg",
+      "label": "Telephone No.",
+      "truth": "(375) 672-4368",
+      "got": ""
+     },
+     {
+      "file": "f2848.jpg",
+      "label": "No.",
+      "truth": "Mira Okonjo",
+      "got": "Mira afc Okonjo JOR SRR."
+     }
+    ]
+   },
+   "ppocr": {
+    "all": {
+     "forms": 20,
+     "templateFound": 20,
+     "templateRight": 20,
+     "typedValues": 522,
+     "labelled": 0.9367816091954023,
+     "exact": 0.9137931034482759,
+     "msPerPage": 3.3393799999990734
+    },
+    "clean": {
+     "forms": 10,
+     "templateFound": 10,
+     "templateRight": 10,
+     "typedValues": 280,
+     "labelled": 0.9107142857142857,
+     "exact": 0.9,
+     "msPerPage": 3.7003599999996366
+    },
+    "scanLike": {
+     "forms": 10,
+     "templateFound": 10,
+     "templateRight": 10,
+     "typedValues": 242,
+     "labelled": 0.9669421487603306,
+     "exact": 0.9297520661157025,
+     "msPerPage": 2.97839999999851
+    },
+    "confidence": {
+     "fields": 518,
+     "meanShown": 0.9886313674573318,
+     "shareRight": 0.944015444015444,
+     "ece": 0.04626432786522244,
+     "bins": [
+      {
+       "lo": 0,
+       "hi": 0.2,
+       "fields": 0,
+       "meanConfidence": 0,
+       "correct": 0
+      },
+      {
+       "lo": 0.2,
+       "hi": 0.4,
+       "fields": 2,
+       "meanConfidence": 0.28653162717819214,
+       "correct": 0.5
+      },
+      {
+       "lo": 0.4,
+       "hi": 0.6,
+       "fields": 2,
+       "meanConfidence": 0.5828444063663483,
+       "correct": 0.5
+      },
+      {
+       "lo": 0.6,
+       "hi": 0.8,
+       "fields": 3,
+       "meanConfidence": 0.7269310024049548,
+       "correct": 0
+      },
+      {
+       "lo": 0.8,
+       "hi": 1,
+       "fields": 511,
+       "meanConfidence": 0.9945039202907907,
+       "correct": 0.9530332681017613
+      }
+     ]
+    },
+    "perForm": [
+     {
+      "file": "f14039.jpg",
+      "quality": "clean",
+      "matched": "f14039",
+      "score": 0.9730337078651685,
+      "values": 29,
+      "ok": 29
+     },
+     {
+      "file": "f2553.jpg",
+      "quality": "scan-like",
+      "matched": "f2553",
+      "score": 0.8308823529411765,
+      "values": 21,
+      "ok": 19
+     },
+     {
+      "file": "f2848.jpg",
+      "quality": "clean",
+      "matched": "f2848",
+      "score": 0.9619565217391305,
+      "values": 45,
+      "ok": 43
+     },
+     {
+      "file": "f3911.jpg",
+      "quality": "scan-like",
+      "matched": "f3911",
+      "score": 0.918918918918919,
+      "values": 35,
+      "ok": 34
+     },
+     {
+      "file": "f4506.jpg",
+      "quality": "clean",
+      "matched": "f4506",
+      "score": 0.9205298013245033,
+      "values": 38,
+      "ok": 37
+     },
+     {
+      "file": "f4506t.jpg",
+      "quality": "scan-like",
+      "matched": "f4506t",
+      "score": 0.7142857142857143,
+      "values": 22,
+      "ok": 22
+     },
+     {
+      "file": "f4868.jpg",
+      "quality": "clean",
+      "matched": "f4868",
+      "score": 0.998898678414097,
+      "values": 14,
+      "ok": 14
+     },
+     {
+      "file": "f56.jpg",
+      "quality": "scan-like",
+      "matched": "f56",
+      "score": 0.9404388714733543,
+      "values": 24,
+      "ok": 22
+     },
+     {
+      "file": "f8332.jpg",
+      "quality": "clean",
+      "matched": "f8332",
+      "score": 0.995221027479092,
+      "values": 11,
+      "ok": 10
+     },
+     {
+      "file": "f8821.jpg",
+      "quality": "scan-like",
+      "matched": "f8821",
+      "score": 0.9521640091116174,
+      "values": 28,
+      "ok": 28
+     },
+     {
+      "file": "f8822.jpg",
+      "quality": "clean",
+      "matched": "f8822",
+      "score": 0.9960629921259843,
+      "values": 22,
+      "ok": 22
+     },
+     {
+      "file": "f8822b.jpg",
+      "quality": "scan-like",
+      "matched": "f8822b",
+      "score": 0.9424920127795527,
+      "values": 18,
+      "ok": 18
+     },
+     {
+      "file": "f8888.jpg",
+      "quality": "clean",
+      "matched": "f8888",
+      "score": 0.9931972789115646,
+      "values": 13,
+      "ok": 7
+     },
+     {
+      "file": "f9465.jpg",
+      "quality": "scan-like",
+      "matched": "f9465",
+      "score": 0.9897959183673469,
+      "values": 30,
+      "ok": 28
+     },
+     {
+      "file": "fss4.jpg",
+      "quality": "clean",
+      "matched": "fss4",
+      "score": 0.9914675767918089,
+      "values": 45,
+      "ok": 45
+     },
+     {
+      "file": "fw4.jpg",
+      "quality": "scan-like",
+      "matched": "fw4",
+      "score": 0.9155354449472096,
+      "values": 14,
+      "ok": 14
+     },
+     {
+      "file": "fw7.jpg",
+      "quality": "clean",
+      "matched": "fw7",
+      "score": 0.9794776119402985,
+      "values": 48,
+      "ok": 38
+     },
+     {
+      "file": "fw8ben.jpg",
+      "quality": "scan-like",
+      "matched": "fw8ben",
+      "score": 0.9094922737306843,
+      "values": 20,
+      "ok": 19
+     },
+     {
+      "file": "fw9.jpg",
+      "quality": "clean",
+      "matched": "fw9",
+      "score": 0.9911634756995582,
+      "values": 15,
+      "ok": 10
+     },
+     {
+      "file": "sf1152.jpg",
+      "quality": "scan-like",
+      "matched": "sf1152",
+      "score": 0.8539682539682539,
+      "values": 30,
+      "ok": 30
+     }
+    ],
+    "examples": [
+     {
+      "file": "f2553.jpg",
+      "label": "(2) Fiscal year ending (month and day) ▶",
+      "truth": "86073",
+      "got": ""
+     },
+     {
+      "file": "f2553.jpg",
+      "label": "December",
+      "truth": "Partner",
+      "got": "ofPartner"
+     },
+     {
+      "file": "f2848.jpg",
+      "label": "parties; Substitute or add representative(s); Sign",
+      "truth": "Felix Lindqvist",
+      "got": "Lindqvist"
+     },
+     {
+      "file": "f2848.jpg",
+      "label": "Other acts authorized:",
+      "truth": "Casper Quintero",
+      "got": "Quintero"
+     },
+     {
+      "file": "f3911.jpg",
+      "label": "7. Type of return Individual Business, Form",
+      "truth": "Bluewater",
+      "got": ""
+     },
+     {
+      "file": "f4506.jpg",
+      "label": "1a Name shown on tax return. If a joint return, en",
+      "truth": "Nadia Quintero",
+      "got": "a Nadia Quintero a"
+     },
+     {
+      "file": "f56.jpg",
+      "label": "appointment of receiver/fiduciary, or assignment f",
+      "truth": "Nadia Castellan",
+      "got": "Castellan"
+     },
+     {
+      "file": "f56.jpg",
+      "label": "b 709 series c 940 d 941, 943, 944",
+      "truth": "Leona Lindqvist",
+      "got": "Le0na Lindqv"
+     },
+     {
+      "file": "f8332.jpg",
+      "label": "for the tax year(s)",
+      "truth": "60086",
+      "got": ""
+     },
+     {
+      "file": "f8888.jpg",
+      "label": "b Routing number",
+      "truth": "760671793",
+      "got": "7 6 0 6 7 17 9 3"
+     },
+     {
+      "file": "f8888.jpg",
+      "label": "d Account number",
+      "truth": "Nadia Lindqvist",
+      "got": "Na dia L i n d q V i s t"
+     },
+     {
+      "file": "f8888.jpg",
+      "label": "b Routing number",
+      "truth": "239682784",
+      "got": "2 3 9 6 8 2 7 8 4"
+     },
+     {
+      "file": "f8888.jpg",
+      "label": "d Account number",
+      "truth": "Casper Quintero",
+      "got": "C a s pe rQ u in te ro"
+     },
+     {
+      "file": "f8888.jpg",
+      "label": "b Routing number",
+      "truth": "041803825",
+      "got": "0 4 1 8 0 3 8 2 5"
+     },
+     {
+      "file": "f8888.jpg",
+      "label": "d Account number",
+      "truth": "Casper Belmore",
+      "got": "Caspe r Be m 0 r e"
+     },
+     {
+      "file": "f9465.jpg",
+      "label": "most convenient way to make your",
+      "truth": "815446776",
+      "got": "8 1 5 4 4 6 7 7 6"
+     }
+    ]
    }
   }
  }

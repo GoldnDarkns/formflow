@@ -15,6 +15,7 @@ import type { Quad } from '../core/scan';
 import type { VisionOpinion } from '../core/critic-vision';
 import type { PreRequest, PreResponse } from './preprocess.worker';
 
+import { matchTemplate, readTemplate, type Template, type TemplateMatch } from '../core/template';
 export const BASE = new URL(import.meta.env.BASE_URL, location.href).href;
 ort.env.wasm.wasmPaths = BASE + 'ort/';
 ort.env.wasm.numThreads = 1;
@@ -28,6 +29,7 @@ export interface Step {
 }
 
 export interface DocResult {
+  template?: TemplateMatch; // set when the page was read with a known-form template
   kind: 'form' | 'id';
   docType: DocType;
   classification: Classification;
@@ -77,6 +79,37 @@ function tesseractMrz(): Promise<TWorker> {
     return w;
   })());
 }
+// ---------------- templates for known forms ----------------
+const USER_TEMPLATES = 'ff.templates';
+let library: Promise<Template[]> | null = null;
+/** Templates the person taught on this device (kept in the browser's local storage, never uploaded). */
+export function userTemplates(): Template[] {
+  try { return JSON.parse(localStorage.getItem(USER_TEMPLATES) ?? '[]'); } catch { return []; }
+}
+export function saveUserTemplate(t: Template) {
+  localStorage.setItem(USER_TEMPLATES, JSON.stringify([t, ...userTemplates().filter((x) => x.id !== t.id)]));
+}
+export function deleteUserTemplate(id: string) {
+  localStorage.setItem(USER_TEMPLATES, JSON.stringify(userTemplates().filter((x) => x.id !== id)));
+}
+/** The person's own templates first, then the built-in library of public forms. */
+export function templates(): Promise<Template[]> {
+  library ??= fetch(BASE + 'templates/library.json').then((r) => r.json()).then((j) => j.templates as Template[]).catch(() => []);
+  return library.then((l) => [...userTemplates(), ...l]);
+}
+const templateAnalysis = (m: TemplateMatch, doc: { words: OcrWord[]; width: number; height: number }): Analysis => readTemplate(m, doc.words, doc.width, doc.height);
+const templateClass = (cls: Classification, m: TemplateMatch): Classification => {
+  const ev = { type: 'form' as DocType, weight: 9, why: `Matches the known form "${m.template.name}" (${Math.round(m.score * 100)}% of its printed words are in place)` };
+  return { ...cls, type: 'form', confidence: Math.max(cls.type === 'form' ? cls.confidence : 0, 0.99), evidence: [ev, ...cls.evidence.filter((e) => e.type === 'form')], all: [ev, ...cls.all] };
+};
+/** Read an already-processed page with one template (used right after teaching it). Null when it does not fit. */
+export function applyTemplate(doc: DocResult, t: Template): DocResult | null {
+  const m = matchTemplate([t], doc.words, doc.width, doc.height);
+  if (!m) return null;
+  const analysis = templateAnalysis(m, doc);
+  return { ...doc, kind: 'form', docType: 'form', template: m, analysis, classification: templateClass(doc.classification, m), facts: extractFacts('form', doc.words, analysis.fields, doc.mrz) };
+}
+
 export function classifiers(): Promise<Classifiers> {
   return (clf ??= loadClassifiers(ort as any, BASE + 'models/entity_gbdt.onnx', BASE + 'models/link_gbdt.onnx', { executionProviders: ['wasm'] }));
 }
@@ -244,18 +277,22 @@ export async function processDocument(file: Blob, fileName: string, opts: Prepro
   let mrz: MrzResult | null = null;
   const band = mrzBand(words, p.scale, p.height);
   if (band) mrz = await readMrz([rgbaToCanvas(p.gray, p.width, p.height), ocrCanvas], band);
-  const cls = classifyDocument(words, W, H, mrz);
+  let cls = classifyDocument(words, W, H, mrz);
+  // a page whose printed words line up with a known form is that form, whatever the sorter thought
+  const tm = mrz?.valid ? null : matchTemplate(await templates(), words, W, H);
+  if (tm) cls = templateClass(cls, tm);
   upd(3, { state: 'done', ms: performance.now() - t, detail: `${DOC_LABEL[cls.type]}, ${Math.round(cls.confidence * 100)}% sure` });
 
   t = performance.now();
   upd(4, { state: 'running' });
   const kind = ID_TYPES.includes(cls.type) ? 'id' : 'form';
   const c = await clfP;
-  const analysis = await analyse(words, W, H, c, undefined, kind, opts.reader === 'ppocr' ? 'ppocr' : 'tesseract');
+  const analysis = tm ? templateAnalysis(tm, { words, width: W, height: H }) : await analyse(words, W, H, c, undefined, kind, opts.reader === 'ppocr' ? 'ppocr' : 'tesseract');
   const facts = extractFacts(cls.type, words, analysis.fields, mrz);
-  upd(4, { state: 'done', ms: performance.now() - t, detail: `${analysis.fields.filter((f) => f.value).length} fields` });
+  upd(4, { state: 'done', ms: performance.now() - t, detail: tm ? `${analysis.fields.filter((f) => f.value).length} of ${analysis.fields.length} boxes filled, template: ${tm.template.name}` : `${analysis.fields.filter((f) => f.value).length} fields` });
 
   return {
+    template: tm ?? undefined,
     kind,
     docType: cls.type,
     classification: cls,
@@ -287,7 +324,7 @@ export async function processDocument(file: Blob, fileName: string, opts: Prepro
 export async function retype(doc: DocResult, type: DocType, second?: SecondReading[]): Promise<DocResult> {
   const kind = ID_TYPES.includes(type) ? 'id' : 'form';
   const analysis = await analyse(doc.words, doc.width, doc.height, await classifiers(), second, kind, doc.reader);
-  return { ...doc, kind, docType: type, analysis, facts: extractFacts(type, doc.words, analysis.fields, doc.mrz), classification: { ...doc.classification, type, confidence: 1, evidence: [{ type, weight: 9, why: 'Set by you' }], all: [{ type, weight: 9, why: 'Set by you' }] } };
+  return { ...doc, template: undefined, kind, docType: type, analysis, facts: extractFacts(type, doc.words, analysis.fields, doc.mrz), classification: { ...doc.classification, type, confidence: 1, evidence: [{ type, weight: 9, why: 'Set by you' }], all: [{ type, weight: 9, why: 'Set by you' }] } };
 }
 
 // ---------------- PP-OCRv5 reader ----------------
@@ -364,6 +401,7 @@ export async function secondRead(doc: DocResult): Promise<{ regions: SecondReadi
 }
 
 export async function reanalyse(doc: DocResult, second?: SecondReading[]): Promise<Analysis> {
+  if (doc.template) return templateAnalysis(doc.template, doc);
   return analyse(doc.words, doc.width, doc.height, await classifiers(), second, doc.kind, doc.reader);
 }
 

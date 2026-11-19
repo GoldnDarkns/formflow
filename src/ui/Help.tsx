@@ -14,6 +14,8 @@ export function Help() {
       <p>After the sorter decides what a page is, the critic checks the decision three ways: does the page contain what that type should contain, what argues for a different type, and what does a separate vision model think when it looks only at the picture. The vision model is the weaker witness, so it can raise a doubt but never changes the type by itself.</p>
       <h2>PDFs, reports and redacted copies</h2>
       <p>You can drop PDF files: each page is read on its own. "PDF report" gives a printable summary of one document or of all of them, including the cross-document checks. "Redact" blacks out identity numbers and dates of birth on a copy of the image; tap any box to hide or show it. On identity documents it also guesses where the portrait photo is and covers it; this is a guess, so check it. Drag on the page to black out anything else, such as a signature.</p>
+      <h2>Known forms and templates</h2>
+      <p>If a page is a form FormFlow already knows, it is read with a template: every box has a fixed label, so labels cannot be mixed up. A green note at the top of the document says which template was used. Twenty public US tax and personnel forms are built in. To add your own, open a form, press "Teach this form", draw a box around each place a value is written, name each box and the form, and save. The next copy of that form is recognised by its printed words. Templates you teach are stored in this browser only; if you teach from a filled-in copy, the printed words outside your boxes are stored, so teach from a blank copy when you can. "Forget this template" removes it.</p>
       <h2>The trust score</h2>
       <p>The ring on each document blends three things: how confident the field extraction is, how sure the type recognition is, and whether the checksums pass (passport check digits, the Emirates ID check digit). Fields you confirm count as certain, so the ring fills as you review.</p>
       <h2>Checks across documents</h2>
@@ -33,6 +35,7 @@ export function Help() {
       <p>Everything runs inside your browser. Images, text and results are never sent to a server, and nothing is stored after you close the tab unless you export it. You can install FormFlow (browser menu → “Install app” / “Add to Home Screen”) and use it offline.</p>
       <h2>Limits</h2>
       <ul>
+        <li>Without a template, modern forms that print the label inside the box are often linked wrongly. Teach a template for forms you use often.</li>
         <li>English / Latin-script print works best. Handwriting, Arabic script, stamps and checkboxes are often missed or misread.</li>
         <li>FormFlow does not verify that a document is genuine.</li>
         <li>Large photos are resized to 2400 px on the long side.</li>
