@@ -87,7 +87,7 @@ export function ScanPage(p: Props) {
         onDragLeave={() => setOver(false)}
         onDrop={(e) => { e.preventDefault(); setOver(false); pick(e.dataTransfer.files); }}
       >
-        <h1>Drop the whole pile. It sorts itself.</h1>
+        <h1>Drop the whole pile. <span className="shine">It sorts itself.</span></h1>
         <p className="lede" style={{ marginTop: '0.9rem' }}>
           Passports, Emirates IDs, licences, visas and forms, in any order. FormFlow works out what each page is, reads it, checks the numbers that can be checked, and tells you how sure it is.
         </p>

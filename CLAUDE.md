@@ -166,6 +166,7 @@ Exact numbers are in `public/eval/results.json`.
 10. 16 unit tests for `src/core` in `tests/` (`npm test`, run in CI). No UI tests beyond the headless browser scripts in `scripts/`.
 11. Report, 1-page model card document, demo video and presentation are not started.
 12. Batch 3 (looks) added 19 Nov 2026: guided tour, before/after slider in the viewer, a ninth sample, page-drop animation. Checked in the built-in browser at desktop and 375 px wide; not on a real phone. Note for testing: the in-app Browser pane pauses animations when hidden, so page transitions stall and scripted clicks misfire unless the pane is shown.
+14. Look refresh (19 Nov 2026): `ui/Backdrop.tsx` draws the animated background (aurora glows + a canvas flow field in the tray colours that speeds up while a page is read); cards are glass (backdrop blur, switched off under 720 px for speed); buttons, nav and cards have hover and press motion; all of it is disabled under prefers-reduced-motion. The background idea came from browsing 21st.dev; no code was copied. Do not give `.topbar` a low z-index: the phone nav lives inside it.
 13. Template field confidence is the mean word confidence (was the minimum); still not calibrated.
 
 ## Privacy and licences

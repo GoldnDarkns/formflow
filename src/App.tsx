@@ -8,6 +8,7 @@ import { DEFAULT_PRE, type PreprocessOptions } from './core/preprocess';
 import type { DocType } from './core/classify';
 import { SAMPLE_COUNT, ScanPage, sampleFiles, type Active, type SecondReaderState } from './ui/ScanPage';
 import { Tour, type TourStep } from './ui/Tour';
+import { Backdrop } from './ui/Backdrop';
 import { Sorted } from './ui/Sorted';
 import { ResultView } from './ui/ResultView';
 import { ModelCard } from './ui/ModelCard';
@@ -172,6 +173,7 @@ export default function App() {
   return (
     <MotionConfig reducedMotion="user">
       <div className="app">
+        <Backdrop busy={!!active} />
         <header className="topbar">
           <div className="brand"><img src={import.meta.env.BASE_URL + 'icon.svg'} alt="" />FormFlow</div>
           <nav className="nav" aria-label="Main">
