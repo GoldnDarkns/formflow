@@ -1,0 +1,932 @@
+{
+ "dataset": "FUNSD test (50 forms)",
+ "generated": "2026-11-19T15:15:28.962Z",
+ "ocr": {
+  "tesseract_raw": {
+   "pages": 50,
+   "cer": 0.25779158916662887,
+   "wordAccuracy": 0.561961640059722,
+   "omissionRate": 0.17870678764212702,
+   "hallucinationRate": 0.037687475964619924,
+   "msPerPage": 2001.78
+  },
+  "tesseract_upscale": {
+   "pages": 50,
+   "cer": 0.20460009980492674,
+   "wordAccuracy": 0.6731365567933847,
+   "omissionRate": 0.17204548064775468,
+   "hallucinationRate": 0.0838330681679109,
+   "msPerPage": 2451.66
+  },
+  "tesseract_full": {
+   "pages": 50,
+   "cer": 0.20380619697863267,
+   "wordAccuracy": 0.6375330194096703,
+   "omissionRate": 0.14746755484093257,
+   "hallucinationRate": 0.11355311355311355,
+   "msPerPage": 2685.04
+  },
+  "ppocr_v5_mobile": {
+   "pages": 50,
+   "cer": 0.13063103933221432,
+   "wordAccuracy": 0.7670839554381532,
+   "omissionRate": 0.12667968301366717,
+   "hallucinationRate": 0.035628855596122375,
+   "msPerPage": 3660.32
+  },
+  "florence2_1x1": {
+   "pages": 50,
+   "cer": 0.5335026992696094,
+   "wordAccuracy": 0.3067646721029057,
+   "omissionRate": 0.38325485241759505,
+   "hallucinationRate": 0.06319208622471578,
+   "msPerPage": 26366.8
+  },
+  "florence2_1x2": {
+   "pages": 50,
+   "cer": 0.2985528285623554,
+   "wordAccuracy": 0.5223383484552658,
+   "omissionRate": 0.19421155392213163,
+   "hallucinationRate": 0.053046856033017724,
+   "msPerPage": 28538.12
+  }
+ },
+ "linking_gt_entities": {
+  "baseline_rules": {
+   "gold_labels": {
+    "precision": 0.8407960199004975,
+    "recall": 0.6057347670250897,
+    "f1": 0.7041666666666667
+   },
+   "predicted_labels": {
+    "precision": 0.570446735395189,
+    "recall": 0.1983273596176822,
+    "f1": 0.29432624113475175,
+    "labelAccuracy": 0.4123348017621145
+   }
+  },
+  "logistic_regression": {
+   "gold_labels": {
+    "precision": 0.9622950819672131,
+    "recall": 0.7013142174432497,
+    "f1": 0.811333794056669
+   },
+   "predicted_labels": {
+    "precision": 0.598705501618123,
+    "recall": 0.44205495818399043,
+    "f1": 0.5085910652920962,
+    "labelAccuracy": 0.6850220264317181
+   }
+  },
+  "gradient_boosting": {
+   "gold_labels": {
+    "precision": 0.9742198100407056,
+    "recall": 0.8578255675029869,
+    "f1": 0.9123252858958069
+   },
+   "predicted_labels": {
+    "precision": 0.7176128093158661,
+    "recall": 0.5890083632019116,
+    "f1": 0.646981627296588,
+    "labelAccuracy": 0.8074889867841409
+   }
+  }
+ },
+ "end_to_end": {
+  "baseline_rules": {
+   "pages": 50,
+   "precision": 0.23255813953488372,
+   "recall": 0.08333333333333333,
+   "f1": 0.12269938650306748,
+   "msPerPage": 2.73259094,
+   "flagged": {
+    "autoAccepted": 85,
+    "autoAcceptedCorrect": 0.3764705882352941,
+    "flaggedForReview": 130,
+    "flaggedCorrect": 0.13846153846153847
+   },
+   "reliability": [
+    {
+     "range": "0–50%",
+     "fields": 0,
+     "meanConfidence": 0,
+     "correct": 0
+    },
+    {
+     "range": "50–65%",
+     "fields": 70,
+     "meanConfidence": 0.5607214285714287,
+     "correct": 0.07142857142857142
+    },
+    {
+     "range": "65–80%",
+     "fields": 53,
+     "meanConfidence": 0.7320283018867925,
+     "correct": 0.22641509433962265
+    },
+    {
+     "range": "80–90%",
+     "fields": 43,
+     "meanConfidence": 0.8517906976744188,
+     "correct": 0.2558139534883721
+    },
+    {
+     "range": "90–100%",
+     "fields": 49,
+     "meanConfidence": 0.9274897959183672,
+     "correct": 0.4489795918367347
+    }
+   ]
+  },
+  "logistic_regression": {
+   "pages": 50,
+   "precision": 0.3249370277078086,
+   "recall": 0.215,
+   "f1": 0.2587763289869609,
+   "msPerPage": 3.77776980000006,
+   "flagged": {
+    "autoAccepted": 149,
+    "autoAcceptedCorrect": 0.4697986577181208,
+    "flaggedForReview": 248,
+    "flaggedCorrect": 0.23790322580645162
+   },
+   "reliability": [
+    {
+     "range": "0–50%",
+     "fields": 44,
+     "meanConfidence": 0.43237756282768464,
+     "correct": 0.13636363636363635
+    },
+    {
+     "range": "50–65%",
+     "fields": 81,
+     "meanConfidence": 0.5837022380799421,
+     "correct": 0.19753086419753085
+    },
+    {
+     "range": "65–80%",
+     "fields": 119,
+     "meanConfidence": 0.7297917898577801,
+     "correct": 0.2857142857142857
+    },
+    {
+     "range": "80–90%",
+     "fields": 113,
+     "meanConfidence": 0.8511947222373127,
+     "correct": 0.4424778761061947
+    },
+    {
+     "range": "90–100%",
+     "fields": 40,
+     "meanConfidence": 0.9253333876699206,
+     "correct": 0.575
+    }
+   ]
+  },
+  "gradient_boosting": {
+   "pages": 50,
+   "precision": 0.30426356589147285,
+   "recall": 0.26166666666666666,
+   "f1": 0.2813620071684588,
+   "msPerPage": 25.574081479999915,
+   "flagged": {
+    "autoAccepted": 194,
+    "autoAcceptedCorrect": 0.4845360824742268,
+    "flaggedForReview": 322,
+    "flaggedCorrect": 0.1956521739130435
+   },
+   "reliability": [
+    {
+     "range": "0–50%",
+     "fields": 74,
+     "meanConfidence": 0.4251010856418997,
+     "correct": 0.04054054054054054
+    },
+    {
+     "range": "50–65%",
+     "fields": 97,
+     "meanConfidence": 0.5829658515391891,
+     "correct": 0.15463917525773196
+    },
+    {
+     "range": "65–80%",
+     "fields": 136,
+     "meanConfidence": 0.732123723170775,
+     "correct": 0.25735294117647056
+    },
+    {
+     "range": "80–90%",
+     "fields": 117,
+     "meanConfidence": 0.856359270759118,
+     "correct": 0.4017094017094017
+    },
+    {
+     "range": "90–100%",
+     "fields": 92,
+     "meanConfidence": 0.9334561646969424,
+     "correct": 0.6195652173913043
+    }
+   ],
+   "errorExamples": [
+    {
+     "file": "82092117.json",
+     "predKey": "ATT",
+     "predValue": "Dec 10 ‘$8 GEN. ADMIN. OFFICE Fax:614-466-5087 Attorney General Betty D. Montgomery",
+     "goldKey": "DATE",
+     "goldValue": "12 /10 /98",
+     "confidence": 0.47
+    },
+    {
+     "file": "82092117.json",
+     "predKey": "DATE",
+     "predValue": "12/1/98",
+     "goldKey": "DATE",
+     "goldValue": "12 /10 /98",
+     "confidence": 0.82
+    },
+    {
+     "file": "82200067_0069.json",
+     "predKey": "Mavi]",
+     "predValue": "aed",
+     "goldKey": "DIVISION",
+     "goldValue": "Portland # REPS: 6",
+     "confidence": 0.7
+    },
+    {
+     "file": "82200067_0069.json",
+     "predKey": "POE",
+     "predValue": "seo CX",
+     "goldKey": "TO",
+     "goldValue": "K. A. Sparrow",
+     "confidence": 0.5
+    },
+    {
+     "file": "82250337_0338.json",
+     "predKey": "MANUFACTURER",
+     "predValue": "ssw",
+     "goldKey": "MANUFACTURER",
+     "goldValue": "B&W",
+     "confidence": 0.66
+    },
+    {
+     "file": "82250337_0338.json",
+     "predKey": "FROM",
+     "predValue": "D.J.landio",
+     "goldKey": "FROM",
+     "goldValue": "D. J. Landro",
+     "confidence": 0.68
+    },
+    {
+     "file": "82251504.json",
+     "predKey": "Submission for",
+     "predValue": "Retail Excel Progress Report",
+     "goldKey": "Distribution by/ to",
+     "goldValue": "DM to RSM 1st of Month RSM to R W. C. 10th",
+     "confidence": 0.78
+    },
+    {
+     "file": "82251504.json",
+     "predKey": "DM to RSM 1st of Month",
+     "predValue": "RSM to RW.C. 10th",
+     "goldKey": "Distribution by/ to",
+     "goldValue": "DM to RSM 1st of Month RSM to R W. C. 10th",
+     "confidence": 0.66
+    },
+    {
+     "file": "82252956_2958.json",
+     "predKey": "MAY 12]",
+     "predValue": "aves",
+     "goldKey": "NAME OF ACCOUNT",
+     "goldValue": "Walgreen Drug",
+     "confidence": 0.62
+    },
+    {
+     "file": "82252956_2958.json",
+     "predKey": "JUN 23[x",
+     "predValue": "septs]",
+     "goldKey": "DIVISION NAME",
+     "goldValue": "Milw. South",
+     "confidence": 0.53
+    },
+    {
+     "file": "82253058_3059.json",
+     "predKey": "FROM",
+     "predValue": "R.G.Ryan",
+     "goldKey": "FROM",
+     "goldValue": "R. G. Ryan",
+     "confidence": 0.93
+    },
+    {
+     "file": "82253058_3059.json",
+     "predKey": "DATE",
+     "predValue": "12/10/86",
+     "goldKey": "DATE",
+     "goldValue": "12/ 10/ 96",
+     "confidence": 0.71
+    },
+    {
+     "file": "82253245_3247.json",
+     "predKey": "JUNE 30[",
+     "predValue": "seP22 [J",
+     "goldKey": "JUNE 30",
+     "goldValue": "X",
+     "confidence": 0.64
+    },
+    {
+     "file": "82253245_3247.json",
+     "predKey": "STYLE LOW PRICE",
+     "predValue": "PROGRESS REPORT",
+     "goldKey": "IND/ LOR VOLUME",
+     "goldValue": "104/ 22 521/ 42 137/ 20",
+     "confidence": 0.88
+    },
+    {
+     "file": "82253362_3364.json",
+     "predKey": "SUBMISSION DATE",
+     "predValue": "Ase 19 [1]",
+     "goldKey": "SUBJECT",
+     "goldValue": "MAVERICK SPECIALS MENTHOL - PROGRESS REPORT",
+     "confidence": 0.33
+    },
+    {
+     "file": "82253362_3364.json",
+     "predKey": "SUBJECT",
+     "predValue": "MAVERICK $PECIALR MENTHOL",
+     "goldKey": "SUBJECT",
+     "goldValue": "MAVERICK SPECIALS MENTHOL - PROGRESS REPORT",
+     "confidence": 0.74
+    },
+    {
+     "file": "82254765.json",
+     "predKey": "BASEBALL CAP",
+     "predValue": "1500",
+     "goldKey": "DATE TO NYO",
+     "goldValue": "1/24/97",
+     "confidence": 0.67
+    },
+    {
+     "file": "82254765.json",
+     "predKey": "WATER BOTTLES",
+     "predValue": "500",
+     "goldKey": "DATE TO NYO",
+     "goldValue": "1/24/97",
+     "confidence": 0.9
+    },
+    {
+     "file": "82491256.json",
+     "predKey": "COURT",
+     "predValue": "San Francisco Superior Court",
+     "goldKey": "COURT",
+     "goldValue": "San Francisco Superior Court - No. 996378",
+     "confidence": 0.89
+    },
+    {
+     "file": "82491256.json",
+     "predKey": "ENTITIES",
+     "predValue": "Lorillard Tobacco Company",
+     "goldKey": "LORILLARD ENTITIES",
+     "goldValue": "Lorillard Tobacco Company",
+     "confidence": 0.94
+    },
+    {
+     "file": "82504862.json",
+     "predKey": "ENTITIES",
+     "predValue": "Lorillard Tobacco Company",
+     "goldKey": "LORILLARD ENTITIES",
+     "goldValue": "Lorillard Tobacco Company",
+     "confidence": 0.95
+    },
+    {
+     "file": "82504862.json",
+     "predKey": "PLAINTIFF'S",
+     "predValue": "StephenM.",
+     "goldKey": "PLAINTIEE'S COUNSEL",
+     "goldValue": "Wartnick Chaber, Harowitz, Smith& Tigerman StephenM. Tigerman 101 California Street Suite 2200 San Francisco California 94111 ",
+     "confidence": 0.4
+    },
+    {
+     "file": "82562350.json",
+     "predKey": "To",
+     "predValue": "Mr. Randy Spel Frone Rick Redfield",
+     "goldKey": "To",
+     "goldValue": "Mr. Randy Spell",
+     "confidence": 0.48
+    },
+    {
+     "file": "82562350.json",
+     "predKey": "Re",
+     "predValue": "Logal—iowa 4 DOurgeat [Jroriwview [Pease Commont (Jrtesse Reply {Please Recycle",
+     "goldKey": "Re",
+     "goldValue": "Legal- lowa",
+     "confidence": 0.3
+    },
+    {
+     "file": "82573104.json",
+     "predKey": "xc",
+     "predValue": "RAS",
+     "goldKey": "Date",
+     "goldValue": "December 9, 1999",
+     "confidence": 0.89
+    },
+    {
+     "file": "82573104.json",
+     "predKey": "RBCENED",
+     "predValue": "91998 DEC",
+     "goldKey": "Date",
+     "goldValue": "December 9, 1999",
+     "confidence": 0.63
+    },
+    {
+     "file": "82837252.json",
+     "predKey": "Lever ay",
+     "predValue": "BOBBY MILLS, REGIONAL SALES MGR.",
+     "goldKey": "REPORTED BY",
+     "goldValue": "BOBBY MILLS, REGIONAL SALES MGR., INDIANAPOLIS, IN",
+     "confidence": 0.48
+    },
+    {
+     "file": "82837252.json",
+     "predKey": "BALL RODECAP",
+     "predValue": "WOBLESVILLE,",
+     "goldKey": "BRAND NAME",
+     "goldValue": "VICEROY KING BOX AND VICEROY LIGHTS KING BOX",
+     "confidence": 0.73
+    },
+    {
+     "file": "83443897.json",
+     "predKey": "HARD COPY TO FoLLOW",
+     "predValue": "i",
+     "goldKey": "CLIENT NO",
+     "goldValue": "L8557 002",
+     "confidence": 0.59
+    },
+    {
+     "file": "83443897.json",
+     "predKey": "MESSAGE",
+     "predValue": "[The following is for your review.",
+     "goldKey": "MESSAGE",
+     "goldValue": "The following is for your review JAN 1 2 1999",
+     "confidence": 0.83
+    },
+    {
+     "file": "83553333_3334.json",
+     "predKey": "Fax Transmittal",
+     "predValue": "Charles Duggan",
+     "goldKey": "Fax Transmittal",
+     "goldValue": "450 Lexington Avenue New York, NY 10017 212- 450- 4000",
+     "confidence": 0.66
+    },
+    {
+     "file": "83553333_3334.json",
+     "predKey": "Sender Voice Number",
+     "predValue": "November 12, 1999 If problems receiving this fax, call",
+     "goldKey": "Sender Voice Number",
+     "goldValue": "212- 450- 4785",
+     "confidence": 0.38
+    },
+    {
+     "file": "83573282.json",
+     "predKey": "Xe",
+     "predValue": "Grd",
+     "goldKey": "Re",
+     "goldValue": "Tobacco - Fee Payment Agreement and Release",
+     "confidence": 0.59
+    },
+    {
+     "file": "83573282.json",
+     "predKey": "File No",
+     "predValue": "naa.oy",
+     "goldKey": "File No",
+     "goldValue": "1129. 01",
+     "confidence": 0.63
+    },
+    {
+     "file": "83624198.json",
+     "predKey": "CLIENT NO",
+     "predValue": "1L8557.002",
+     "goldKey": "CLIENT NO",
+     "goldValue": "L8557 002",
+     "confidence": 0.62
+    },
+    {
+     "file": "83624198.json",
+     "predKey": "MESSAGE",
+     "predValue": "Scc attached fax fram the Committee on Commerce just received in my office. Call me to discuss. collect call to our Facsimile Department at 202-861-9106, and send the original",
+     "goldKey": "MESSAGE",
+     "goldValue": "See attached fax from the Committee on Commerce just received in my office. Call me discuss.",
+     "confidence": 0.5
+    },
+    {
+     "file": "83641919_1921.json",
+     "predKey": "T0",
+     "predValue": "§.P.ZOLOT",
+     "goldKey": "TO",
+     "goldValue": "S. P. ZOLOT",
+     "confidence": 0.59
+    },
+    {
+     "file": "83641919_1921.json",
+     "predKey": "DEC 21",
+     "predValue": "x 1",
+     "goldKey": "DEC 21",
+     "goldValue": "X",
+     "confidence": 0.77
+    },
+    {
+     "file": "83772145.json",
+     "predKey": "0",
+     "predValue": "JACK REILLY",
+     "goldKey": "#",
+     "goldValue": "392",
+     "confidence": 0.88
+    },
+    {
+     "file": "83772145.json",
+     "predKey": "Pages transmitted including cover sheet",
+     "predValue": "3",
+     "goldKey": "Pages transmitted including cover sheet",
+     "goldValue": "",
+     "confidence": 0.92
+    }
+   ]
+  },
+  "gradient_boosting_ppocr_reader": {
+   "pages": 50,
+   "precision": 0.4532520325203252,
+   "recall": 0.37166666666666665,
+   "f1": 0.40842490842490836,
+   "msPerPage": 20.522493799999992,
+   "flagged": {
+    "autoAccepted": 403,
+    "autoAcceptedCorrect": 0.5161290322580645,
+    "flaggedForReview": 89,
+    "flaggedCorrect": 0.16853932584269662
+   },
+   "reliability": [
+    {
+     "range": "0–50%",
+     "fields": 0,
+     "meanConfidence": 0,
+     "correct": 0
+    },
+    {
+     "range": "50–65%",
+     "fields": 16,
+     "meanConfidence": 0.5963163327848141,
+     "correct": 0.0625
+    },
+    {
+     "range": "65–80%",
+     "fields": 67,
+     "meanConfidence": 0.7438442866128954,
+     "correct": 0.1791044776119403
+    },
+    {
+     "range": "80–90%",
+     "fields": 94,
+     "meanConfidence": 0.8636069918140588,
+     "correct": 0.2553191489361702
+    },
+    {
+     "range": "90–100%",
+     "fields": 315,
+     "meanConfidence": 0.9590240525596422,
+     "correct": 0.5904761904761905
+    }
+   ]
+  },
+  "gradient_boosting_with_florence_1x1": {
+   "pages": 50,
+   "precision": 0.30426356589147285,
+   "recall": 0.26166666666666666,
+   "f1": 0.2813620071684588,
+   "msPerPage": 29.151420559999952,
+   "flagged": {
+    "autoAccepted": 64,
+    "autoAcceptedCorrect": 0.546875,
+    "flaggedForReview": 452,
+    "flaggedCorrect": 0.26991150442477874
+   },
+   "wordAgreement": {
+    "agree": {
+     "words": 3014,
+     "accuracy": 0.9409422694094227
+    },
+    "disagree": {
+     "words": 2210,
+     "accuracy": 0.6746606334841629
+    },
+    "secondReaderSawNothing": {
+     "words": 1414,
+     "accuracy": 0.6888260254596889
+    }
+   },
+   "reliability": [
+    {
+     "range": "0–50%",
+     "fields": 152,
+     "meanConfidence": 0.4110663285964991,
+     "correct": 0.09868421052631579
+    },
+    {
+     "range": "50–65%",
+     "fields": 182,
+     "meanConfidence": 0.5736949582079007,
+     "correct": 0.24725274725274726
+    },
+    {
+     "range": "65–80%",
+     "fields": 76,
+     "meanConfidence": 0.7324705187393126,
+     "correct": 0.5
+    },
+    {
+     "range": "80–90%",
+     "fields": 49,
+     "meanConfidence": 0.8509254168820807,
+     "correct": 0.5102040816326531
+    },
+    {
+     "range": "90–100%",
+     "fields": 57,
+     "meanConfidence": 0.9398404054276893,
+     "correct": 0.5964912280701754
+    }
+   ]
+  },
+  "gradient_boosting_with_florence_1x2": {
+   "pages": 50,
+   "precision": 0.30426356589147285,
+   "recall": 0.26166666666666666,
+   "f1": 0.2813620071684588,
+   "msPerPage": 31.01827504000015,
+   "flagged": {
+    "autoAccepted": 129,
+    "autoAcceptedCorrect": 0.4418604651162791,
+    "flaggedForReview": 387,
+    "flaggedCorrect": 0.25839793281653745
+   },
+   "wordAgreement": {
+    "agree": {
+     "words": 4495,
+     "accuracy": 0.9296996662958843
+    },
+    "disagree": {
+     "words": 1694,
+     "accuracy": 0.4817001180637544
+    },
+    "secondReaderSawNothing": {
+     "words": 449,
+     "accuracy": 0.6815144766146993
+    }
+   },
+   "reliability": [
+    {
+     "range": "0–50%",
+     "fields": 95,
+     "meanConfidence": 0.40795126671919324,
+     "correct": 0.06315789473684211
+    },
+    {
+     "range": "50–65%",
+     "fields": 137,
+     "meanConfidence": 0.5765443149700393,
+     "correct": 0.2116788321167883
+    },
+    {
+     "range": "65–80%",
+     "fields": 97,
+     "meanConfidence": 0.7434841914780211,
+     "correct": 0.36082474226804123
+    },
+    {
+     "range": "80–90%",
+     "fields": 79,
+     "meanConfidence": 0.8524149154803666,
+     "correct": 0.43037974683544306
+    },
+    {
+     "range": "90–100%",
+     "fields": 108,
+     "meanConfidence": 0.9414470735419186,
+     "correct": 0.49074074074074076
+    }
+   ]
+  }
+ },
+ "doc_type": {
+  "specimens": {
+   "correct": 8,
+   "total": 8,
+   "note": "Synthetic specimen scans run through the built app in Chrome (scripts/e2e.mjs)"
+  },
+  "funsd_forms": {
+   "pages": 50,
+   "predicted": {
+    "form": 47,
+    "other": 3
+   },
+   "accuracy": 0.94,
+   "meanConfidence": 0.8773311282226313
+  }
+ },
+ "magic_scan": {
+  "photos": 20,
+  "pageFound": 1,
+  "meanCornerError": 0.00435989114903573,
+  "wordRecall": {
+   "photoAsTaken": 0.5652689873417721,
+   "pageCutOut": 0.6776107594936709,
+   "cutOutAndLightingFixed": 0.696993670886076
+  }
+ },
+ "critic_vision": {
+  "specimens": {
+   "correct": 5,
+   "total": 7
+  },
+  "funsd_forms": {
+   "correct": 43,
+   "total": 50
+  },
+  "msPerImage": 101.64
+ },
+ "training": {
+  "entity": {
+   "logreg": {
+    "testing-gt": {
+     "macro_f1": 0.6027551966011429,
+     "per_class_f1": {
+      "question": 0.7270896273917422,
+      "answer": 0.7635683094198378,
+      "header": 0.3672566371681416,
+      "other": 0.5531062124248497
+     },
+     "accuracy": 0.6850220264317181,
+     "confusion": [
+      [
+       722,
+       121,
+       179,
+       48
+      ],
+      [
+       131,
+       612,
+       27,
+       39
+      ],
+      [
+       29,
+       5,
+       83,
+       2
+      ],
+      [
+       34,
+       56,
+       44,
+       138
+      ]
+     ]
+    },
+    "testing-ocr": {
+     "macro_f1": 0.5859303327540482,
+     "per_class_f1": {
+      "question": 0.6309350422371104,
+      "answer": 0.6572802197802198,
+      "header": 0.3403880070546737,
+      "other": 0.7151180619441889
+     },
+     "accuracy": 0.6329608938547486,
+     "confusion": [
+      [
+       1083,
+       214,
+       424,
+       221
+      ],
+      [
+       240,
+       957,
+       96,
+       204
+      ],
+      [
+       56,
+       12,
+       193,
+       17
+      ],
+      [
+       112,
+       232,
+       143,
+       1166
+      ]
+     ]
+    }
+   },
+   "gbdt": {
+    "testing-gt": {
+     "macro_f1": 0.7351914339887231,
+     "per_class_f1": {
+      "question": 0.850177304964539,
+      "answer": 0.805111821086262,
+      "header": 0.5641025641025641,
+      "other": 0.7213740458015268
+     },
+     "accuracy": 0.8074889867841409,
+     "confusion": [
+      [
+       959,
+       72,
+       13,
+       26
+      ],
+      [
+       145,
+       630,
+       0,
+       34
+      ],
+      [
+       52,
+       9,
+       55,
+       3
+      ],
+      [
+       30,
+       45,
+       8,
+       189
+      ]
+     ]
+    },
+    "testing-ocr": {
+     "macro_f1": 0.6948796427722383,
+     "per_class_f1": {
+      "question": 0.773678963110668,
+      "answer": 0.7053513862024501,
+      "header": 0.5138004246284501,
+      "other": 0.7866877971473851
+     },
+     "accuracy": 0.7463687150837989,
+     "confusion": [
+      [
+       1552,
+       227,
+       35,
+       128
+      ],
+      [
+       284,
+       1094,
+       1,
+       118
+      ],
+      [
+       104,
+       38,
+       121,
+       15
+      ],
+      [
+       130,
+       246,
+       36,
+       1241
+      ]
+     ]
+    }
+   }
+  },
+  "link_pairlevel": {
+   "logreg": {
+    "testing-gt": {
+     "precision": 0.8593974175035868,
+     "recall": 0.7278250303766707,
+     "f1": 0.7881578947368421
+    },
+    "testing-ocr": {
+     "precision": 0.819081908190819,
+     "recall": 0.6306306306306306,
+     "f1": 0.7126076742364917
+    }
+   },
+   "gbdt": {
+    "testing-gt": {
+     "precision": 0.8853658536585366,
+     "recall": 0.8821385176184691,
+     "f1": 0.8837492391965917
+    },
+    "testing-ocr": {
+     "precision": 0.8476411446249034,
+     "recall": 0.7595287595287595,
+     "f1": 0.8011695906432749
+    }
+   }
+  }
+ }
+}

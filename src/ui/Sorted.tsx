@@ -1,0 +1,101 @@
+import { AnimatePresence, motion } from 'motion/react';
+import { DOC_LABEL, DOC_TYPES } from '../core/classify';
+import { alertsFor } from '../core/facts';
+import { critiqueOf, needsReview, packetsOf, trustOf, type DocState } from './state';
+import { Ring, Stamp, typeColor } from './bits';
+import { IDownload } from './icons';
+
+interface Props {
+  docs: DocState[];
+  onOpen: (id: string) => void;
+  onExportCsv: () => void;
+  onReport: () => void;
+  onScan: () => void;
+}
+
+export function Sorted({ docs, onOpen, onExportCsv, onReport, onScan }: Props) {
+  if (!docs.length)
+    return (
+      <div className="empty-state">
+        <h2>The trays are empty</h2>
+        <p>Scan a pile of documents and they will be sorted here by type.</p>
+        <button className="btn primary" onClick={onScan}>Scan documents</button>
+      </div>
+    );
+  const types = DOC_TYPES.filter((t) => docs.some((d) => d.doc.docType === t));
+  const review = docs.reduce((a, d) => a + needsReview(d.fields), 0);
+  const packets = packetsOf(docs);
+  const plural = (n: number, w: string) => `${n} ${w}${n === 1 ? '' : 's'}`;
+
+  return (
+    <div>
+      <div className="overview">
+        <div>
+          <h1>{plural(docs.length, 'document')}, <span>{plural(types.length, 'type')}</span></h1>
+          <p className="lede" style={{ marginTop: '0.5rem' }}>{review ? `${plural(review, 'field')} still to check.` : 'Nothing left to check.'} Open a document to review it.</p>
+        </div>
+        <div className="row">
+          <button className="btn dark" onClick={onReport}><IDownload /> PDF report</button>
+          <button className="btn" onClick={onExportCsv}><IDownload /> CSV</button>
+        </div>
+      </div>
+
+      {packets.map((p) => (
+        <motion.div key={p.name} className="packet" style={{ marginTop: '1rem' }} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+          <div className="row">
+            <h2 className="grow">{p.name}</h2>
+            <span className="tag">{p.docs.map((d) => DOC_LABEL[d.doc.docType]).join(', ')}</span>
+          </div>
+          <p className="small muted">These {p.docs.length} documents carry the same name, so their details are compared.</p>
+          <ul className="checks">
+            {p.checks.map((c) => (
+              <li key={c.label} className={c.ok ? 'ok' : 'no'}>
+                <span className="mk">{c.ok ? '✓' : '!'}</span>
+                <span><b>{c.label} {c.ok ? 'matches' : 'does not match'}.</b> {c.detail}</span>
+              </li>
+            ))}
+          </ul>
+        </motion.div>
+      ))}
+
+      {types.map((t) => {
+        const list = docs.filter((d) => d.doc.docType === t);
+        return (
+          <section key={t} style={{ ['--c' as any]: typeColor(t) }}>
+            <div className="trayhead"><h2>{DOC_LABEL[t]}</h2><span className="muted small">{list.length}</span></div>
+            <div className="grid">
+              <AnimatePresence mode="popLayout">
+                {list.map((d) => {
+                  const trust = trustOf(d);
+                  const alerts = alertsFor(d.doc.docType, d.doc.classification.confidence, d.doc.facts, d.doc.mrz).filter((a) => a.level !== 'good');
+                  const n = needsReview(d.fields);
+                  const who = d.doc.facts.find((f) => f.key === 'Full name')?.value;
+                  return (
+                    <motion.button key={d.doc.id} className="doc" layout initial={{ opacity: 0, y: -40, rotate: -6, scale: 0.9 }} animate={{ opacity: 1, y: 0, rotate: 0, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} transition={{ type: 'spring', stiffness: 260, damping: 22, delay: 0.05 * docs.indexOf(d) }} onClick={() => onOpen(d.doc.id)}>
+                      <div className="thumb"><img src={d.doc.view} alt="" /><Stamp type={d.doc.docType} confidence={d.doc.classification.confidence} animateIn={false} /></div>
+                      <div className="body">
+                        <div className="line">
+                          <div className="grow">
+                            <div className="who">{who ?? d.doc.fileName}</div>
+                            {who && <div className="tiny muted">{d.doc.fileName}</div>}
+                          </div>
+                          <Ring value={trust.score} size={46} stroke={5} />
+                        </div>
+                        <div className="row" style={{ gap: '0.3rem' }}>
+                          {alerts.slice(0, 2).map((a) => <span key={a.text} className={'tag ' + a.level} style={{ whiteSpace: 'normal' }}>{a.text.split('.')[0]}</span>)}
+                          {critiqueOf(d).verdict === 'challenged' && <span className="tag bad">Critic doubts the type</span>}
+                          {n > 0 && <span className="tag warn">{n} to check</span>}
+                          {!alerts.length && !n && <span className="tag good">Ready</span>}
+                        </div>
+                      </div>
+                    </motion.button>
+                  );
+                })}
+              </AnimatePresence>
+            </div>
+          </section>
+        );
+      })}
+    </div>
+  );
+}

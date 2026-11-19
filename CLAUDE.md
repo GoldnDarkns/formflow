@@ -1,0 +1,153 @@
+# FormFlow: handover for Claude Code
+
+This file is the full context for continuing the project. It was built in a Claude chat session on 18–19 November 2026 and has not yet been run on the owner's own machine.
+
+## Who and what
+
+- **Owner:** Madhavan Vij, MAIB student at SP Jain School of Global Management, Dubai.
+- **Course:** MAIB AI 221 Computer Vision with Applications. This is the final project (30% of the unit), Project 9, Public sector: "FormFlow: scanned-form digitiser". Due in exam week; presentation in Week 12.
+- **Problem:** offices retype paper forms and ID documents by hand. It is slow, typos cause rejected applications, and uploading IDs to cloud tools is a privacy risk.
+- **Solution:** an installable web app (PWA) that reads a mixed pile of scans on the device: sorts each page by type, extracts label and value pairs, verifies what can be verified, shows how sure it is, and has a person confirm doubtful fields before export. Nothing is uploaded.
+
+## Hard rules from the course brief (do not break these)
+
+- No paid services, APIs, subscriptions or sign-ups. All models are open and run in the browser.
+- Deploy on GitHub Pages (static). Cloudflare Pages is out because the ONNX Runtime wasm file is about 27 MB and Cloudflare limits files to 25 MiB.
+- Keep each model file under about 100 MB. Target under about 5 seconds per image.
+- The generative AI component (Florence-2) is required. Without it the Innovation criterion is capped.
+- Required parts: problem statement, public dataset with licence (FUNSD, non-commercial), a baseline, the main model exported to ONNX, a generative AI experiment with a measured effect, evaluation with error analysis and subgroups, an interface with "not sure" states and a help page, a live URL, responsible AI (model card, privacy, bias, human in the loop).
+- Deliverables: live URL, public GitHub repo, technical report (3,000–4,000 words), 1-page model card, 3–5 minute demo video with three real cases including one failure, 10-minute presentation.
+- Rubric: Research depth 25%, Innovation 20%, Application of techniques 35%, Presentation and reporting 20%.
+
+## How the owner wants to work
+
+- For the report and any other assessed writing, the words must be his own: work one section at a time, explain what the section needs, he dictates, type his words exactly and fix spelling only. Do not write the report for him.
+- He reads replies on a phone. Keep answers short and lead with the result.
+- He wants a real, polished product with good animation, not a static demo.
+- Be honest about what is tested and what is not.
+
+## First tasks (nothing below has been done yet)
+
+1. `npm install`, then `npm run dev` and check the app loads and the 8 sample scans sort correctly ("Try 8 sample scans").
+2. `git init -b main`, commit, create a **public** GitHub repo and push (`gh repo create formflow --public --source . --push`).
+3. On GitHub: Settings → Pages → Source: GitHub Actions. The workflow in `.github/workflows/deploy.yml` builds and publishes on every push to `main`. Confirm the live URL works on a phone.
+4. Test with the owner's real documents (his own, or with consent). Keep them outside the repo in `../data/own/<type>/`. Never commit them.
+
+## Commands
+
+```bash
+npm install
+npm run dev            # local app
+npm run build          # production build in dist/ (runs scripts/copy-assets.mjs first)
+npm run preview        # serve dist/ on port 4173
+node scripts/e2e.mjs   # headless Chrome test of the built app (needs preview running; edit the Chrome path for Windows)
+npm run evaluate       # writes public/eval/results.json, shown on the Model card tab
+```
+
+Training and evaluation need data that is **not in the repo**. All scripts expect a sibling folder `../data`:
+
+```
+../data/funsd/dataset/{training_data,testing_data}/{images,annotations}   # from https://guillaumejaume.github.io/FUNSD/dataset.zip
+../data/ocr/<split>-<mode>/        # cached reader output, made by the scripts below
+../data/models/                    # local copies of Hugging Face models for Node scripts
+../data/ppocr/{det.onnx,rec.onnx,dict.txt}   # copy from public/models/ppocr
+../data/photos/                    # simulated desk photos for the magic-scan test
+../data/own/<type>/                # the owner's labelled documents
+```
+
+Full retraining order:
+
+```bash
+npx tsx scripts/ocr-funsd.ts training full && npx tsx scripts/ocr-funsd.ts testing full   # Tesseract (also modes raw, upscale, deskew, nolines)
+npx tsx scripts/ocr-funsd-pp.ts training pp 1600 && npx tsx scripts/ocr-funsd-pp.ts testing pp 1600   # PP-OCRv5
+npx tsx scripts/build-dataset.ts      # features from ground truth + both readers
+python scripts/train.py               # needs scikit-learn, skl2onnx, onnxruntime, onnx, joblib
+npx tsx scripts/florence-funsd.ts 1x2 # Florence-2 on the test set (slow on CPU; needs ../data/models/onnx-community/Florence-2-base-ft)
+npx tsx scripts/critic-embed.ts       # critic text embeddings + critic accuracy (needs ../data/models/Xenova/mobileclip_s0)
+npx tsx scripts/magic-eval.ts         # magic-scan experiment (needs ../data/photos)
+npx tsx scripts/evaluate.ts
+npx tsx scripts/eval-own.ts ../data/own   # per-type scores on the owner's labelled documents
+```
+
+The simulated desk photos and the specimen images were generated with inline Python (PIL) during the chat session and those generator scripts are not in the repo. Recreate them if needed: warp 20 FUNSD test pages in perspective onto a dark cluttered 1300×1700 background, multiply by a diagonal shadow, save corners to `corners.json`.
+
+## Architecture
+
+```
+src/core/         pure TypeScript, shared by the browser and the Node scripts (no DOM)
+  preprocess.ts   deskew (projection profile), Otsu/Sauvola (auto-chosen), line removal, resize
+  scan.ts         magic scan: page detection, homography warp, lighting flattening
+  ocr.ts          Tesseract result parsing, CER / hallucination / omission scoring
+  ppocr.ts        PP-OCRv5 reader: DB post-processing, batched CTC recognition
+  layout.ts       word grouping into text blocks, features, candidate pairs, link decoding
+  pipeline.ts     labels → links → fields, confidence, reader agreement, ID layout prior
+  classify.ts     document-type sorter (evidence weights + softmax)
+  facts.ts        key facts per type, date parsing, Luhn check, expiry alerts
+  critic.ts       critic: expectation checks, runner-up arguments, verdict
+  critic-vision.ts MobileCLIP-S0 image encoder, zero-shot type opinion
+  mrz.ts          ICAO 9303 parser (TD1, TD2, TD3, MRV-A/B), check digits, guarded repair
+  florence.ts     Florence-2 OCR_WITH_REGION wrapper with tiling
+  classifier.ts   ONNX Runtime wrapper for the two tree models (web and node)
+src/engine/       browser orchestration: engine.ts plus workers (preprocess, ocr, florence, critic) and pdf.ts
+src/ui/           React UI: ScanPage, Sorted (trays), ResultView, DocViewer, ModelCard, Help, bits (Ring, Stamp, CutOut), state, report
+scripts/          OCR caching, dataset building, training, tree2onnx.py, evaluation, browser tests
+public/models/    entity_gbdt.onnx, link_gbdt.onnx, critic-text.json, ppocr/
+public/eval/      results.json (evaluation output shown in the app)
+```
+
+Processing order for one page (`engine.ts → processDocument`): open image → preprocess worker (magic scan, deskew, binarise) → reader (Tesseract or PP-OCRv5) → MRZ read (Tesseract with an OCR-B whitelist, best of several crops) → document type → layout models → key facts. Florence-2 and the vision critic run afterwards and refine the result.
+
+## Decisions that are easy to undo by accident
+
+- **Tree models are compiled to plain tensor ops** by `scripts/tree2onnx.py`. ONNX Runtime Web has no `ai.onnx.ml` operators, so a normal skl2onnx export fails in the browser with "No Op registered for TreeEnsembleClassifier". The compiled models match scikit-learn exactly.
+- **`onnxruntime-web` is pinned** to the exact dev version `@huggingface/transformers` depends on, so there is one copy. `vite.config.ts` uses the `onnxruntime-web-use-extern-wasm` condition and the wasm is self-hosted in `public/ort/`.
+- **Mobile nav and `backdrop-filter`:** a backdrop filter on the top bar traps the fixed bottom nav. It is switched off under 720 px.
+- **PP-OCR box growth ("unclip") is 0.8**, tuned on 12 FUNSD training pages. Larger values make neighbouring lines bleed into each crop. PP-OCR runs on WASM only; the WebGPU path is untested on real hardware.
+- **MRZ repair is guarded:** a character swap that makes a field's check digit pass is only kept if the composite check digit also passes. Without this, repairs produced false "valid" document numbers.
+- **The vision critic is the weaker witness.** It can raise a doubt but never changes the type, and it is ignored when the sorter is above 95% with all expectations met.
+- **Tesseract is the default reader** because of the 5-second rule. PP-OCRv5 is more accurate but was about 11 s per page in a slow headless test browser.
+
+## Measured results (FUNSD test set, 50 forms, unless stated)
+
+| What | Result |
+|---|---|
+| Tesseract, no clean-up → full clean-up | CER 25.8% → 20.4% |
+| PP-OCRv5 mobile | CER 13.1%, word accuracy 76.7%, hallucination 3.6% |
+| Florence-2, whole page → two tiles | CER 53.4% → 29.9% |
+| Linking F1, gold blocks: rules / logistic regression / gradient boosting | 70.4% / 81.1% / 91.2% |
+| Entity label accuracy (gradient boosting) | 80.7% |
+| End-to-end field F1: Tesseract / PP-OCRv5 | 28.1% / 40.8% |
+| Second-reader experiment (two tiles): Tesseract word right when readers agree / disagree | 93.0% / 48.2% |
+| Document type on FUNSD forms | 47 of 50 |
+| Sample scans sorted correctly in the browser test | 8 of 8 |
+| Vision critic alone | 43 of 50 forms, 5 of 7 samples |
+| Magic scan on 20 simulated desk photos | page found 20/20, corner error 0.4% of diagonal, word recall 56.5% → 69.7% |
+
+Exact numbers are in `public/eval/results.json`.
+
+## Negative results (worth reporting, do not re-try blindly)
+
+- Florence-2 captions are too generic to name a document type ("a screen with some text").
+- The 8-bit quantised MobileCLIP-S0 loses its zero-shot ability. Use fp32 for the image encoder; text embeddings are precomputed.
+- Florence-2 is a worse reader than Tesseract on these faxes and sometimes invents digits. It is used as a checker only.
+- New VLM OCR models from late 2026 (MiniCPM-OCR, TeleOCR, PaddleOCR-VL, GLM-OCR) are far over the 100 MB limit.
+
+## Known gaps, most important first
+
+1. Never run on the owner's machine or deployed. No live URL yet.
+2. All identity-document results are on synthetic specimens generated for testing. No real passports, Emirates IDs, licences or visas have been tested.
+3. The brief asks for 20 public forms filled in with invented data as an extra test set. Not done.
+4. The confidence figure ranks fields well but is too optimistic (fields shown at 90%+ were right about 57–60% of the time on FUNSD). It is not calibrated.
+5. Magic scan needs a page lighter than its background and has no manual corner adjustment.
+6. The sorter is rule-based, not learned.
+7. No Arabic reading and no handwriting model. Names in MRZ lines have no check digit, so a misread name is only caught by the cross-document check.
+8. Redaction does not hide face photos.
+9. Not built: checkbox and signature detection, template mode for known forms (both are the brief's stretch goals).
+10. No unit tests. Checks are the headless browser scripts in `scripts/`.
+11. Report, 1-page model card document, demo video and presentation are not started.
+
+## Privacy and licences
+
+- Only use documents the owner has the right to use. Never commit real documents or anything from `../data`.
+- FUNSD is for non-commercial research and education, so the models and the app are non-commercial. See `LICENSE` for third-party notices.
+- Do not build anything that edits the text on an ID image. Redaction (black boxes on a copy) is the supported feature.

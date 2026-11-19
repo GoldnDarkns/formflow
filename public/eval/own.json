@@ -1,0 +1,13 @@
+{
+ "generated": "2026-11-19T13:43:00.982Z",
+ "groups": {
+  "passport": {
+   "documents": 1,
+   "precision": 1,
+   "recall": 1,
+   "f1": 1,
+   "exactValue": 1,
+   "msPerDoc": 2107
+  }
+ }
+}
