@@ -323,6 +323,28 @@ export function ModelCard() {
         </div>
       )}
 
+      {real?.finalSet && (
+        <div className="card">
+          <h2>Made-up specimens: many countries, known answers</h2>
+          <p className="small">Real identity documents are private and few, and they do not come with the right answers written down. So a generator (in the repository) produces made-up specimens: invented people, random numbers with correct check digits, six document types, 22 countries, photographed flat, on a desk, sideways, with glare or blurred. They follow the public layout rules for machine-readable lines but copy no country's design, carry no emblems and are stamped SPECIMEN. {real.synth?.train} were used for fitting, {real.synth?.test} for development, and a third set of {real.finalSet.documents} was not looked at until the end. The figures here are from that last set.</p>
+          <div className="summary">
+            <div className="stat"><b>{real.finalSet.sortedRight}/{real.finalSet.documents}</b><span>sorted into the right type</span></div>
+            <div className="stat"><b>{real.finalSet.codeLinesAllChecksPass}/{real.finalSet.codeLinePages}</b><span>code lines where every check digit passes</span></div>
+            <div className="stat"><b>{real.finalSet.turnedRight}/{real.finalSet.neededTurning}</b><span>sideways pages turned the right way</span></div>
+            <div className="stat"><b>{f(real.finalSet.keyFacts.right / real.finalSet.keyFacts.n, 0)}</b><span>key facts read exactly right</span></div>
+          </div>
+          <div className="tablewrap"><table className="metrics">
+            <thead><tr><th>Key fact</th><th className="num">Asked</th><th className="num">Exactly right</th><th></th></tr></thead>
+            <tbody>
+              {Object.entries(real.finalSet.byFact).map(([k, v]: [string, any]) => (<tr key={k}><td>{k === 'number' ? 'Document number' : k}</td><td className="num">{v.n}</td><td className="num">{f(v.right / v.n, 0)}</td><td style={{ width: '30%' }}><Bar v={v.right / v.n} /></td></tr>))}
+              {Object.entries(real.finalSet.byType).map(([k, v]: [string, any]) => (<tr key={k}><td>all facts on a {k.replace(/_/g, ' ')}</td><td className="num">{v.n}</td><td className="num">{f(v.right / v.n, 0)}</td><td><Bar v={v.right / v.n} /></td></tr>))}
+            </tbody>
+          </table></div>
+          <p className="small"><b>What made the difference.</b> The first measurement of key facts on specimens was 47%. Three changes took it to about 80%: the code lines are now read by the neural reader (every check digit passed on 33% of specimen pages with the classical reader, 93% with the neural one); words are put back into rows by where they sit on the page, because the reader returns a label and its value as separate, mis-ordered fragments; and cards that number their fields or print no labels are read by position and by the order of their dates.</p>
+          <p className="small"><b>Limits.</b> Specimens are cleaner and more regular than real documents, so these figures are an upper bound for real ones. Names are the weakest fact: they carry no check digit, so one misread letter goes unnoticed. {real.finalSet.falseCodeLines} pages without code lines were given some anyway, and {real.finalSet.shownVerifiedButWrong} value was shown as verified although it was wrong.</p>
+        </div>
+      )}
+
       <div className="card">
         <h2>Responsible AI</h2>
         <ul>

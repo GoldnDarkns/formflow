@@ -312,3 +312,46 @@ test('sorter model: one number per clue and type, nothing else', () => {
   assert.deepEqual(m.clues, CLUES.map((c) => c.id));
   assert.ok(m.weights.every((r: unknown[]) => r.length === CLUES.length && r.every((v) => typeof v === 'number')));
 });
+
+test('MRZ: padding misread as K and L does not end up in the name', () => {
+  const r = parseMrz([PASSPORT[0].replace(/<{19}$/, 'KLLLLLLLLLLLLKLLKLK'), PASSPORT[1]])!;
+  assert.equal(field(r, 'Surname'), 'ERIKSSON');
+  assert.equal(field(r, 'Given names'), 'ANNA MARIA');
+});
+
+// ---------- key facts on cards without code lines ----------
+import { extractFacts } from '../src/core/facts';
+const lineWords = (lines: string[]): OcrWord[] => lines.flatMap((l, i) => l.split(' ').map((t, k) => ({ text: t, box: [40 + k * 110, 40 + i * 40, 140 + k * 110, 62 + i * 40] as Box, conf: 92, line: i })));
+const fact = (fs: ReturnType<typeof extractFacts>, k: string) => fs.find((f) => f.key === k)?.value;
+
+test('key facts: an EU-style licence numbers its fields instead of labelling them', () => {
+  const f = extractFacts('driving_licence', lineWords(['DRIVING LICENCE', '1. DEMIR', '2. PRIYA', '3. 17-02-1967 PORT ELIAS', '4a. 03-07-2019', '4b. 02-07-2027', '4c. TRANSPORT AUTHORITY', '5. 1300777', '9. AM B']), [], null);
+  assert.equal(fact(f, 'Full name'), 'PRIYA DEMIR');
+  assert.equal(fact(f, 'Licence number'), '1300777');
+  assert.equal(fact(f, 'Date of birth'), '1967-02-17');
+  assert.equal(fact(f, 'Expiry date'), '2027-07-02');
+});
+
+test('key facts: a table-style licence', () => {
+  const f = extractFacts('driving_licence', lineWords(['Driving License', 'License No. 4055325', 'Name TOMAS NOVAK', 'Nationality SERBIAN', 'Date of Birth 10/11/2000', 'Issue Date 14/10/2020', 'Expiry Date 14/10/2027', 'Place of Issue Dubai']), [], null);
+  assert.equal(fact(f, 'Licence number'), '4055325');
+  assert.equal(fact(f, 'Full name'), 'TOMAS NOVAK');
+  assert.equal(fact(f, 'Expiry date'), '2027-10-14');
+});
+
+test('key facts: a vehicle licence gives plate, owner, chassis and dates', () => {
+  const f = extractFacts('vehicle_licence', lineWords(['Vehicle License', 'Traffic Plate No. AA / 73902', 'Owner SUMMIT RENT A CAR LLC', 'Exp. Date 2027-07-16 Reg. Date 2025-05-20', 'Ins. Exp. 2027-08-16', 'Chassis No. MDHBN7ADXNG137207']), [], null);
+  assert.equal(fact(f, 'Plate number'), 'AA / 73902');
+  assert.equal(fact(f, 'Owner'), 'SUMMIT RENT A CAR LLC');
+  assert.equal(fact(f, 'Chassis number'), 'MDHBN7ADXNG137207');
+  assert.equal(fact(f, 'Expiry date'), '2027-07-16');
+  assert.equal(fact(f, 'Registration date'), '2025-05-20');
+  assert.equal(fact(f, 'Insurance expiry'), '2027-08-16');
+});
+
+test('key facts: surname and given names printed separately are joined', () => {
+  const f = extractFacts('id_card', lineWords(['NATIONAL IDENTITY CARD', 'Surname / Nom', 'SOKOLOV', 'Given names / Prénoms', 'AISHA', 'ID Number', '091201355', 'Date of birth', '14 DEC 1991']), [], null);
+  assert.equal(fact(f, 'Full name'), 'AISHA SOKOLOV');
+  assert.equal(fact(f, 'Document number'), '091201355');
+  assert.equal(fact(f, 'Date of birth'), '1991-12-14');
+});

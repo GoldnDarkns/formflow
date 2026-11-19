@@ -3312,19 +3312,177 @@
   ]
  },
  "sorter_real": {
-  "generated": "2026-11-19T19:33:37.197Z",
+  "generated": "2026-11-19T22:01:30.364Z",
   "pipeline": {
-   "sortedRightWithShippedModel": 42,
+   "sortedRightWithShippedModel": 43,
    "turnedUpright": 3,
    "codeLinePages": 14,
-   "codeLinesFound": 13,
-   "codeLinesAllChecksPass": 8,
-   "medianMsPerPage": 3086
+   "codeLinesFound": 14,
+   "codeLinesAllChecksPass": 12,
+   "medianMsPerPage": 13172
   },
   "firstRun": {
    "sortedRight": 28,
    "codeLinesAllChecksPass": 4,
    "turnedUpright": 0
+  },
+  "synth": {
+   "train": 216,
+   "test": 108,
+   "all": {
+    "n": 108,
+    "rules": 99,
+    "learned": 107
+   },
+   "newCountries": {
+    "n": 29,
+    "rules": 26,
+    "learned": 29
+   },
+   "seenCountries": {
+    "n": 79,
+    "rules": 73,
+    "learned": 78
+   },
+   "byType": {
+    "passport": {
+     "n": 18,
+     "rules": 18,
+     "learned": 18
+    },
+    "emirates_id": {
+     "n": 18,
+     "rules": 18,
+     "learned": 17
+    },
+    "id_card": {
+     "n": 18,
+     "rules": 9,
+     "learned": 18
+    },
+    "driving_licence": {
+     "n": 18,
+     "rules": 18,
+     "learned": 18
+    },
+    "vehicle_licence": {
+     "n": 18,
+     "rules": 18,
+     "learned": 18
+    },
+    "visa": {
+     "n": 18,
+     "rules": 18,
+     "learned": 18
+    }
+   },
+   "byShot": {
+    "flat": {
+     "n": 42,
+     "rules": 36,
+     "learned": 42
+    },
+    "desk": {
+     "n": 23,
+     "rules": 22,
+     "learned": 23
+    },
+    "glare": {
+     "n": 17,
+     "rules": 16,
+     "learned": 16
+    },
+    "blur": {
+     "n": 16,
+     "rules": 15,
+     "learned": 16
+    },
+    "sideways": {
+     "n": 10,
+     "rules": 10,
+     "learned": 10
+    }
+   }
+  },
+  "finalSet": {
+   "documents": 108,
+   "sortedRight": 106,
+   "codeLinePages": 41,
+   "codeLinesAllChecksPass": 39,
+   "falseCodeLines": 5,
+   "neededTurning": 14,
+   "turnedRight": 13,
+   "keyFacts": {
+    "n": 322,
+    "right": 258
+   },
+   "shownVerifiedButWrong": 1,
+   "byFact": {
+    "number": {
+     "n": 85,
+     "right": 67
+    },
+    "Full name": {
+     "n": 85,
+     "right": 55
+    },
+    "Date of birth": {
+     "n": 85,
+     "right": 74
+    },
+    "Expiry date": {
+     "n": 67,
+     "right": 62
+    }
+   },
+   "byType": {
+    "driving_licence": {
+     "n": 52,
+     "right": 34
+    },
+    "emirates_id": {
+     "n": 72,
+     "right": 70
+    },
+    "id_card": {
+     "n": 72,
+     "right": 51
+    },
+    "passport": {
+     "n": 72,
+     "right": 63
+    },
+    "vehicle_licence": {
+     "n": 18,
+     "right": 13
+    },
+    "visa": {
+     "n": 36,
+     "right": 27
+    }
+   },
+   "byShot": {
+    "flat": {
+     "n": 35,
+     "right": 35
+    },
+    "desk": {
+     "n": 29,
+     "right": 29
+    },
+    "glare": {
+     "n": 21,
+     "right": 21
+    },
+    "blur": {
+     "n": 9,
+     "right": 8
+    },
+    "sideways": {
+     "n": 14,
+     "right": 13
+    }
+   }
   },
   "note": "Real identity documents, used with consent and kept outside the repository. Only counts are published. Learned = leave-one-out: each document is sorted by a model that never saw it.",
   "documents": 48,
@@ -3337,8 +3495,8 @@
    },
    "emirates_id": {
     "n": 11,
-    "rules": 10,
-    "learned": 10
+    "rules": 11,
+    "learned": 11
    },
    "form": {
     "n": 1,
@@ -3352,8 +3510,8 @@
    },
    "passport": {
     "n": 8,
-    "rules": 7,
-    "learned": 7
+    "rules": 8,
+    "learned": 8
    },
    "vehicle_licence": {
     "n": 6,
@@ -3361,7 +3519,7 @@
     "learned": 6
    }
   },
-  "handRules": 0.8333333333333334,
-  "learnedLeftOut": 0.8333333333333334
+  "handRules": 0.875,
+  "learnedLeftOut": 0.875
  }
 }

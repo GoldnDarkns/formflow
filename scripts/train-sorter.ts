@@ -27,7 +27,7 @@ import type { MrzResult } from '../src/core/mrz';
 import { DATA } from './funsd';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
-interface Sample { x: number[]; y: number; real: boolean; file: string }
+interface Sample { x: number[]; y: number; real: boolean; file: string; synth?: boolean }
 const K = DOC_TYPES.length, D = CLUES.length;
 const cls = (label: string) => DOC_TYPES.indexOf((DOC_TYPES.includes(label as DocType) ? label : 'other') as DocType);
 
@@ -49,8 +49,20 @@ for (const dir of ['ocr/training-full', 'forms20/ocr-tesseract']) {
     samples.push({ x: sorterFeatures(cleanWords(j.words), j.width, j.height, null), y: cls('form'), real: false, file: f });
   }
 }
+// made-up specimens (scripts/make-specimens.py): the train half is learned from, the test half only scored
+const synthDocs = (split: string): Sample[] => {
+  const d = path.join(DATA, 'synth-cache', split), out: Sample[] = [];
+  for (const label of fs.existsSync(d) ? fs.readdirSync(d) : [])
+    for (const f of fs.readdirSync(path.join(d, label))) {
+      const j = JSON.parse(fs.readFileSync(path.join(d, label, f), 'utf8'));
+      out.push({ x: sorterFeatures(j.words, j.width, j.height, mrzOf(j.mrz)), y: cls(label), real: false, synth: true, file: `${label}/${f.replace('.json', '.jpg')}` });
+    }
+  return out;
+};
+const synthTrain = synthDocs('train'), synthTest = synthDocs('test');
+samples.push(...synthTrain);
 const real = samples.filter((s) => s.real);
-console.log(`${samples.length} training pages: ${real.length} real documents, ${samples.length - real.length} public forms`);
+console.log(`${samples.length} training pages: ${real.length} real documents, ${synthTrain.length} made-up specimens, ${samples.length - real.length - synthTrain.length} public forms; ${synthTest.length} specimens held back for testing`);
 
 const prior = priorModel();
 const LAMBDA = 0.02;
@@ -101,13 +113,27 @@ console.log('all'.padEnd(18) + String(tot.n).padStart(4) + `${tot.rules} (${Math
 console.log('\nstill wrong when left out:\n  ' + wrong.join('\n  '));
 
 // ---- public forms must still be sorted as forms ----
-const forms = samples.filter((s) => !s.real);
+const forms = samples.filter((s) => !s.real && !s.synth);
 const final = fit(samples);
 const formsOk = forms.filter((s) => classifyFeatures(s.x, final).type === 'form').length;
 const formsRules = forms.filter((s) => classifyFeatures(s.x, prior).type === 'form').length;
 console.log(`\npublic forms sorted as form: hand rules ${formsRules}/${forms.length}, learned ${formsOk}/${forms.length} (these were in training)`);
 
-final.note = `Fitted on ${real.length} real documents and ${forms.length} public forms; weights pulled towards the hand-set rules (lambda ${LAMBDA}).`;
+// ---- held-back specimens: never used for fitting; some are from countries the training set never had ----
+let synth: any = null;
+if (synthTest.length) {
+  const tr = JSON.parse(fs.readFileSync(path.join(DATA, 'synth/test/truth.json'), 'utf8')).documents as any[];
+  const seen = new Set((JSON.parse(fs.readFileSync(path.join(DATA, 'synth/train/truth.json'), 'utf8')).documents as any[]).map((d) => d.country));
+  const info = new Map(tr.map((d) => [d.file, d]));
+  const tally = (pick: (s: Sample) => boolean) => { const rs = synthTest.filter(pick); return { n: rs.length, rules: rs.filter((s) => classifyFeatures(s.x, prior).type === DOC_TYPES[s.y]).length, learned: rs.filter((s) => classifyFeatures(s.x, final).type === DOC_TYPES[s.y]).length }; };
+  synth = { train: synthTrain.length, test: synthTest.length, all: tally(() => true), newCountries: tally((s) => !seen.has(info.get(s.file)?.country)), seenCountries: tally((s) => seen.has(info.get(s.file)?.country)), byType: Object.fromEntries(DOC_TYPES.map((t, k) => [t, tally((s) => s.y === k)]).filter(([, v]: any) => v.n)), byShot: Object.fromEntries(['flat', 'desk', 'glare', 'blur', 'sideways'].map((m) => [m, tally((s) => info.get(s.file)?.shot === m)])) };
+  const pc = (v: { n: number; rules: number; learned: number }) => `${v.n} pages: hand rules ${v.rules} (${Math.round((100 * v.rules) / Math.max(1, v.n))}%), learned ${v.learned} (${Math.round((100 * v.learned) / Math.max(1, v.n))}%)`;
+  console.log('\nheld-back specimens  ' + pc(synth.all));
+  console.log('  countries never in training  ' + pc(synth.newCountries));
+  for (const [t, v] of Object.entries(synth.byType)) console.log('  ' + t.padEnd(18) + pc(v as any));
+  for (const [t, v] of Object.entries(synth.byShot)) console.log('  ' + ('shot: ' + t).padEnd(18) + pc(v as any));
+}
+final.note = `Fitted on ${real.length} real documents, ${synthTrain.length} made-up specimens and ${forms.length} public forms; weights pulled towards the hand-set rules (lambda ${LAMBDA}).`;
 fs.writeFileSync(path.join(ROOT, 'src/core/sorter.json'), JSON.stringify(final) + '\n');
 const resPath = path.join(ROOT, 'public/eval/results.json');
 const R = JSON.parse(fs.readFileSync(resPath, 'utf8'));
@@ -120,6 +146,23 @@ try {
 } catch {}
 // the first run of the unchanged app on these documents, before any fix (19 Nov 2026)
 const firstRun = { sortedRight: 28, codeLinesAllChecksPass: 4, turnedUpright: 0 };
-R.sorter_real = { generated: new Date().toISOString(), pipeline, firstRun, note: 'Real identity documents, used with consent and kept outside the repository. Only counts are published. Learned = leave-one-out: each document is sorted by a model that never saw it.', documents: tot.n, publicForms: forms.length, byType, handRules: tot.rules / tot.n, learnedLeftOut: tot.learned / tot.n };
+// the untouched specimen set (never looked at while the reading rules were improved), whole pipeline, counts only
+let finalSet: any = null;
+try {
+  const rows = JSON.parse(fs.readFileSync(path.join(DATA, 'synth-results-final.json'), 'utf8')).rows as any[];
+  const facts = rows.flatMap((r) => Object.entries(r.facts ?? {}).map(([k, v]) => ({ k, v, t: r.label })));
+  const share = (xs: any[], f: (x: any) => boolean) => ({ n: xs.length, right: xs.filter(f).length });
+  finalSet = {
+    documents: rows.length, sortedRight: rows.filter((r) => r.pred === r.label).length,
+    codeLinePages: rows.filter((r) => r.hasMrz).length, codeLinesAllChecksPass: rows.filter((r) => r.hasMrz && r.mrz === 'valid').length,
+    falseCodeLines: rows.filter((r) => !r.hasMrz && r.mrz !== 'none').length,
+    neededTurning: rows.filter((r) => r.shot === 'sideways').length, turnedRight: rows.filter((r) => r.shot === 'sideways' && r.turnRight).length,
+    keyFacts: share(facts, (x) => x.v === 'right'), shownVerifiedButWrong: facts.filter((x) => x.v === 'verified-wrong').length,
+    byFact: Object.fromEntries(['number', 'Full name', 'Date of birth', 'Expiry date'].map((k) => [k, share(facts.filter((x) => x.k === k), (x) => x.v === 'right')])),
+    byType: Object.fromEntries([...new Set(facts.map((x) => x.t))].map((t) => [t, share(facts.filter((x) => x.t === t), (x) => x.v === 'right')])),
+    byShot: Object.fromEntries(['flat', 'desk', 'glare', 'blur', 'sideways'].map((m) => [m, share(rows.filter((r) => r.shot === m), (r) => r.pred === r.label)])),
+  };
+} catch {}
+R.sorter_real = { generated: new Date().toISOString(), pipeline, firstRun, synth, finalSet, note: 'Real identity documents, used with consent and kept outside the repository. Only counts are published. Learned = leave-one-out: each document is sorted by a model that never saw it.', documents: tot.n, publicForms: forms.length, byType, handRules: tot.rules / tot.n, learnedLeftOut: tot.learned / tot.n };
 fs.writeFileSync(resPath, JSON.stringify(R, null, 1));
 console.log('\nwrote src/core/sorter.json and the sorter_real block of public/eval/results.json');

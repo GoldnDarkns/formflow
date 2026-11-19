@@ -15,7 +15,7 @@ import type { Quad } from '../core/scan';
 import type { VisionOpinion } from '../core/critic-vision';
 import type { PreRequest, PreResponse } from './preprocess.worker';
 
-import { believableMrz, mrzCrops, readingQuality, TURNS, TURN_GAIN, UPRIGHT_MIN } from '../core/orient';
+import { believableMrz, linesFromWords, mrzCrops, mrzNeuralCrops, readingQuality, TURNS, TURN_GAIN, UPRIGHT_MIN } from '../core/orient';
 import { matchTemplate, readTemplate, templateChecks, templateWords, type Template, type TemplateMatch } from '../core/template';
 import { checkState, checkboxLabel, dropLetterBoxes, findCheckboxes, findSignatures, isSignatureCaption } from '../core/marks';
 import type { Box, Field } from '../core/types';
@@ -179,6 +179,8 @@ export function classifiers(): Promise<Classifiers> {
 export function warmUp() {
   tesseract().catch(() => (tess = null));
   classifiers().catch(() => (clf = null));
+  // the neural reader is used for passport and ID code lines on every page, whichever main reader is chosen
+  loadPpReader().catch(() => {});
 }
 
 function runPre(req: PreRequest): Promise<PreResponse> {
@@ -242,11 +244,27 @@ const mrzScore = (m: MrzResult | null) => (m ? m.checks.filter((c) => c.ok).leng
  * best. Stops as soon as every check digit passes, so a clean passport costs
  * one extra read and only hard pages cost more.
  */
-async function readMrz(gray: HTMLCanvasElement, clean: HTMLCanvasElement, band: [number, number] | null, nWords: number): Promise<MrzResult | null> {
+async function readMrz(gray: HTMLCanvasElement, clean: HTMLCanvasElement, band: [number, number] | null, nWords: number, grayRgba?: ArrayBuffer): Promise<MrzResult | null> {
   const crops = mrzCrops(band, gray.height, nWords);
   if (!crops.length) return null;
-  const w = await tesseractMrz();
   let best: MrzResult | null = null;
+  // the neural reader first: it is far better at these lines; the classical crops below are the fallback
+  if (grayRgba) {
+    try {
+      const W = gray.width;
+      for (const [y0, y1] of mrzNeuralCrops(band, gray.height, nWords)) {
+        const part = new Uint8ClampedArray(grayRgba).slice(y0 * W * 4, y1 * W * 4);
+        const r = await ppRead(part.buffer as ArrayBuffer, W, y1 - y0);
+        const lines = findMrzLines(linesFromWords(r.words));
+        const m = lines.length >= 2 ? parseMrz(lines) : null;
+        if (believableMrz(m, !!band) && mrzScore(m) > mrzScore(best)) best = m;
+        if (best?.valid) return best;
+      }
+    } catch (e) {
+      console.warn('neural code-line read unavailable, using the classical reader', e);
+    }
+  }
+  const w = await tesseractMrz();
   for (const cr of crops) {
     const src = cr.binarised ? clean : gray;
     const h = Math.max(1, cr.y1 - cr.y0);
@@ -379,7 +397,7 @@ export async function processDocument(file: Blob, fileName: string, opts: Prepro
   upd(3, { state: 'running' });
   let mrz: MrzResult | null = null;
   const band = mrzBand(words, p.scale, p.height);
-  mrz = await readMrz(rgbaToCanvas(p.gray, p.width, p.height), ocrCanvas, band, words.length);
+  mrz = await readMrz(rgbaToCanvas(p.gray, p.width, p.height), ocrCanvas, band, words.length, p.gray);
   let cls = classifyDocument(words, W, H, mrz);
   // a page whose printed words line up with a known form is that form, whatever the sorter thought
   const tm = mrz?.valid ? null : matchTemplate(await templates(), words, W, H);

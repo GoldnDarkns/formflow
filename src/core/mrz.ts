@@ -82,7 +82,9 @@ function fit(l: string, n: number) {
 }
 
 function names(s: string) {
-  const [sur, given = ''] = alpha(s).split('<<');
+  // the "<" padding after a name is often misread as a run of K and L; no real name has four of those in a row
+  const line = alpha(s).replace(/[KL<]{4,}/g, (m) => '<'.repeat(m.length));
+  const [sur, given = ''] = line.split('<<');
   return { surname: sur.replace(/</g, ' ').trim(), given: given.replace(/</g, ' ').replace(/\s+/g, ' ').trim() };
 }
 

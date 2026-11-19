@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import type { Live, Step } from '../engine/engine';
 import type { PreprocessOptions } from '../core/preprocess';
@@ -63,6 +63,11 @@ export function ScanPage(p: Props) {
   const camRef = useRef<HTMLInputElement>(null);
   const [over, setOver] = useState(false);
   const busy = !!p.active;
+  // on a phone the reading panel sits below the intake sheet: bring it into view when work starts
+  const liveRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (busy && window.innerWidth <= 920) liveRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [busy]);
 
   const pick = async (fl: FileList | null) => {
     if (!fl?.length) return;
@@ -118,7 +123,7 @@ export function ScanPage(p: Props) {
         <p className="row small muted hint"><IShield /> Everything is read on this device. Nothing is uploaded.</p>
       </div>
 
-      <div className="live">
+      <div className="live" ref={liveRef}>
         <AnimatePresence mode="popLayout">
           {p.active && (
             <motion.div key="active" className="sheet" layout initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.97 }}>

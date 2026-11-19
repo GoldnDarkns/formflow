@@ -46,16 +46,31 @@ export interface Classification {
   all: Evidence[]; // every piece of evidence, for the critic
 }
 
+/**
+ * The page as rows of text, built from where the words actually are.
+ *
+ * The reader's own "line" numbers cannot be trusted on cards: a small printed
+ * label and the larger value beside it come back as separate fragments, often
+ * with the value first. So words are grouped into visual rows by their vertical
+ * centre, rows are ordered top to bottom and words left to right. A label and
+ * its value on the same row then read "License No. 4055325", as a person reads it.
+ */
 export function linesOf(words: OcrWord[]): string[] {
-  const m = new Map<number, OcrWord[]>();
-  for (const w of words) {
-    if (!m.has(w.line)) m.set(w.line, []);
-    m.get(w.line)!.push(w);
+  const rows: { c: number; h: number; ws: OcrWord[] }[] = [];
+  for (const w of [...words].sort((p, q) => p.box[1] + p.box[3] - (q.box[1] + q.box[3]))) {
+    const c = (w.box[1] + w.box[3]) / 2, h = w.box[3] - w.box[1];
+    let best: (typeof rows)[number] | null = null, bd = Infinity;
+    for (const r of rows) {
+      const d = Math.abs(c - r.c);
+      if (d < Math.max(h, r.h) * 0.5 && d < bd) { best = r; bd = d; }
+    }
+    if (best) {
+      best.c = (best.c * best.ws.length + c) / (best.ws.length + 1);
+      best.h = (best.h * best.ws.length + h) / (best.ws.length + 1);
+      best.ws.push(w);
+    } else rows.push({ c, h, ws: [w] });
   }
-  return [...m.values()]
-    .map((ws) => ws.sort((a, b) => a.box[0] - b.box[0]))
-    .sort((a, b) => a[0].box[1] - b[0].box[1])
-    .map((ws) => ws.map((w) => w.text).join(' '));
+  return rows.sort((p, q) => p.c - q.c).map((r) => r.ws.sort((p, q) => p.box[0] - q.box[0]).map((w) => w.text).join(' '));
 }
 
 export const EID_RE = /784[\s-]?(\d{4})[\s-]?(\d{7})[\s-]?(\d)/;
