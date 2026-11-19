@@ -383,96 +383,186 @@ html { overflow-x: clip; }
 
 
 /* =====================================================================
-   Living look: animated background, glass surfaces, lively controls
+   The desk: paper sheets on a cutting mat, ink, folders and stamps.
+   One look for light and dark devices, because paper is paper.
    ===================================================================== */
-@property --spin { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+:root {
+  --mat: #17362f; --mat-2: #10291f; --mat-line: rgb(214 236 222 / 0.085); --mat-line-2: rgb(214 236 222 / 0.17);
+  --on-desk: #f1ecdd; --on-desk-2: #a9bdb0;
+  --manila: #e6d3a3; --manila-2: #cdb57c;
+  --desk: #efe8d6; /* a shade of paper, for boxes inside a sheet */
+  --sheet: #fbf7ec; --ink: #191b18; --ink-2: #4b4e45; --ink-3: #85877b; --line: #d8cfb9;
+  --indigo: #1f3fbf; /* ballpoint blue */
+  --marker: #ffe24a;
+  --good: #0a7d50; --good-bg: #dff2e3; --warn: #a35400; --warn-bg: #fdeec4; --bad: #c02a20; --bad-bg: #fbe1dc;
+  --t-passport: #1f3fbf; --t-emirates_id: #0a7d50; --t-id_card: #0e7c86; --t-driving_licence: #b0237f; --t-visa: #cf4424; --t-form: #5c5f55; --t-other: #85877b;
+  --q: #1f3fbf; --a: #0a7d50; --h: #b0237f; --o: #9a9b8f;
+  --r-s: 3px; --r-m: 4px; --r-l: 5px;
+  --lift: 0 1px 0 rgb(0 0 0 / 0.28), 0 2px 3px rgb(0 0 0 / 0.16), 0 18px 30px -18px rgb(0 0 0 / 0.6);
+  --hard: 2px 2px 0 var(--ink);
+  --paper-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.35  0 0 0 0 0.3  0 0 0 0 0.2  0 0 0 0.07 0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E");
+  color: var(--ink); background: var(--mat);
+}
+body { background: var(--mat); }
 
-/* ---------- background ---------- */
-.backdrop { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; background: var(--desk); }
-.backdrop canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
-.backdrop .glow { position: absolute; width: 62vmax; height: 62vmax; border-radius: 50%; filter: blur(90px); opacity: 0.34; will-change: transform; transition: opacity 0.8s; }
-.backdrop.busy .glow { opacity: 0.5; }
-.backdrop .g1 { left: -22vmax; top: -26vmax; background: radial-gradient(circle, var(--t-passport), transparent 62%); animation: drift1 26s ease-in-out infinite alternate; }
-.backdrop .g2 { right: -24vmax; top: -8vmax; background: radial-gradient(circle, var(--t-driving_licence), transparent 62%); animation: drift2 31s ease-in-out infinite alternate; }
-.backdrop .g3 { left: 8vmax; bottom: -34vmax; background: radial-gradient(circle, var(--t-emirates_id), transparent 62%); animation: drift3 29s ease-in-out infinite alternate; }
-.backdrop .g4 { right: -6vmax; bottom: -30vmax; width: 46vmax; height: 46vmax; background: radial-gradient(circle, var(--t-visa), transparent 62%); animation: drift1 34s ease-in-out infinite alternate-reverse; }
-@keyframes drift1 { to { transform: translate(14vmax, 9vmax) scale(1.18); } }
-@keyframes drift2 { to { transform: translate(-12vmax, 14vmax) scale(0.86); } }
-@keyframes drift3 { to { transform: translate(10vmax, -12vmax) scale(1.22); } }
-.backdrop .grain { position: absolute; inset: 0; opacity: 0.05; mix-blend-mode: overlay; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E"); }
-@media (prefers-color-scheme: light) { .backdrop .glow { opacity: 0.2; } .backdrop.busy .glow { opacity: 0.3; } }
+/* ---------- the mat ---------- */
+.backdrop { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; background: var(--mat); }
+.mat { position: absolute; inset: 0;
+  background-image:
+    linear-gradient(var(--mat-line-2) 1px, transparent 1px), linear-gradient(90deg, var(--mat-line-2) 1px, transparent 1px),
+    linear-gradient(var(--mat-line) 1px, transparent 1px), linear-gradient(90deg, var(--mat-line) 1px, transparent 1px);
+  background-size: 120px 120px, 120px 120px, 24px 24px, 24px 24px; background-position: -1px -1px; }
+.backdrop .size { position: absolute; border: 1.5px dashed rgb(214 236 222 / 0.3); border-radius: 2px; }
+.backdrop .size span { position: absolute; left: 0; top: -1.5em; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.1em; color: rgb(214 236 222 / 0.5); white-space: nowrap; }
+.backdrop .size i { position: absolute; width: 14px; height: 14px; border: 2px solid rgb(214 236 222 / 0.6); }
+.backdrop .size .tl { left: -2px; top: -2px; border-right: 0; border-bottom: 0; } .backdrop .size .tr { right: -2px; top: -2px; border-left: 0; border-bottom: 0; }
+.backdrop .size .bl { left: -2px; bottom: -2px; border-right: 0; border-top: 0; } .backdrop .size .br { right: -2px; bottom: -2px; border-left: 0; border-top: 0; }
+/* the scanner lamp: a band of light that travels down the mat, faster and brighter while a page is read */
+.lamp { position: absolute; left: -5%; right: -5%; top: 0; height: 26vh; translate: 0 -30vh; opacity: 0.55;
+  background: linear-gradient(to bottom, transparent, rgb(190 255 225 / 0.05) 55%, rgb(214 255 236 / 0.2) 92%, rgb(240 255 248 / 0.55) 99%, transparent);
+  animation: lamp 11s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
+.backdrop.busy .lamp { animation-duration: 2.6s; opacity: 1; }
+@keyframes lamp { 0% { translate: 0 -30vh; } 78%, 100% { translate: 0 110vh; } }
+.vignette { position: absolute; inset: 0; background: radial-gradient(120% 90% at 50% 35%, transparent 55%, rgb(4 16 12 / 0.55)); }
 .main { position: relative; z-index: 1; }
-.topbar { background: color-mix(in srgb, var(--desk) 55%, transparent); }
 
-/* ---------- glass surfaces: the background shows through, softly ---------- */
-.sheet, .card, .packet, .doc, .tray, .tplnote {
-  background: color-mix(in srgb, var(--sheet) 74%, transparent);
-  -webkit-backdrop-filter: blur(18px) saturate(1.35); backdrop-filter: blur(18px) saturate(1.35);
-  border: 1px solid color-mix(in srgb, var(--ink) 10%, transparent);
-}
-.tplnote { background: color-mix(in srgb, var(--good-bg) 78%, transparent); border-color: var(--good); }
-.field, .stat { background: color-mix(in srgb, var(--desk) 58%, transparent); }
-.field.review { background: color-mix(in srgb, var(--warn-bg) 82%, transparent); }
-.nav { background: color-mix(in srgb, var(--sheet) 78%, transparent); -webkit-backdrop-filter: blur(16px) saturate(1.4); backdrop-filter: blur(16px) saturate(1.4); border: 1px solid color-mix(in srgb, var(--ink) 12%, transparent); }
-/* phones: blur behind many cards is costly, so cards go nearly solid there */
-@media (max-width: 720px) {
-  .sheet, .card, .packet, .doc, .tray, .tplnote { -webkit-backdrop-filter: none; backdrop-filter: none; background: color-mix(in srgb, var(--sheet) 92%, transparent); }
-  .tplnote { background: color-mix(in srgb, var(--good-bg) 94%, transparent); }
-  .backdrop .glow { filter: blur(60px); }
-}
+/* ---------- words written straight on the mat ---------- */
+.topbar { background: color-mix(in srgb, var(--mat-2) 78%, transparent); color: var(--on-desk); border-bottom: 1px solid var(--mat-line-2); }
+.overview, .detail-head, .empty-state, .trayhead { color: var(--on-desk); }
+.overview .lede, .overview h1 span, .detail-head .muted, .empty-state p, .empty-state { color: var(--on-desk-2); }
+.overview h1, .detail-head h1, .empty-state h2 { color: var(--on-desk); }
+@media (max-width: 720px) { .topbar { background: var(--mat-2); } }
 
-/* ---------- headline ---------- */
-.shine { background: linear-gradient(100deg, var(--t-passport), var(--t-driving_licence) 35%, var(--t-visa) 55%, var(--t-emirates_id) 80%, var(--t-passport)); background-size: 220% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: shine 7s linear infinite; }
-@keyframes shine { to { background-position: -220% 0; } }
+/* ---------- paper ---------- */
+.sheet, .card, .tray, .packet, .doc, .tour-card { background: var(--sheet) var(--paper-grain); border: 0; border-radius: var(--r-l); box-shadow: var(--lift); -webkit-backdrop-filter: none; backdrop-filter: none; color: var(--ink); }
+/* sheets are laid down by hand, never quite square; they straighten when you pick them up */
+.doc { transition: rotate 0.25s cubic-bezier(0.2, 0.9, 0.3, 1.4), translate 0.25s cubic-bezier(0.2, 0.9, 0.3, 1.4), box-shadow 0.25s; }
+.grid > .doc:nth-child(3n + 1) { rotate: -0.7deg; } .grid > .doc:nth-child(3n + 2) { rotate: 0.5deg; } .grid > .doc:nth-child(3n) { rotate: -0.25deg; }
+.grid > .doc:hover { rotate: 0deg; translate: 0 -7px; box-shadow: 0 2px 0 rgb(0 0 0 / 0.3), 0 30px 40px -22px rgb(0 0 0 / 0.75); }
+.doc .thumb img { transition: scale 0.5s ease; } .doc:hover .thumb img { scale: 1.04; }
+.strip .mini:nth-child(odd) .thumb { rotate: -1.6deg; } .strip .mini:nth-child(even) .thumb { rotate: 1.2deg; }
+.strip .mini .thumb { transition: rotate 0.2s, translate 0.2s; box-shadow: 0 6px 10px -6px rgb(0 0 0 / 0.5); }
+.strip .mini:hover .thumb { rotate: 0deg; translate: 0 -3px; }
+.strip { padding-top: 0.9rem; }
+.thumb, .docwrap { border-radius: 2px; border: 1px solid var(--line); }
 
-/* ---------- buttons: lift, press, and a sweep of light on the main one ---------- */
-.btn { position: relative; overflow: hidden; transition: transform 0.18s cubic-bezier(0.2, 0.9, 0.3, 1.4), border-color 0.15s, background 0.15s, box-shadow 0.2s; }
-.btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 22px -10px color-mix(in srgb, var(--indigo) 70%, transparent); }
-.btn:active:not(:disabled) { transform: translateY(0) scale(0.95); }
-.btn svg { transition: transform 0.25s cubic-bezier(0.2, 0.9, 0.3, 1.6); }
-.btn:hover:not(:disabled) svg { transform: scale(1.18) rotate(-6deg); }
-.btn.primary { background: linear-gradient(120deg, var(--t-passport), color-mix(in srgb, var(--t-driving_licence) 70%, var(--t-passport))); border-color: transparent; box-shadow: 0 6px 24px -10px var(--t-passport); }
-.btn.primary::after, .btn.dark::after { content: ''; position: absolute; top: 0; bottom: 0; left: -60%; width: 45%; background: linear-gradient(100deg, transparent, rgb(255 255 255 / 0.5), transparent); transform: skewX(-20deg); transition: left 0.6s ease; pointer-events: none; }
-.btn.primary:hover:not(:disabled)::after, .btn.dark:hover:not(:disabled)::after { left: 120%; }
-/* the tour button wears a slowly turning ring so a first-time visitor finds it */
-.btn.tourbtn { border: 1.5px solid transparent; background: linear-gradient(var(--sheet), var(--sheet)) padding-box, conic-gradient(from var(--spin), var(--t-passport), var(--t-driving_licence), var(--t-visa), var(--marker), var(--t-emirates_id), var(--t-passport)) border-box; animation: spin 5s linear infinite; }
-@keyframes spin { to { --spin: 360deg; } }
+/* the intake sheet: a printed form with a header line and binder holes */
+.tray { padding-left: clamp(2.6rem, 6vw, 4rem); outline-offset: -8px; }
+.tray::before { content: 'FORMFLOW  ·  INTAKE SHEET  ·  FF-01'; display: block; font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.16em; color: var(--ink-3); padding-bottom: 0.7rem; margin-bottom: 1.1rem; border-bottom: 1.5px solid var(--ink); }
+.tray::after { content: ''; position: absolute; left: clamp(0.8rem, 2vw, 1.3rem); top: 12%; bottom: 12%; width: 15px;
+  background: radial-gradient(circle at 50% 50%, var(--mat) 0 6.5px, transparent 7px) 0 0 / 15px 50% repeat-y; filter: drop-shadow(0 1px 0 rgb(0 0 0 / 0.25) ); }
+.tray.over { outline-color: var(--indigo); transform: scale(1.01); box-shadow: var(--lift), 0 0 0 4px var(--marker); }
+.tray h1 { font-variation-settings: 'wdth' 84; }
+/* a highlighter pen drawn across the promise */
+.shine { background: linear-gradient(104deg, transparent 0.6%, var(--marker) 1.4%, color-mix(in srgb, var(--marker) 82%, transparent) 97%, transparent 99%) no-repeat 0 62% / 0% 58%; color: inherit; -webkit-background-clip: border-box; background-clip: border-box; padding: 0 0.18em; margin: 0 -0.18em; box-decoration-break: clone; -webkit-box-decoration-break: clone; animation: swipe 0.9s 0.5s cubic-bezier(0.3, 0.7, 0.2, 1) forwards; }
+@keyframes swipe { to { background-size: 100% 58%; } }
+.fan .pg { background: #fff; border: 1px solid var(--line); border-radius: 2px; box-shadow: 0 8px 14px -8px rgb(0 0 0 / 0.45); }
 
-/* ---------- navigation ---------- */
-.nav .pill { background: linear-gradient(120deg, var(--ink), color-mix(in srgb, var(--ink) 80%, var(--t-passport))); box-shadow: 0 4px 18px -6px color-mix(in srgb, var(--t-passport) 80%, transparent); }
-.nav button { transition: color 0.2s, transform 0.2s cubic-bezier(0.2, 0.9, 0.3, 1.5); }
-.nav button:hover:not(.active) { color: var(--ink); transform: translateY(-1px); }
-.nav button svg { transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.7); }
-.nav button:hover svg { transform: scale(1.2); }
+/* section titles inside a sheet read like a printed form */
+.sheet h2, .card h2, .packet h2 { letter-spacing: -0.01em; }
+.settings summary { font-family: var(--mono); font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; }
+
+/* ---------- buttons: stamped keys with a hard shadow that press flat ---------- */
+.btn { position: relative; overflow: visible; border-radius: 4px; border: 1.5px solid var(--ink); background: var(--sheet); color: var(--ink); box-shadow: var(--hard); transition: translate 0.09s, box-shadow 0.09s, background 0.15s; transform: none; }
+.btn:hover:not(:disabled) { translate: -1px -1px; box-shadow: 3px 3px 0 var(--ink); border-color: var(--ink); transform: none; }
+.btn:active:not(:disabled) { translate: 2px 2px; box-shadow: 0 0 0 var(--ink); transform: none; }
+.btn svg { transition: transform 0.25s cubic-bezier(0.2, 0.9, 0.3, 1.6); } .btn:hover:not(:disabled) svg { transform: scale(1.15) rotate(-6deg); }
+.btn.primary { background: var(--indigo); color: #fff; border-color: var(--ink); }
+.btn.dark { background: var(--ink); color: var(--sheet); border-color: var(--ink); box-shadow: 2px 2px 0 var(--manila-2); }
+.btn.dark:hover:not(:disabled) { box-shadow: 3px 3px 0 var(--manila-2); } .btn.dark:active:not(:disabled) { box-shadow: 0 0 0 var(--manila-2); }
+.btn.ghost { background: transparent; border-color: transparent; box-shadow: none; text-decoration: underline; text-decoration-color: color-mix(in srgb, currentColor 35%, transparent); text-underline-offset: 3px; }
+.btn.ghost:hover:not(:disabled) { translate: 0 0; box-shadow: none; border-color: transparent; text-decoration-color: currentColor; background: color-mix(in srgb, var(--marker) 55%, transparent); }
+.btn.ghost:active:not(:disabled) { translate: 0 1px; box-shadow: none; }
+.btn.tourbtn { border: 1.5px dashed var(--ink); text-decoration: none; background: color-mix(in srgb, var(--marker) 38%, transparent); animation: nudge 3.2s ease-in-out 1.5s infinite; }
+@keyframes nudge { 0%, 86%, 100% { rotate: 0deg; } 90% { rotate: -1.6deg; } 95% { rotate: 1.4deg; } }
+/* buttons that sit on the mat, not on paper */
+.overview .btn, .detail-head .btn { box-shadow: 2px 2px 0 rgb(0 0 0 / 0.55); } .overview .btn:hover:not(:disabled), .detail-head .btn:hover:not(:disabled) { box-shadow: 3px 3px 0 rgb(0 0 0 / 0.55); }
+select.type { border-radius: 4px; border: 1.5px solid var(--ink); background: var(--sheet); box-shadow: 2px 2px 0 rgb(0 0 0 / 0.55); }
+
+/* ---------- navigation: index tabs ---------- */
+.brand { color: var(--on-desk); } .brand img { transition: transform 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.5); } .brand:hover img { transform: rotate(-10deg) scale(1.12); }
+.nav { background: rgb(0 0 0 / 0.28); border-radius: 6px; padding: 4px; box-shadow: inset 0 1px 3px rgb(0 0 0 / 0.4); border: 0; -webkit-backdrop-filter: none; backdrop-filter: none; }
+.nav button { border-radius: 4px; color: var(--on-desk-2); transition: color 0.2s, translate 0.2s cubic-bezier(0.2, 0.9, 0.3, 1.5); }
+.nav button:hover:not(.active) { color: var(--on-desk); translate: 0 -1px; }
+.nav button.active { color: var(--ink); }
+.nav .pill { background: var(--sheet); border-radius: 4px; box-shadow: 0 1px 0 rgb(0 0 0 / 0.35), 0 6px 10px -6px rgb(0 0 0 / 0.6); }
+.nav button svg { transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.7); } .nav button:hover svg { transform: scale(1.18); }
 .nav button.active svg { animation: navpop 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.6); }
 @keyframes navpop { 0% { transform: scale(0.6) rotate(-18deg); } 60% { transform: scale(1.25) rotate(6deg); } 100% { transform: none; } }
-.nav .count { animation: countpulse 2.4s ease-in-out infinite; }
-@keyframes countpulse { 50% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--marker) 30%, transparent); } }
-.brand img { transition: transform 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.5); }
-.brand:hover img { transform: rotate(-10deg) scale(1.12); }
+.nav .count { border-radius: 3px; font-family: var(--mono); }
+@media (max-width: 720px) { .nav { background: var(--mat-2); box-shadow: 0 10px 30px -8px rgb(0 0 0 / 0.8), inset 0 0 0 1px var(--mat-line-2); } }
 
-/* ---------- cards ---------- */
-.doc { transition: translate 0.22s cubic-bezier(0.2, 0.9, 0.3, 1.3), box-shadow 0.22s, border-color 0.22s; }
-.doc:hover { translate: 0 -6px; border-color: color-mix(in srgb, var(--c, var(--indigo)) 70%, transparent); box-shadow: 0 22px 44px -20px color-mix(in srgb, var(--c, var(--indigo)) 75%, transparent); }
-.doc .thumb img { transition: scale 0.5s ease; }
-.doc:hover .thumb img { scale: 1.05; }
-.mini { transition: translate 0.2s cubic-bezier(0.2, 0.9, 0.3, 1.4); }
-.mini:hover { translate: 0 -4px; }
-.stat { transition: transform 0.25s cubic-bezier(0.2, 0.9, 0.3, 1.4), box-shadow 0.25s; animation: rise 0.55s both; }
-.stat:hover { transform: translateY(-3px); box-shadow: 0 12px 26px -16px var(--indigo); }
-.summary .stat:nth-child(2) { animation-delay: 0.06s; } .summary .stat:nth-child(3) { animation-delay: 0.12s; } .summary .stat:nth-child(4) { animation-delay: 0.18s; }
-.prose .card { animation: rise 0.5s both; }
-.prose .card:nth-child(2) { animation-delay: 0.05s; } .prose .card:nth-child(3) { animation-delay: 0.1s; } .prose .card:nth-child(4) { animation-delay: 0.15s; }
+/* ---------- trays: manila folders with a coloured index tab ---------- */
+.trayhead { display: inline-flex; align-items: center; gap: 0.6rem; margin: 1.6rem 0 0; padding: 0.42rem 1rem 0.36rem 0.8rem; background: var(--manila); color: var(--ink); border-radius: 7px 14px 0 0; border-left: 7px solid var(--c); box-shadow: 0 -1px 0 rgb(255 255 255 / 0.35) inset; position: relative; z-index: 1; }
+.trayhead h2 { font-size: 1.02rem; color: var(--ink); } .trayhead h2::before { display: none; }
+.trayhead .muted { color: var(--ink-2); font-family: var(--mono); font-weight: 700; }
+.trayhead + .grid { background: linear-gradient(var(--manila), var(--manila-2)); padding: 1.1rem; border-radius: 0 6px 6px 6px; box-shadow: var(--lift), inset 0 1px 0 rgb(255 255 255 / 0.4); }
+.packet { border-left: 6px solid var(--marker); }
+
+/* ---------- small things, all cut square like labels ---------- */
+.tag { border-radius: 3px; border: 1px solid color-mix(in srgb, currentColor 30%, transparent); font-weight: 650; }
+.conf { border-radius: 3px; font-family: var(--mono); font-weight: 600; }
+.seg { border-radius: 4px; background: var(--desk); border: 1px solid var(--line); } .seg button { border-radius: 3px; } .seg button.on { box-shadow: 0 1px 0 rgb(0 0 0 / 0.2); }
+.bar { border-radius: 0; height: 6px; } .bar > div { border-radius: 0; }
+.progress, .progress > div { border-radius: 0; }
+.stamp { rotate: -7deg; background: color-mix(in srgb, #fff 70%, transparent); mix-blend-mode: multiply; border-radius: 4px; }
+.verdict { border-radius: 3px !important; }
+.checks .mk { border-radius: 3px; }
+.toast { border-radius: 4px; background: var(--ink); color: var(--sheet); box-shadow: 3px 3px 0 var(--marker); }
+.tplnote { background: var(--good-bg); border: 0; border-left: 6px solid var(--good); border-radius: 3px; box-shadow: var(--lift); color: var(--ink); -webkit-backdrop-filter: none; backdrop-filter: none; }
+.redactbar { border-radius: 3px; }
+
+/* ---------- the field list: lines on a form, values typed in ---------- */
+.field { background: transparent; border-radius: 0; border-bottom: 1px dashed var(--line); padding-top: 0.5rem; padding-bottom: 0.5rem; transition: background 0.15s; }
+.field:hover { background: color-mix(in srgb, var(--desk) 70%, transparent); translate: none; }
+.field::before { border-radius: 0; top: 6px; bottom: 6px; width: 3px; }
+.field.review { background: color-mix(in srgb, var(--marker) 30%, transparent); }
+.field.sel { box-shadow: none; background: color-mix(in srgb, var(--marker) 62%, transparent); }
+.field .key { font-family: var(--mono); font-size: 0.74rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-3); }
+.field .val { font-family: var(--mono); font-weight: 600; font-size: 0.95rem; }
+.field input, .field textarea { border-radius: 2px; }
+.fact span { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; }
+.mrzlines { border-radius: 2px; background: #fff; border: 1px solid var(--line); }
+.duel > div { border-radius: 3px !important; }
+.fields { gap: 0; }
+
+/* ---------- Model card and Help: a printed report, not a dashboard ---------- */
+.prose { counter-reset: sec; gap: 1.3rem; }
+.prose .card { padding: clamp(1.2rem, 3.2vw, 2.4rem) clamp(1.1rem, 4vw, 3rem); animation: rise 0.5s both; }
+.prose .card:nth-child(2) { animation-delay: 0.05s; } .prose .card:nth-child(3) { animation-delay: 0.1s; }
 @keyframes rise { from { opacity: 0; transform: translateY(14px); } }
-.tray.over { box-shadow: 0 0 0 3px var(--marker), 0 30px 60px -30px var(--t-passport); }
-.field { transition: box-shadow 0.2s, background 0.2s, translate 0.2s; }
-.field:hover { translate: 2px 0; }
-.tag { transition: transform 0.2s; }
-.tag:hover { transform: scale(1.05); }
+.prose .card:first-child { border-top: 10px solid var(--ink); }
+.prose .card:first-child::before { content: 'FORMFLOW  ·  TECHNICAL RECORD'; font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.18em; color: var(--ink-3); }
+.prose h1 { font-size: clamp(2rem, 6vw, 3.4rem); font-variation-settings: 'wdth' 80; }
+.prose h2 { counter-increment: sec; display: flex; align-items: baseline; gap: 0.7rem; font-size: 1.35rem; padding-bottom: 0.55rem; border-bottom: 1.5px solid var(--ink); }
+.prose h2::before { content: '§' counter(sec, decimal-leading-zero); font-family: var(--mono); font-size: 0.74rem; font-weight: 600; letter-spacing: 0.08em; color: var(--indigo); flex: none; }
+.prose p, .prose li { color: var(--ink-2); font-size: 0.97rem; line-height: 1.62; max-width: 72ch; }
+.prose p.small { font-size: 0.92rem; }
+.prose ol { counter-reset: step; list-style: none; padding-left: 0; gap: 0.7rem; }
+.prose ol > li { counter-increment: step; position: relative; padding-left: 2.6rem; }
+.prose ol > li::before { content: counter(step); position: absolute; left: 0; top: 0.05rem; width: 1.75rem; height: 1.75rem; display: grid; place-items: center; border: 1.5px solid var(--ink); border-radius: 50%; font-family: var(--mono); font-weight: 700; font-size: 0.82rem; color: var(--ink); }
+/* figures as boxes on a form: caption above, typed number below */
+.summary { gap: 0; border: 1.5px solid var(--ink); grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); background: var(--sheet); }
+.stat { display: flex; flex-direction: column-reverse; justify-content: flex-end; gap: 0.35rem; background: transparent; border-radius: 0; padding: 0.7rem 0.9rem 0.85rem; box-shadow: 1px 0 0 var(--ink), 0 1px 0 var(--ink); animation: none; transition: background 0.2s; }
+.stat:hover { transform: none; box-shadow: 1px 0 0 var(--ink), 0 1px 0 var(--ink); background: color-mix(in srgb, var(--marker) 45%, transparent); }
+.stat b { font-family: var(--mono); font-size: clamp(1.15rem, 2.6vw, 1.6rem); font-weight: 600; letter-spacing: -0.04em; }
+.stat span { font-family: var(--mono); font-size: 0.64rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); line-height: 1.35; }
+table.metrics { font-size: 0.9rem; border-top: 1.5px solid var(--ink); border-bottom: 1.5px solid var(--ink); }
+table.metrics th { font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2); border-bottom: 1px solid var(--ink); padding-top: 0.6rem; padding-bottom: 0.6rem; }
+table.metrics td { border-bottom: 1px dashed var(--line); }
+table.metrics tr:last-child td { border-bottom: 0; }
+table.metrics td.num { font-family: var(--mono); }
+table.metrics tbody tr { transition: background 0.15s; } table.metrics tbody tr:hover { background: color-mix(in srgb, var(--marker) 30%, transparent); }
+.relfig figcaption { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.05em; text-transform: uppercase; }
+
+/* ---------- tour ---------- */
+.tour-dim { background: rgb(4 14 10 / 0.7); } .tour-spot { border-radius: 6px; box-shadow: 0 0 0 9999px rgb(4 14 10 / 0.7), 0 0 0 3px var(--marker); }
+.tour-card { border-radius: 4px; border: 0; border-top: 8px solid var(--marker); } .tour-count { font-family: var(--mono); } .tour-x:hover { background: var(--desk); }
+.corner, .cmp-bar i { border-color: var(--ink); }
 
 @media (prefers-reduced-motion: reduce) {
-  .backdrop .glow, .shine, .btn.tourbtn, .nav .count, .stat, .prose .card, .nav button.active svg { animation: none; }
-  .btn, .doc, .mini, .stat, .field, .nav button { transition: none; }
+  .lamp { animation: none; translate: 0 30vh; } .shine { animation: none; background-size: 100% 58%; } .btn.tourbtn, .prose .card, .nav button.active svg { animation: none; }
+  .btn, .doc, .strip .mini .thumb, .nav button { transition: none; }
 }
-.backdrop canvas { opacity: 0.72; }
-.overview .lede { text-shadow: 0 1px 12px var(--desk); }
+@media (max-width: 720px) { .backdrop .size span { display: none; } .trayhead + .grid { padding: 0.7rem; } .tray { padding-left: 2.4rem; } .tray::after { left: 0.6rem; } }
+@media (max-width: 720px) { .backdrop .size { display: none; } }
