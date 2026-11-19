@@ -179,3 +179,5 @@ Exact numbers are in `public/eval/results.json`.
 - Only use documents the owner has the right to use. Never commit real documents or anything from `../data`.
 - FUNSD is for non-commercial research and education, so the models and the app are non-commercial. See `LICENSE` for third-party notices.
 - Do not build anything that edits the text on an ID image. Redaction (black boxes on a copy) is the supported feature.
+
+19. Phone-first pass: the result screen now opens with an answer card (type, name, one status line, key facts with "verified" marks, tap a fact to copy it, one main button). "Check n fields" opens `Review.tsx`, one doubtful field at a time with an enlarged crop. "Take a photo" opens `Camera.tsx` (live view, Card/Page frame, several shots), falling back to the photo picker. Both overlays are portalled to `body` so they sit above the phone navigation. Do not name a top-level class `.review`: `.field.review` already exists. Checked in the preview at 375 px and desktop; the live camera itself is NOT tested (the preview pane blocks cameras) and nothing has been tried on a real phone.

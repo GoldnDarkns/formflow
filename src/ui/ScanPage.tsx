@@ -5,6 +5,7 @@ import type { PreprocessOptions } from '../core/preprocess';
 import type { DocState } from './state';
 import { CutOut, Stamp } from './bits';
 import { ICamera, IShield, ISpark, IUpload } from './icons';
+import { Camera, cameraAvailable } from './Camera';
 
 export interface SecondReaderState {
   enabled: boolean;
@@ -62,6 +63,7 @@ export function ScanPage(p: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
   const camRef = useRef<HTMLInputElement>(null);
   const [over, setOver] = useState(false);
+  const [camera, setCamera] = useState(false);
   const busy = !!p.active;
   // on a phone the reading panel sits below the intake sheet: bring it into view when work starts
   const liveRef = useRef<HTMLDivElement>(null);
@@ -113,13 +115,14 @@ export function ScanPage(p: Props) {
           ))}
         </div>
         <div className="row actions">
-          <button className="btn primary" onClick={() => fileRef.current?.click()}><IUpload /> Choose images, PDFs or a ZIP</button>
-          <button className="btn" onClick={() => camRef.current?.click()}><ICamera /> Take a photo</button>
+          <button className="btn primary choose" onClick={() => fileRef.current?.click()}><IUpload /> Choose images, PDFs or a ZIP</button>
+          <button className="btn cam" onClick={() => (cameraAvailable() ? setCamera(true) : camRef.current?.click())}><ICamera /> Take a photo</button>
           <button className="btn ghost" disabled={busy} onClick={samples}>Try {SAMPLE_COUNT} sample scans</button>
           <button className="btn ghost tourbtn" disabled={busy} onClick={p.onTour}><ISpark /> Take the 60-second tour</button>
         </div>
         <input ref={camRef} type="file" accept="image/*" capture="environment" hidden onChange={(e) => { pick(e.target.files); e.target.value = ''; }} />
         <input ref={fileRef} type="file" accept="image/*,application/pdf,.zip,application/zip" multiple hidden onChange={(e) => { pick(e.target.files); e.target.value = ''; }} />
+        <AnimatePresence>{camera && <Camera onShots={p.onFiles} onClose={() => setCamera(false)} onFallback={() => camRef.current?.click()} />}</AnimatePresence>
         <p className="row small muted hint"><IShield /> Everything is read on this device. Nothing is uploaded.</p>
       </div>
 

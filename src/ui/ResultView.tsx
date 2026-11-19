@@ -1,5 +1,6 @@
-import { useEffect, useRef } from 'react';
-import { motion } from 'motion/react';
+import { useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
+import { Review } from './Review';
 import { DOC_LABEL, DOC_TYPES, type DocType } from '../core/classify';
 import { alertsFor } from '../core/facts';
 import { union } from '../core/layout';
@@ -37,6 +38,8 @@ export function ResultView(p: Props) {
   const { s } = p;
   const { doc } = s;
   const listRef = useRef<HTMLDivElement>(null);
+  const [reviewing, setReviewing] = useState(false);
+  const [copied, setCopied] = useState('');
   const trust = trustOf(s);
   const alerts = alertsFor(doc.docType, doc.classification.confidence, doc.facts, doc.mrz);
   const review = needsReview(s.fields);
@@ -58,11 +61,24 @@ export function ResultView(p: Props) {
   };
   const confirmAll = () => p.onChange(s.fields.map((f) => (f.status !== 'review' && f.value ? { ...f, confirmed: true } : f)));
 
+  // ---- what leads the screen: who or what this is, the facts, and whether a person still has to look ----
+  const name = doc.facts.find((f) => f.key === 'Full name')?.value;
+  const verified = doc.facts.filter((f) => f.proof && f.valid).length;
+  const failed = doc.facts.filter((f) => f.proof && f.valid === false).length;
+  const problem = alerts.find((a) => a.level === 'bad');
+  const state: 'bad' | 'warn' | 'good' = failed || problem ? 'bad' : review ? 'warn' : 'good';
+  const headline = failed ? `${failed} check digit${failed === 1 ? '' : 's'} failed: look closely`
+    : problem ? problem.text.split('.')[0]
+    : review ? `${review} field${review === 1 ? '' : 's'} to check`
+    : verified ? `${verified} value${verified === 1 ? '' : 's'} verified by check digits` : 'Read. Nothing flagged.';
+  const copyFact = (k: string, v: string) => { navigator.clipboard?.writeText(v).then(() => { setCopied(k); setTimeout(() => setCopied(''), 1200); }).catch(() => {}); };
+  const shownFacts = doc.facts.filter((f) => f.key !== 'Full name');
+
   return (
     <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
       <div className="detail-head">
-        <button className="btn sm" onClick={p.onBack}>Back to trays</button>
-        <h1 className="grow">{doc.facts.find((f) => f.key === 'Full name')?.value ?? doc.fileName}</h1>
+        <button className="btn sm" onClick={p.onBack}>Back</button>
+        <span className="grow" />
         <label className="row small" style={{ gap: '0.4rem' }}>
           <span className="muted">Sorted as</span>
           <select className="type" value={doc.docType} onChange={(e) => p.onRetype(e.target.value as DocType)} style={{ color: typeColor(doc.docType) }}>
@@ -71,75 +87,48 @@ export function ResultView(p: Props) {
         </label>
       </div>
 
-      {doc.template && (
-        <div className="tplnote">
-          <span className="grow"><b>Read with a template:</b> {doc.template.template.name}. {Math.round(doc.template.score * 100)}% of the form's printed words were found in place, so each box is read directly and its label comes from the template.</span>
-          {doc.template.template.id.startsWith('user-') && <button className="btn sm" onClick={() => p.onForgetTemplate(doc.template!.template.id)}>Forget this template</button>}
+      <section className={'answer ' + state} style={{ ['--c' as any]: typeColor(doc.docType) }}>
+        <div className="answer-head">
+          <div className="grow">
+            <span className="answer-type">{DOC_LABEL[doc.docType]}<small>{pct(doc.classification.confidence)} sure</small></span>
+            <h1>{name ?? doc.fileName}</h1>
+            {name && <p className="answer-file">{doc.fileName}{doc.turned ? ` · turned ${doc.turned}°` : ''}{doc.quad ? ' · cut out of a photo' : ''}</p>}
+          </div>
+          <Ring value={trust.score} size={72} stroke={7} />
         </div>
-      )}
+        <div className={'answer-state ' + state}>
+          <span className="mk">{state === 'good' ? '✓' : '!'}</span>
+          <b>{headline}</b>
+        </div>
+        {shownFacts.length > 0 && (
+          <div className="answer-facts">
+            {shownFacts.map((f) => (
+              <button className="afact" key={f.key} onClick={() => copyFact(f.key, f.value)} title="Tap to copy">
+                <span>{f.key}{f.proof && (f.valid ? <i className="ok">verified</i> : <i className="no">check failed</i>)}</span>
+                <b>{f.value}</b>
+                {copied === f.key && <motion.em initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}>copied</motion.em>}
+              </button>
+            ))}
+          </div>
+        )}
+        {alerts.filter((a) => a !== problem).length > 0 && <div className="alerts">{alerts.filter((a) => a !== problem).map((a) => <span key={a.text} className={'tag ' + a.level} style={{ whiteSpace: 'normal' }}>{a.text}</span>)}</div>}
+        {doc.template && (
+          <p className="answer-note tplnote"><span className="grow"><b>Read with a template:</b> {doc.template.template.name}. Each box is read directly and keeps its proper label.</span>
+            {doc.template.template.id.startsWith('user-') && <button className="btn sm" onClick={() => p.onForgetTemplate(doc.template!.template.id)}>Forget this template</button>}</p>
+        )}
+        <div className="answer-actions">
+          {review > 0
+            ? <button className="btn primary big" onClick={() => setReviewing(true)}><ICheck /> Check {review} field{review === 1 ? '' : 's'}</button>
+            : <button className="btn primary big" onClick={p.onCopy}><ICopy /> Copy everything</button>}
+          {review > 0 && <button className="btn" onClick={p.onCopy}><ICopy /> Copy</button>}
+          <button className="btn" onClick={p.onExportJson}><IDownload /> JSON</button>
+          <button className="btn" onClick={p.onReport}><IDownload /> PDF</button>
+        </div>
+      </section>
+
       <div className="results">
         <DocViewer s={s} selected={p.selected} onSelect={p.onSelect} onTeach={p.onTeach} onCorners={p.onCorners} />
         <div className="stack">
-          <div className="sheet stack">
-            <div className="trust">
-              <Ring value={trust.score} size={104} stroke={10} />
-              <div className="parts">
-                <h2>How sure is FormFlow?</h2>
-                {trust.parts.map((x) => (
-                  <div className="part" key={x.label} title={x.note}>
-                    <span>{x.label}</span>
-                    <div className="bar"><motion.div initial={{ width: 0 }} animate={{ width: pct(x.value) }} transition={{ duration: 0.8, ease: [0.2, 0.8, 0.2, 1] }} /></div>
-                    <span className="num">{pct(x.value)}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            {alerts.length > 0 && <div className="alerts">{alerts.map((a) => <span key={a.text} className={'tag ' + a.level} style={{ whiteSpace: 'normal' }}>{a.text}</span>)}</div>}
-          </div>
-
-          <div className="sheet stack" style={{ gap: '0.8rem' }}>
-            <div className="row">
-              <h2 className="grow">The critic</h2>
-              <motion.span key={crit.verdict} className={'verdict ' + crit.verdict} initial={{ scale: 0.7, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring', stiffness: 420, damping: 20 }}>
-                {crit.verdict === 'holds' ? 'Agrees' : crit.verdict === 'doubt' ? 'Has doubts' : 'Disagrees'}
-              </motion.span>
-            </div>
-            <p className="small">{crit.summary}</p>
-            <div className="duel">
-              <div><span>Sorter, reading the text</span><b style={{ color: typeColor(doc.docType) }}>{DOC_LABEL[doc.docType]}</b> <span>{pct(doc.classification.confidence)} sure</span></div>
-              <div>
-                <span>Critic, looking at the picture</span>
-                {crit.vision ? <><b style={{ color: typeColor(crit.vision.type) }}>{DOC_LABEL[crit.vision.type]}</b> <span>{pct(crit.vision.confidence)} sure</span></> : <><b className="muted">{p.criticOn ? 'Looking' : 'Switched off'}</b><span>{p.criticOn ? 'The vision model is loading or working' : 'Turn the critic on from the Scan tab'}</span></>}
-              </div>
-            </div>
-            <ul className="checks">
-              {crit.expected.map((e) => <li key={e.text} className={e.ok ? 'ok' : 'no'}><span className="mk">{e.ok ? '✓' : '!'}</span><span>{e.text}</span></li>)}
-            </ul>
-            <details>
-              <summary className="small" style={{ cursor: 'pointer', fontWeight: 600 }}>The case for and against</summary>
-              <p className="small muted" style={{ marginTop: '0.5rem' }}>For {DOC_LABEL[doc.docType].toLowerCase()}</p>
-              <ul className="why">{doc.classification.evidence.map((e) => <li key={e.why}>{e.why}</li>)}</ul>
-              {crit.against.length > 0 && <><p className="small muted" style={{ marginTop: '0.5rem' }}>Against{crit.runnerUp ? `, ${pct(crit.runnerUp.prob)} chance it is a ${DOC_LABEL[crit.runnerUp.type].toLowerCase()}` : ''}</p><ul className="why">{crit.against.map((e) => <li key={e}>{e}</li>)}</ul></>}
-              {!crit.against.length && <p className="small muted" style={{ marginTop: '0.5rem' }}>Nothing on the page argues for another type.</p>}
-            </details>
-          </div>
-
-          {doc.facts.length > 0 && (
-            <div className="sheet stack">
-              <h2>Key facts</h2>
-              <div className="facts">
-                {doc.facts.map((f) => (
-                  <div className="fact" key={f.key}>
-                    <span>{f.key}</span>
-                    <b>{f.value}</b>
-                    {f.proof && (f.valid ? <span className="tag good">{f.proof} ✓</span> : <span className="tag bad">{f.proof} fails</span>)}
-                  </div>
-                ))}
-              </div>
-              {doc.mrz && <div className="mrzlines">{doc.mrz.lines.join('\n')}</div>}
-            </div>
-          )}
-
           <div className="sheet stack" style={{ gap: '0.7rem' }}>
             <div className="row">
               <h2 className="grow">{review ? `${review} to check` : 'All fields'} <span className="muted small" style={{ fontFamily: 'var(--body)', fontWeight: 500 }}>of {s.fields.filter((f) => f.value).length}</span></h2>
@@ -150,7 +139,7 @@ export function ResultView(p: Props) {
               <button className="btn sm" onClick={confirmAll}><ICheck /> Confirm the sure ones</button>
             </div>
             <div className="fields" ref={listRef}>
-              {sorted.length === 0 && <p className="muted small">No label and value pairs found. Switch the viewer to "What the reader saw" to judge the scan, or add fields by hand.</p>}
+              {sorted.length === 0 && <p className="muted small">No label and value pairs found. Switch the viewer to "Before / after" to judge the scan, or add fields by hand.</p>}
               {sorted.map((f) => {
                 const sel = p.selected === f.uid;
                 const crop = sel ? cropOf(f) : null;
@@ -184,16 +173,53 @@ export function ResultView(p: Props) {
             </div>
           </div>
 
+          {/* the reasoning is one tap away, not in the way */}
+          <details className="sheet fold">
+            <summary><span className="grow">Why "{DOC_LABEL[doc.docType]}"?</span><span className={'verdict ' + crit.verdict}>{crit.verdict === 'holds' ? 'Second opinion agrees' : crit.verdict === 'doubt' ? 'Second opinion has doubts' : 'Second opinion disagrees'}</span></summary>
+            <div className="stack" style={{ gap: '0.8rem', marginTop: '0.8rem' }}>
+              <p className="small">{crit.summary}</p>
+              <div className="duel">
+                <div><span>Sorter, reading the text</span><b style={{ color: typeColor(doc.docType) }}>{DOC_LABEL[doc.docType]}</b> <span>{pct(doc.classification.confidence)} sure</span></div>
+                <div>
+                  <span>Critic, looking at the picture</span>
+                  {crit.vision ? <><b style={{ color: typeColor(crit.vision.type) }}>{DOC_LABEL[crit.vision.type]}</b> <span>{pct(crit.vision.confidence)} sure</span></> : <><b className="muted">{p.criticOn ? 'Looking' : 'Switched off'}</b><span>{p.criticOn ? 'The vision model is loading or working' : 'Turn the critic on from the Scan tab'}</span></>}
+                </div>
+              </div>
+              <ul className="checks">
+                {crit.expected.map((e) => <li key={e.text} className={e.ok ? 'ok' : 'no'}><span className="mk">{e.ok ? '✓' : '!'}</span><span>{e.text}</span></li>)}
+              </ul>
+              <p className="small muted">For {DOC_LABEL[doc.docType].toLowerCase()}</p>
+              <ul className="why">{doc.classification.evidence.map((e) => <li key={e.why}>{e.why}</li>)}</ul>
+              {crit.against.length > 0 && <><p className="small muted">Against{crit.runnerUp ? `, ${pct(crit.runnerUp.prob)} chance it is a ${DOC_LABEL[crit.runnerUp.type].toLowerCase()}` : ''}</p><ul className="why">{crit.against.map((e) => <li key={e}>{e}</li>)}</ul></>}
+              <div className="trust">
+                <div className="parts">
+                  {trust.parts.map((x) => (
+                    <div className="part" key={x.label} title={x.note}>
+                      <span>{x.label}</span>
+                      <div className="bar"><div style={{ width: pct(x.value) }} /></div>
+                      <span className="num">{pct(x.value)}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </details>
+          {doc.mrz && (
+            <details className="sheet fold">
+              <summary><span className="grow">Code lines at the bottom of the page</span><span className={'verdict ' + (doc.mrz.valid ? 'holds' : 'doubt')}>{doc.mrz.valid ? 'Every check digit passes' : 'Not every check digit passes'}</span></summary>
+              <div className="mrzlines" style={{ marginTop: '0.8rem' }}>{doc.mrz.lines.join('\n')}</div>
+              <ul className="checks" style={{ marginTop: '0.6rem' }}>{doc.mrz.checks.map((c) => <li key={c.name} className={c.ok ? 'ok' : 'no'}><span className="mk">{c.ok ? '✓' : '!'}</span><span>{c.name}</span></li>)}</ul>
+            </details>
+          )}
+
           <div className="row">
-            <button className="btn primary" onClick={p.onExportJson}><IDownload /> Download JSON</button>
-            <button className="btn" onClick={p.onReport}><IDownload /> PDF report</button>
-            <button className="btn" onClick={p.onCopy}><ICopy /> Copy</button>
             <button className="btn ghost sm" title="Saves your corrections as a labelled example, for testing or training the models" onClick={p.onExportLabelled}>Save as labelled example</button>
             <span className="grow" />
-            <button className="btn ghost sm" style={{ color: 'var(--bad)' }} onClick={p.onRemove}>Remove</button>
+            <button className="btn ghost sm" style={{ color: 'var(--bad)' }} onClick={p.onRemove}>Remove this document</button>
           </div>
         </div>
       </div>
+      <AnimatePresence>{reviewing && <Review s={s} cropOf={cropOf} onChange={p.onChange} onClose={() => setReviewing(false)} />}</AnimatePresence>
     </motion.div>
   );
 }
