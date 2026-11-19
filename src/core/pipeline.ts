@@ -5,6 +5,7 @@ import type { Entity, Field, Link, OcrWord, SecondReading } from './types';
 import { LABELS } from './types';
 import { argmaxLabel, candidatePairs, coverage, decodeLinks, entityFeatures, groupWords, pageCtx, pairFeatures, vOverlap, bh, hOverlap, median } from './layout';
 import { norm, substringDistance } from './ocr';
+import { calibrate, type CurveName } from './calibration';
 
 export interface Classifiers {
   entity(X: number[][]): Promise<number[][]>; // probs per LABELS
@@ -78,7 +79,7 @@ function idLayout(entities: Entity[], links: Link[]): Link[] {
   return out;
 }
 
-export async function analyse(words: OcrWord[], W: number, H: number, clf: Classifiers, second?: SecondReading[], kind: 'form' | 'id' = 'form'): Promise<Analysis> {
+export async function analyse(words: OcrWord[], W: number, H: number, clf: Classifiers, second?: SecondReading[], kind: 'form' | 'id' = 'form', reader: 'tesseract' | 'ppocr' = 'tesseract'): Promise<Analysis> {
   const entities = groupWords(words);
   if (!entities.length) return { entities, links: [], fields: [] };
   const ctx = pageCtx(entities, W, H);
@@ -111,6 +112,7 @@ export async function analyse(words: OcrWord[], W: number, H: number, clf: Class
   }
 
   const qi = LABELS.indexOf('question'), ai = LABELS.indexOf('answer');
+  const curve: CurveName = second ? 'tesseract+second' : reader;
   const fields: Field[] = [];
   const answered = new Set<number>();
   const byQ = new Map<number, Link[]>();
@@ -149,7 +151,10 @@ export async function analyse(words: OcrWord[], W: number, H: number, clf: Class
       value: A.map((a) => a.text).join(' '),
       qId: Q.id,
       aId: A[0].id,
-      confidence: conf,
+      // shown figure is calibrated on forms (the curves were fitted on FUNSD forms, not on ID cards);
+      // the review flag keeps using the raw score, whose threshold was tuned separately
+      confidence: kind === 'form' ? calibrate(conf, curve) : conf,
+      raw: conf,
       status: conf < 0.8 || reasons.length ? 'review' : 'ok',
       reasons,
       alt,

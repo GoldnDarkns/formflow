@@ -43,6 +43,7 @@ export interface DocResult {
   processedView: string; // data URL of the cleaned image the OCR saw
   skew: number;
   words: OcrWord[];
+  reader: 'tesseract' | 'ppocr'; // which reader produced `words` (picks the calibration curve)
   analysis: Analysis;
   mrz: MrzResult | null;
   second?: SecondReading[];
@@ -250,7 +251,7 @@ export async function processDocument(file: Blob, fileName: string, opts: Prepro
   upd(4, { state: 'running' });
   const kind = ID_TYPES.includes(cls.type) ? 'id' : 'form';
   const c = await clfP;
-  const analysis = await analyse(words, W, H, c, undefined, kind);
+  const analysis = await analyse(words, W, H, c, undefined, kind, opts.reader === 'ppocr' ? 'ppocr' : 'tesseract');
   const facts = extractFacts(cls.type, words, analysis.fields, mrz);
   upd(4, { state: 'done', ms: performance.now() - t, detail: `${analysis.fields.filter((f) => f.value).length} fields` });
 
@@ -270,6 +271,7 @@ export async function processDocument(file: Blob, fileName: string, opts: Prepro
     processedView: ocrCanvas.toDataURL('image/png'),
     skew: p.skew,
     words,
+    reader: opts.reader === 'ppocr' ? 'ppocr' : 'tesseract',
     analysis,
     mrz,
     steps,
@@ -284,7 +286,7 @@ export async function processDocument(file: Blob, fileName: string, opts: Prepro
 /** The clerk corrected the document type: redo layout analysis and key facts for it. */
 export async function retype(doc: DocResult, type: DocType, second?: SecondReading[]): Promise<DocResult> {
   const kind = ID_TYPES.includes(type) ? 'id' : 'form';
-  const analysis = await analyse(doc.words, doc.width, doc.height, await classifiers(), second, kind);
+  const analysis = await analyse(doc.words, doc.width, doc.height, await classifiers(), second, kind, doc.reader);
   return { ...doc, kind, docType: type, analysis, facts: extractFacts(type, doc.words, analysis.fields, doc.mrz), classification: { ...doc.classification, type, confidence: 1, evidence: [{ type, weight: 9, why: 'Set by you' }], all: [{ type, weight: 9, why: 'Set by you' }] } };
 }
 
@@ -362,7 +364,7 @@ export async function secondRead(doc: DocResult): Promise<{ regions: SecondReadi
 }
 
 export async function reanalyse(doc: DocResult, second?: SecondReading[]): Promise<Analysis> {
-  return analyse(doc.words, doc.width, doc.height, await classifiers(), second, doc.kind);
+  return analyse(doc.words, doc.width, doc.height, await classifiers(), second, doc.kind, doc.reader);
 }
 
 // ---------------- vision critic (MobileCLIP image encoder) ----------------

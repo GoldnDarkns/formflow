@@ -46,7 +46,8 @@ export interface Field {
   value: string;
   qId?: number;
   aId?: number;
-  confidence: number; // 0..1
+  confidence: number; // 0..1, calibrated for forms: the estimated chance the field is right
+  raw?: number; // the score before calibration
   status: FieldStatus;
   reasons: string[]; // why it needs review
   alt?: string; // second reader's version of the value, when it differs

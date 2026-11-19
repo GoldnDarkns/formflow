@@ -13,7 +13,7 @@ export function Help() {
       <h2>The critic</h2>
       <p>After the sorter decides what a page is, the critic checks the decision three ways: does the page contain what that type should contain, what argues for a different type, and what does a separate vision model think when it looks only at the picture. The vision model is the weaker witness, so it can raise a doubt but never changes the type by itself.</p>
       <h2>PDFs, reports and redacted copies</h2>
-      <p>You can drop PDF files: each page is read on its own. "PDF report" gives a printable summary of one document or of all of them, including the cross-document checks. "Redact" blacks out identity numbers and dates of birth on a copy of the image; tap any box to hide or show it. Photos of faces are not hidden automatically.</p>
+      <p>You can drop PDF files: each page is read on its own. "PDF report" gives a printable summary of one document or of all of them, including the cross-document checks. "Redact" blacks out identity numbers and dates of birth on a copy of the image; tap any box to hide or show it. On identity documents it also guesses where the portrait photo is and covers it; this is a guess, so check it. Drag on the page to black out anything else, such as a signature.</p>
       <h2>The trust score</h2>
       <p>The ring on each document blends three things: how confident the field extraction is, how sure the type recognition is, and whether the checksums pass (passport check digits, the Emirates ID check digit). Fields you confirm count as certain, so the ring fills as you review.</p>
       <h2>Checks across documents</h2>

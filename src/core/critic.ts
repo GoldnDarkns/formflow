@@ -60,10 +60,13 @@ export function critique(type: DocType, cls: Classification, facts: Fact[], mrz:
   const visionDoubt = !!v && !v.agrees && (failed > 0 || cls.confidence < 0.95);
   if (failed > 0 || visionDoubt || cls.confidence < 0.8) verdict = 'doubt';
   if ((expected.length && failed > expected.length / 2) || (v && !v.agrees && v.confidence >= 0.6 && (failed > 0 || cls.confidence < 0.9))) verdict = 'challenged';
-  const name = DOC_LABEL[type].toLowerCase();
+  // "an Emirates ID", "an ID card", "a passport"
+  const label = DOC_LABEL[type].replace(/^[A-Z][a-z]/, (m) => m.toLowerCase());
+  const name = label.replace(/^emirates/, 'Emirates');
+  const an = /^(Emirates|ID)/.test(name) ? 'an' : 'a';
   const summary =
-    verdict === 'holds' ? (v && !v.agrees ? `Everything a ${name} should contain is here. The picture-only model guessed differently, but the checks outweigh it.` : `The critic agrees this is a ${name}.`)
-    : verdict === 'doubt' ? `Probably a ${name}, with ${failed ? 'something missing' : visionDoubt ? 'a differing second opinion' : 'a narrow margin'}.`
-    : `The critic doubts this is a ${name}. Check the type.`;
+    verdict === 'holds' ? (v && !v.agrees ? `Everything ${an} ${name} should contain is here. The picture-only model guessed differently, but the checks outweigh it.` : `The critic agrees this is ${an} ${name}.`)
+    : verdict === 'doubt' ? `Probably ${an} ${name}, with ${failed ? 'something missing' : visionDoubt ? 'a differing second opinion' : 'a narrow margin'}.`
+    : `The critic doubts this is ${an} ${name}. Check the type.`;
   return { verdict, summary, expected, against, runnerUp, vision: v };
 }

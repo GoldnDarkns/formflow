@@ -1,0 +1,5 @@
+{
+  "fitted": false,
+  "note": "Identity map until scripts/calibrate.ts has been run on the FUNSD training split.",
+  "curves": {}
+}

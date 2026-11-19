@@ -1,7 +1,34 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion } from 'motion/react';
 import { download as _d, sensitiveEntities, type DocState } from './state';
 import { cx, cy } from '../core/layout';
+import { ID_TYPES } from '../core/classify';
+import { findPhotoArea } from '../core/photo';
+import { rgbaToGray } from '../core/preprocess';
+import type { Box } from '../core/types';
+
+async function loadImage(src: string) {
+  const img = new Image();
+  img.src = src;
+  await img.decode();
+  return img;
+}
+
+/** Guess where the portrait photo is on an ID page (null for forms or when nothing fits). */
+async function guessPhoto(s: DocState): Promise<Box | null> {
+  if (!ID_TYPES.includes(s.doc.docType)) return null;
+  const img = await loadImage(s.doc.view);
+  const k = Math.min(1, 640 / img.width);
+  const c = document.createElement('canvas');
+  c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+  const ctx = c.getContext('2d')!;
+  ctx.drawImage(img, 0, 0, c.width, c.height);
+  const gray = rgbaToGray(ctx.getImageData(0, 0, c.width, c.height).data, c.width, c.height);
+  const sx = c.width / s.doc.width, sy = c.height / s.doc.height;
+  const text = s.doc.words.map((w) => [w.box[0] * sx, w.box[1] * sy, w.box[2] * sx, w.box[3] * sy] as Box);
+  const b = findPhotoArea(gray, text);
+  return b ? [b[0] / sx, b[1] / sy, b[2] / sx, b[3] / sy] : null;
+}
 
 const COLORS: Record<string, string> = { question: 'var(--q)', answer: 'var(--a)', header: 'var(--h)', other: 'var(--o)' };
 
@@ -16,19 +43,47 @@ export function DocViewer({ s, selected, onSelect }: Props) {
   const processed = mode === 'reader';
   const [redact, setRedact] = useState(false);
   const [hidden, setHidden] = useState<Set<number>>(new Set());
-  useEffect(() => { setRedact(false); setMode('page'); }, [s.doc.id]);
-  const startRedact = () => { setHidden(sensitiveEntities(s)); setRedact(true); setMode('page'); };
+  // extra black boxes: the guessed photo area plus any the person draws
+  const [extra, setExtra] = useState<{ id: number; box: Box; photo?: boolean }[]>([]);
+  const [draft, setDraft] = useState<Box | null>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
+  const drag = useRef<{ x: number; y: number } | null>(null);
+  const nextId = useRef(1);
+  useEffect(() => { setRedact(false); setMode('page'); setExtra([]); }, [s.doc.id]);
+  const startRedact = () => {
+    setHidden(sensitiveEntities(s)); setRedact(true); setMode('page'); setExtra([]);
+    guessPhoto(s).then((b) => { if (b) setExtra((e) => (e.some((x) => x.photo) ? e : [...e, { id: nextId.current++, box: b, photo: true }])); }).catch(() => {});
+  };
+  const toDoc = (ev: { clientX: number; clientY: number }) => {
+    const r = svgRef.current!.getBoundingClientRect();
+    return { x: ((ev.clientX - r.left) / r.width) * s.doc.width, y: ((ev.clientY - r.top) / r.height) * s.doc.height };
+  };
+  const onDown = (ev: React.PointerEvent<SVGRectElement>) => {
+    drag.current = toDoc(ev);
+    ev.currentTarget.setPointerCapture(ev.pointerId);
+  };
+  const onMove = (ev: React.PointerEvent<SVGRectElement>) => {
+    if (!drag.current) return;
+    const p = toDoc(ev), d = drag.current;
+    setDraft([Math.min(d.x, p.x), Math.min(d.y, p.y), Math.max(d.x, p.x), Math.max(d.y, p.y)]);
+  };
+  const onUp = () => {
+    drag.current = null;
+    setDraft((b) => {
+      if (b && b[2] - b[0] > s.doc.width * 0.015 && b[3] - b[1] > s.doc.height * 0.01) setExtra((e) => [...e, { id: nextId.current++, box: b }]);
+      return null;
+    });
+  };
   const toggleHidden = (id: number) => setHidden((h) => { const n = new Set(h); n.has(id) ? n.delete(id) : n.add(id); return n; });
   const saveRedacted = async () => {
-    const img = new Image();
-    img.src = s.doc.view;
-    await img.decode();
+    const img = await loadImage(s.doc.view);
     const c = document.createElement('canvas');
     c.width = img.width; c.height = img.height;
     const ctx = c.getContext('2d')!;
     ctx.drawImage(img, 0, 0);
     ctx.fillStyle = '#000';
     for (const e of s.analysis.entities) if (hidden.has(e.id)) ctx.fillRect(e.box[0] - 4, e.box[1] - 4, e.box[2] - e.box[0] + 8, e.box[3] - e.box[1] + 8);
+    for (const x of extra) ctx.fillRect(x.box[0], x.box[1], x.box[2] - x.box[0], x.box[3] - x.box[1]);
     const a = document.createElement('a');
     a.href = c.toDataURL('image/jpeg', 0.9);
     a.download = s.doc.fileName.replace(/\.[^.]+$/, '') + '-redacted.jpg';
@@ -56,7 +111,7 @@ export function DocViewer({ s, selected, onSelect }: Props) {
       </div>
       {redact && (
         <div className="redactbar">
-          <span className="grow">{hidden.size} areas hidden. Tap any box to hide or show it. Photos are not hidden automatically.</span>
+          <span className="grow">{hidden.size + extra.length} areas hidden{extra.some((x) => x.photo) ? ', including the photo (a guess, check it)' : ''}. Tap a box to hide or show it. Drag on the page to black out anything else, such as a photo or signature.</span>
           <button className="btn sm" style={{ color: 'var(--ink)' }} onClick={saveRedacted}>Save redacted copy</button>
           <button className="btn sm ghost" style={{ color: 'var(--sheet)' }} onClick={() => setRedact(false)}>Done</button>
         </div>
@@ -72,7 +127,9 @@ export function DocViewer({ s, selected, onSelect }: Props) {
       ) : (
       <div className="docwrap">
         <img src={processed ? doc.processedView : doc.view} alt="Scanned document" />
-        <svg viewBox={`0 0 ${doc.width} ${doc.height}`} preserveAspectRatio="none">
+        <svg ref={svgRef} viewBox={`0 0 ${doc.width} ${doc.height}`} preserveAspectRatio="none" style={redact ? { touchAction: 'none' } : undefined}>
+          {/* in redact mode, dragging on empty page draws a new black box */}
+          {redact && <rect x={0} y={0} width={doc.width} height={doc.height} fill="transparent" style={{ cursor: 'crosshair' }} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp} />}
           <defs>
             <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--ink-3)" /></marker>
           </defs>
@@ -101,6 +158,12 @@ export function DocViewer({ s, selected, onSelect }: Props) {
           {redact && ents.filter((e) => hidden.has(e.id)).map((e) => (
             <motion.rect key={'r' + e.id} x={e.box[0] - 4} y={e.box[1] - 4} height={e.box[3] - e.box[1] + 8} fill="#000" initial={{ width: 0 }} animate={{ width: e.box[2] - e.box[0] + 8 }} transition={{ duration: 0.25 }} style={{ cursor: 'pointer' }} onClick={() => toggleHidden(e.id)} />
           ))}
+          {redact && extra.map((x) => (
+            <motion.rect key={'x' + x.id} x={x.box[0]} y={x.box[1]} width={x.box[2] - x.box[0]} fill="#000" initial={{ height: 0 }} animate={{ height: x.box[3] - x.box[1] }} transition={{ duration: 0.25 }} style={{ cursor: 'pointer' }} onClick={() => setExtra((e) => e.filter((y) => y.id !== x.id))}>
+              <title>{x.photo ? 'Photo area (guess). Tap to show it again.' : 'Tap to remove this box.'}</title>
+            </motion.rect>
+          ))}
+          {redact && draft && <rect x={draft[0]} y={draft[1]} width={draft[2] - draft[0]} height={draft[3] - draft[1]} fill="#000" fillOpacity={0.6} stroke="var(--marker)" strokeWidth={lw} pointerEvents="none" />}
         </svg>
       </div>
       )}
