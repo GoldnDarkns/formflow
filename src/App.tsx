@@ -187,7 +187,7 @@ export default function App() {
         </header>
         <main className="main">
           <AnimatePresence mode="wait" initial={false}>
-            <motion.div key={tab + (tab === 'sorted' ? open ?? '' : '')} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.14 }}>
+            <motion.div key={tab + (tab === 'sorted' ? open ?? '' : '')} initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.2, ease: [0.2, 0.8, 0.2, 1] }}>
               {tab === 'scan' && (
                 <ScanPage pre={pre} setPre={setPre} second={second} toggleSecond={toggleSecond} critic={critic} setCritic={setCritic} active={active} queue={queue.length} recent={docs}
                   onFiles={(fs) => setQueue((q) => [...q, ...fs])} onOpen={openDoc} onSorted={() => { setOpen(null); setTab('sorted'); }} onTour={() => setTour(0)} />

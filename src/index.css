@@ -566,3 +566,127 @@ table.metrics tbody tr { transition: background 0.15s; } table.metrics tbody tr:
 }
 @media (max-width: 720px) { .backdrop .size span { display: none; } .trayhead + .grid { padding: 0.7rem; } .tray { padding-left: 2.4rem; } .tray::after { left: 0.6rem; } }
 @media (max-width: 720px) { .backdrop .size { display: none; } }
+
+
+/* =====================================================================
+   The desk, second pass: a warm graphite mat instead of green, no lamp
+   line, and motion everywhere it helps you follow what is happening.
+   ===================================================================== */
+:root {
+  --mat: #24211d; --mat-2: #181613; --mat-line: rgb(246 232 200 / 0.06); --mat-line-2: rgb(246 232 200 / 0.12);
+  --on-desk: #f5eedd; --on-desk-2: #b9ae98;
+}
+.vignette { background: radial-gradient(120% 90% at 50% 35%, transparent 55%, rgb(0 0 0 / 0.6)); }
+.tour-dim { background: rgb(12 10 8 / 0.72); } .tour-spot { box-shadow: 0 0 0 9999px rgb(12 10 8 / 0.72), 0 0 0 3px var(--marker); }
+
+/* a warm pool of light that follows the pointer, like a desk lamp */
+.desklamp { position: absolute; inset: 0; background: radial-gradient(520px circle at var(--mx, 30%) var(--my, 30%), rgb(255 226 160 / 0.13), rgb(255 226 160 / 0.04) 45%, transparent 70%); transition: opacity 0.6s; }
+.backdrop.busy .desklamp { filter: brightness(1.9); }
+
+/* the document outlines: they float a little, and text writes itself inside them */
+.backdrop .size { border-color: rgb(246 232 200 / 0.26); animation: floaty 14s ease-in-out infinite alternate; animation-delay: calc(var(--k) * -3.7s); }
+.backdrop .size span { color: rgb(246 232 200 / 0.46); }
+.backdrop .size i { border-color: rgb(246 232 200 / 0.55); }
+@keyframes floaty { from { translate: 0 0; } to { translate: 0.9vmin -1.4vmin; } }
+.inklines { position: absolute; inset: 13% 11%; display: flex; flex-direction: column; gap: 7%; }
+.inklines em { flex: 0.6; }
+.inklines b { display: block; height: 3px; min-height: 2px; flex: none; border-radius: 2px; background: rgb(246 232 200 / 0.3); transform-origin: left; scale: 0 1;
+  animation: write 12s cubic-bezier(0.3, 0.7, 0.2, 1) infinite; animation-delay: calc(var(--k) * 2.3s + var(--i) * 0.28s); }
+/* written in, then recognised: labels turn blue, values green, then the page clears for the next one */
+@keyframes write {
+  0% { scale: 0 1; opacity: 0; background: rgb(246 232 200 / 0.3); }
+  3% { opacity: 1; }
+  12%, 34% { scale: 1 1; background: rgb(246 232 200 / 0.3); }
+  42%, 70% { scale: 1 1; background: var(--tone, rgb(246 232 200 / 0.3)); opacity: 1; }
+  82%, 100% { scale: 1 1; opacity: 0; }
+}
+.inklines b.q { --tone: #6f8cff; } .inklines b.v { --tone: #4fd09a; }
+.backdrop.busy .inklines b { animation-duration: 3.4s; animation-delay: calc(var(--k) * 0.5s + var(--i) * 0.09s); }
+
+/* ---------- sheets are dealt onto the desk ---------- */
+@keyframes deal { from { opacity: 0; translate: 0 26px; rotate: -1.6deg; } }
+@keyframes dealr { from { opacity: 0; translate: 0 26px; rotate: 1.4deg; } }
+.scan > .tray { animation: deal 0.6s cubic-bezier(0.2, 0.9, 0.3, 1.2) backwards; }
+.live > .sheet { animation: dealr 0.55s cubic-bezier(0.2, 0.9, 0.3, 1.2) backwards; }
+.live > .sheet:nth-child(2) { animation-delay: 0.08s; } .live > .sheet:nth-child(3) { animation-delay: 0.16s; }
+.results > .sheet, .results > .stack > .sheet { animation: deal 0.55s cubic-bezier(0.2, 0.9, 0.3, 1.2) backwards; }
+.results > .stack > .sheet:nth-child(1) { animation-delay: 0.06s; } .results > .stack > .sheet:nth-child(2) { animation-name: dealr; animation-delay: 0.13s; } .results > .stack > .sheet:nth-child(3) { animation-delay: 0.2s; } .results > .stack > .sheet:nth-child(4) { animation-name: dealr; animation-delay: 0.27s; }
+.tplnote { animation: deal 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2) backwards; }
+.overview { animation: fadeup 0.5s backwards; } .detail-head { animation: fadeup 0.4s backwards; }
+@keyframes fadeup { from { opacity: 0; translate: 0 12px; } }
+/* folders slide out of the drawer one after another */
+.trayhead { animation: tabup 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.3) backwards; }
+.trayhead + .grid { animation: folder 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.1) backwards; transform-origin: top; }
+section:nth-of-type(2) > .trayhead, section:nth-of-type(2) > .grid { animation-delay: 0.08s; } section:nth-of-type(3) > .trayhead, section:nth-of-type(3) > .grid { animation-delay: 0.16s; }
+section:nth-of-type(4) > .trayhead, section:nth-of-type(4) > .grid { animation-delay: 0.24s; } section:nth-of-type(5) > .trayhead, section:nth-of-type(5) > .grid { animation-delay: 0.32s; }
+@keyframes tabup { from { opacity: 0; translate: 0 14px; } } @keyframes folder { from { opacity: 0; translate: 0 22px; } }
+.trayhead { transition: translate 0.2s cubic-bezier(0.2, 0.9, 0.3, 1.5); } section:hover > .trayhead { translate: 0 -3px; }
+
+/* ---------- the hero pages breathe; the intake sheet lifts when you bring a file near ---------- */
+.fan .pg { animation: breathe 5s ease-in-out infinite alternate; }
+.fan .pg:nth-child(2) { animation-delay: -1.2s; } .fan .pg:nth-child(3) { animation-delay: -2.4s; } .fan .pg:nth-child(4) { animation-delay: -3.6s; }
+@keyframes breathe { from { translate: 0 0; } to { translate: 0 -7px; } }
+.tray:hover .fan .pg { animation-duration: 1.6s; }
+.tray { transition: outline-color 0.2s, transform 0.25s cubic-bezier(0.2, 0.9, 0.3, 1.3), box-shadow 0.25s; }
+.tray.over { transform: scale(1.015) rotate(-0.4deg); }
+.tray .hint svg { animation: shieldpulse 3.2s ease-in-out infinite; } @keyframes shieldpulse { 50% { scale: 1.18; color: var(--good); } }
+
+/* ---------- reading a page ---------- */
+.steps li { transition: color 0.25s, translate 0.25s; } .steps li.running { translate: 4px 0; font-weight: 650; }
+.steps .done .dot { animation: pop 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.8); }
+@keyframes pop { from { scale: 0.3; } }
+.steps .meta { animation: fadeup 0.3s backwards; }
+.beam { background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--marker) 45%, transparent) 85%, var(--marker)); }
+.cutout { transition: rotate 0.3s; } .scanner:hover .cutout { rotate: -1deg; }
+
+/* ---------- the stamp lands, and the ink spreads ---------- */
+.stamp::after { content: ''; position: absolute; inset: -3px; border: 2px solid var(--c); border-radius: 6px; opacity: 0; animation: ink 0.7s 0.12s ease-out; pointer-events: none; }
+@keyframes ink { 0% { opacity: 0.7; scale: 1; } 100% { opacity: 0; scale: 1.5; } }
+.doc:hover .stamp, .mini:hover .stamp { animation: restamp 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.7); }
+@keyframes restamp { 0% { scale: 1.5; rotate: -16deg; } 100% { scale: 1; rotate: -7deg; } }
+
+/* ---------- lists arrive line by line ---------- */
+.fields > * { animation: linein 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.1) backwards; }
+.fields > *:nth-child(1) { animation-delay: 0.1s; } .fields > *:nth-child(2) { animation-delay: 0.14s; } .fields > *:nth-child(3) { animation-delay: 0.18s; } .fields > *:nth-child(4) { animation-delay: 0.22s; }
+.fields > *:nth-child(5) { animation-delay: 0.26s; } .fields > *:nth-child(6) { animation-delay: 0.3s; } .fields > *:nth-child(7) { animation-delay: 0.34s; } .fields > *:nth-child(8) { animation-delay: 0.38s; }
+.fields > *:nth-child(n + 9) { animation-delay: 0.42s; }
+@keyframes linein { from { opacity: 0; translate: -14px 0; } }
+.checks li { animation: linein 0.4s backwards; } .checks li:nth-child(2) { animation-delay: 0.07s; } .checks li:nth-child(3) { animation-delay: 0.14s; } .checks li:nth-child(4) { animation-delay: 0.21s; } .checks li:nth-child(5) { animation-delay: 0.28s; }
+.checks .mk { animation: pop 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.9) backwards; animation-delay: inherit; }
+.facts .fact { animation: fadeup 0.4s backwards; } .facts .fact:nth-child(2) { animation-delay: 0.05s; } .facts .fact:nth-child(3) { animation-delay: 0.1s; } .facts .fact:nth-child(4) { animation-delay: 0.15s; } .facts .fact:nth-child(5) { animation-delay: 0.2s; } .facts .fact:nth-child(n + 6) { animation-delay: 0.25s; }
+.alerts .tag, .doc .tag { animation: pop 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.6) backwards; animation-delay: 0.25s; }
+.field .conf { transition: scale 0.2s cubic-bezier(0.2, 0.9, 0.3, 1.8); } .field:hover .conf { scale: 1.12; }
+.duel > div { transition: translate 0.2s cubic-bezier(0.2, 0.9, 0.3, 1.5); } .duel > div:hover { translate: 0 -3px; }
+.mrzlines { animation: typeon 1.1s steps(44) backwards 0.2s; } @keyframes typeon { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+
+/* ---------- the printed record: pages turn up as you scroll, figures are typed in ---------- */
+.prose .card { animation: deal 0.55s cubic-bezier(0.2, 0.9, 0.3, 1.2) backwards; }
+@supports (animation-timeline: view()) {
+  .prose .card:not(:first-child) { animation: turnup linear both; animation-timeline: view(); animation-range: entry 0% entry 45%; }
+  @keyframes turnup { from { opacity: 0.25; translate: 0 40px; rotate: -0.8deg; } to { opacity: 1; translate: 0 0; rotate: 0deg; } }
+  table.metrics tbody tr { animation: rowin linear both; animation-timeline: view(); animation-range: entry 0% entry 100%; }
+  @keyframes rowin { from { opacity: 0; translate: -10px 0; } }
+  .relfig svg path:not([stroke-dasharray]) { stroke-dasharray: 900; animation: draw linear both; animation-timeline: view(); animation-range: entry 10% cover 45%; }
+  @keyframes draw { from { stroke-dashoffset: 900; } to { stroke-dashoffset: 0; } }
+}
+.stat b { animation: typeon 0.7s steps(9) backwards 0.25s; }
+.stat:nth-child(2) b { animation-delay: 0.4s; } .stat:nth-child(3) b { animation-delay: 0.55s; } .stat:nth-child(4) b { animation-delay: 0.7s; }
+.prose ol > li::before { transition: background 0.2s, color 0.2s, rotate 0.3s; } .prose ol > li:hover::before { background: var(--ink); color: var(--sheet); rotate: -12deg; }
+.bar > div { transition: width 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); }
+
+/* ---------- small moves ---------- */
+.seg button { transition: background 0.2s, color 0.2s, translate 0.15s; } .seg button:active { translate: 0 1px; }
+.toggle { transition: background 0.2s, padding 0.2s; } .toggle:hover { background: color-mix(in srgb, var(--marker) 22%, transparent); padding-left: 0.4rem; }
+.settings[open] > *:not(summary) { animation: fadeup 0.3s backwards; }
+.settings summary svg { transition: rotate 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.5); } .settings[open] summary svg, .settings summary:hover svg { rotate: 90deg; }
+.toast { animation: none; }
+.tag { transition: translate 0.15s; } .tag:hover { translate: 0 -1px; transform: none; }
+.packet { transition: translate 0.25s cubic-bezier(0.2, 0.9, 0.3, 1.3), box-shadow 0.25s; } .packet:hover { translate: 0 -3px; }
+.corner { animation: pop 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.8) backwards; } .corner:nth-of-type(2) { animation-delay: 0.05s; } .corner:nth-of-type(3) { animation-delay: 0.1s; } .corner:nth-of-type(4) { animation-delay: 0.15s; }
+.redactbar { animation: fadeup 0.25s backwards; }
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop .size, .inklines b, .fan .pg, .tray .hint svg, .stamp::after, .mrzlines, .stat b, .scan > .tray, .live > .sheet, .results > .sheet, .results > .stack > .sheet, .tplnote, .overview, .detail-head, .trayhead, .trayhead + .grid, .fields > *, .checks li, .checks .mk, .facts .fact, .alerts .tag, .doc .tag, .prose .card, table.metrics tbody tr, .relfig svg path, .corner, .redactbar, .settings[open] > *:not(summary), .steps .done .dot, .steps .meta { animation: none !important; }
+  .inklines b { scale: 1 1; }
+}
+@media (max-width: 720px) { .desklamp { display: none; } }

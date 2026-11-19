@@ -14,7 +14,7 @@ export default defineConfig({
         name: 'FormFlow — private document digitiser',
         short_name: 'FormFlow',
         description: 'Digitise scanned forms, passports, visas and licences on your device.',
-        theme_color: '#0f3d3e',
+        theme_color: '#24211d',
         background_color: '#f6f4ef',
         display: 'standalone',
         start_url: '.',
