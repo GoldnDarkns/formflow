@@ -690,3 +690,9 @@ section:nth-of-type(4) > .trayhead, section:nth-of-type(4) > .grid { animation-d
   .inklines b { scale: 1 1; }
 }
 @media (max-width: 720px) { .desklamp { display: none; } }
+
+/* download button on a folder tab */
+.tabdl { display: inline-flex; align-items: center; gap: 0.25rem; margin-left: 0.3rem; border: 1.5px solid var(--ink); background: var(--sheet); color: var(--ink); border-radius: 3px; padding: 0.1rem 0.45rem; font-family: var(--mono); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em; box-shadow: 1.5px 1.5px 0 var(--ink); transition: translate 0.09s, box-shadow 0.09s, background 0.15s; }
+.tabdl svg { width: 12px; height: 12px; }
+.tabdl:hover { translate: -1px -1px; box-shadow: 2.5px 2.5px 0 var(--ink); background: var(--marker); }
+.tabdl:active { translate: 1.5px 1.5px; box-shadow: 0 0 0 var(--ink); }

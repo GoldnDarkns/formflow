@@ -4,6 +4,7 @@ import { applyTemplate, criticLook, deleteUserTemplate, loadCritic, loadPpReader
 import type { Template } from './core/template';
 import type { Quad } from './core/scan';
 import { downloadReport } from './ui/report';
+import { downloadTypePdf, downloadZip } from './ui/bundle';
 import { DEFAULT_PRE, type PreprocessOptions } from './core/preprocess';
 import type { DocType } from './core/classify';
 import { SAMPLE_COUNT, ScanPage, sampleFiles, type Active, type SecondReaderState } from './ui/ScanPage';
@@ -193,7 +194,9 @@ export default function App() {
                   onFiles={(fs) => setQueue((q) => [...q, ...fs])} onOpen={openDoc} onSorted={() => { setOpen(null); setTab('sorted'); }} onTour={() => setTour(0)} />
               )}
               {tab === 'sorted' && !current && (
-                <Sorted docs={docs} onOpen={openDoc} onScan={() => setTab('scan')} onExportCsv={() => download('formflow-export.csv', exportCsv(docs), 'text/csv')} onReport={() => downloadReport(docs)} />
+                <Sorted docs={docs} onOpen={openDoc} onScan={() => setTab('scan')} onExportCsv={() => download('formflow-export.csv', exportCsv(docs), 'text/csv')} onReport={() => downloadReport(docs)}
+                  onZip={() => { setToast('Packing the ZIP…'); downloadZip(docs).then(() => setToast('ZIP downloaded')).catch((e) => setToast(`Could not build the ZIP: ${e.message ?? e}`)); }}
+                  onTypePdf={(t) => downloadTypePdf(docs, t).catch((e) => setToast(`Could not build the PDF: ${e.message ?? e}`))} />
               )}
               {tab === 'sorted' && current && (
                 <ResultView

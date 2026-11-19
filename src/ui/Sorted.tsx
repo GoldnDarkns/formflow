@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'motion/react';
-import { DOC_LABEL, DOC_TYPES } from '../core/classify';
+import { DOC_LABEL, DOC_TYPES, type DocType } from '../core/classify';
 import { alertsFor } from '../core/facts';
 import { critiqueOf, needsReview, packetsOf, trustOf, type DocState } from './state';
 import { Ring, Stamp, typeColor } from './bits';
@@ -10,10 +10,12 @@ interface Props {
   onOpen: (id: string) => void;
   onExportCsv: () => void;
   onReport: () => void;
+  onZip: () => void;
+  onTypePdf: (t: DocType) => void;
   onScan: () => void;
 }
 
-export function Sorted({ docs, onOpen, onExportCsv, onReport, onScan }: Props) {
+export function Sorted({ docs, onOpen, onExportCsv, onReport, onScan, onZip, onTypePdf }: Props) {
   if (!docs.length)
     return (
       <div className="empty-state">
@@ -35,6 +37,7 @@ export function Sorted({ docs, onOpen, onExportCsv, onReport, onScan }: Props) {
           <p className="lede" style={{ marginTop: '0.5rem' }}>{review ? `${plural(review, 'field')} still to check.` : 'Nothing left to check.'} Open a document to review it.</p>
         </div>
         <div className="row">
+          <button className="btn primary" onClick={onZip} title="A folder per document type, each with its scans as one PDF and the data read from them"><IDownload /> Everything as ZIP</button>
           <button className="btn dark" onClick={onReport}><IDownload /> PDF report</button>
           <button className="btn" onClick={onExportCsv}><IDownload /> CSV</button>
         </div>
@@ -62,7 +65,7 @@ export function Sorted({ docs, onOpen, onExportCsv, onReport, onScan }: Props) {
         const list = docs.filter((d) => d.doc.docType === t);
         return (
           <section key={t} style={{ ['--c' as any]: typeColor(t) }}>
-            <div className="trayhead"><h2>{DOC_LABEL[t]}</h2><span className="muted small">{list.length}</span></div>
+            <div className="trayhead"><h2>{DOC_LABEL[t]}</h2><span className="muted small">{list.length}</span><button className="tabdl" onClick={() => onTypePdf(t)} title={`Download the ${list.length} ${DOC_LABEL[t]} scan${list.length === 1 ? '' : 's'} as one PDF`} aria-label={`Download ${DOC_LABEL[t]} scans as one PDF`}><IDownload /> PDF</button></div>
             <div className="grid">
               <AnimatePresence mode="popLayout">
                 {list.map((d) => {

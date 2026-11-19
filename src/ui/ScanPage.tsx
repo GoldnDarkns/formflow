@@ -68,7 +68,16 @@ export function ScanPage(p: Props) {
     if (!fl?.length) return;
     const out: { blob: Blob; name: string }[] = [];
     for (const f of [...fl]) {
-      if (f.type === 'application/pdf' || /\.pdf$/i.test(f.name)) {
+      if (/\.zip$/i.test(f.name) || f.type === 'application/zip' || f.type === 'application/x-zip-compressed') {
+        // a ZIP of scans: every image and PDF inside is read, in name order
+        const { unzipScans, MAX_ZIP_PAGES } = await import('./bundle');
+        const { pdfToImages } = await import('../engine/pdf');
+        for (const e of await unzipScans(f)) {
+          if (out.length >= MAX_ZIP_PAGES) break;
+          if (e.pdf) out.push(...(await pdfToImages(e.blob, e.name)));
+          else out.push({ blob: e.blob, name: e.name });
+        }
+      } else if (f.type === 'application/pdf' || /\.pdf$/i.test(f.name)) {
         // PDFs are split into pages; each page is sorted and read on its own
         const { pdfToImages } = await import('../engine/pdf');
         out.push(...(await pdfToImages(f, f.name)));
@@ -99,13 +108,13 @@ export function ScanPage(p: Props) {
           ))}
         </div>
         <div className="row actions">
-          <button className="btn primary" onClick={() => fileRef.current?.click()}><IUpload /> Choose images or PDFs</button>
+          <button className="btn primary" onClick={() => fileRef.current?.click()}><IUpload /> Choose images, PDFs or a ZIP</button>
           <button className="btn" onClick={() => camRef.current?.click()}><ICamera /> Take a photo</button>
           <button className="btn ghost" disabled={busy} onClick={samples}>Try {SAMPLE_COUNT} sample scans</button>
           <button className="btn ghost tourbtn" disabled={busy} onClick={p.onTour}><ISpark /> Take the 60-second tour</button>
         </div>
         <input ref={camRef} type="file" accept="image/*" capture="environment" hidden onChange={(e) => { pick(e.target.files); e.target.value = ''; }} />
-        <input ref={fileRef} type="file" accept="image/*,application/pdf" multiple hidden onChange={(e) => { pick(e.target.files); e.target.value = ''; }} />
+        <input ref={fileRef} type="file" accept="image/*,application/pdf,.zip,application/zip" multiple hidden onChange={(e) => { pick(e.target.files); e.target.value = ''; }} />
         <p className="row small muted hint"><IShield /> Everything is read on this device. Nothing is uploaded.</p>
       </div>
 

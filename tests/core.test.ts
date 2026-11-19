@@ -245,3 +245,23 @@ test('signatures: a pen stroke above the caption is "signed", a bare line is not
   assert.equal(findSignatures(make(false), caption)[0].signed, false);
   assert.equal(findSignatures(make(true), [caption[1]]).length, 0, 'no caption, nothing reported');
 });
+
+// ---------- ZIP input ----------
+import { zipSync, strToU8 } from 'fflate';
+import { unzipScans } from '../src/ui/bundle';
+
+test('ZIP input: images and PDFs come out in name order; folders, hidden files and other types are skipped', async () => {
+  const z = zipSync({
+    'pile/scan10.jpg': new Uint8Array([1, 2, 3]),
+    'pile/scan2.PNG': new Uint8Array([4, 5]),
+    'pile/form.pdf': new Uint8Array([6]),
+    'pile/notes.txt': strToU8('not a scan'),
+    '__MACOSX/pile/._scan2.PNG': new Uint8Array([9]),
+    'pile/.hidden.jpg': new Uint8Array([9]),
+  });
+  const out = await unzipScans(new Blob([z as BlobPart]));
+  assert.deepEqual(out.map((e) => e.name), ['form.pdf', 'scan2.PNG', 'scan10.jpg']);
+  assert.deepEqual(out.map((e) => e.pdf), [true, false, false]);
+  assert.equal(out[1].blob.type, 'image/png');
+  assert.equal(out[2].blob.size, 3);
+});

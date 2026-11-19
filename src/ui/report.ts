@@ -6,6 +6,11 @@ import { packetsOf, trustOf, type DocState } from './state';
 const clean = (s: string) => s.replace(/[^\x20-\xff]/g, '?');
 
 export async function downloadReport(states: DocState[], fileName = 'formflow-report.pdf') {
+  (await buildReport(states)).save(fileName);
+}
+
+/** The summary report as a jsPDF document (saved directly, or put inside the ZIP export). */
+export async function buildReport(states: DocState[]) {
   const { jsPDF } = await import('jspdf');
   const pdf = new jsPDF({ unit: 'mm', format: 'a4' });
   const L = 16, R = 194;
@@ -59,5 +64,5 @@ export async function downloadReport(states: DocState[], fileName = 'formflow-re
     pdf.setFontSize(8); pdf.setTextColor(...grey);
     pdf.text(`FormFlow report, ${new Date().toISOString().slice(0, 10)}. Values marked "to check" have not been confirmed by a person.`, L, 290);
   });
-  pdf.save(fileName);
+  return pdf;
 }
