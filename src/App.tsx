@@ -196,7 +196,8 @@ export default function App() {
               {tab === 'sorted' && !current && (
                 <Sorted docs={docs} onOpen={openDoc} onScan={() => setTab('scan')} onExportCsv={() => download('formflow-export.csv', exportCsv(docs), 'text/csv')} onReport={() => downloadReport(docs)}
                   onZip={() => { setToast('Packing the ZIP…'); downloadZip(docs).then(() => setToast('ZIP downloaded')).catch((e) => setToast(`Could not build the ZIP: ${e.message ?? e}`)); }}
-                  onTypePdf={(t) => downloadTypePdf(docs, t).catch((e) => setToast(`Could not build the PDF: ${e.message ?? e}`))} />
+                  onTypePdf={(t) => downloadTypePdf(docs, t).catch((e) => setToast(`Could not build the PDF: ${e.message ?? e}`))}
+                  onCopyText={(text, what) => navigator.clipboard?.writeText(text).then(() => setToast(`${what} copied`)).catch(() => setToast('Could not copy'))} />
               )}
               {tab === 'sorted' && current && (
                 <ResultView

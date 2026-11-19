@@ -3409,22 +3409,22 @@
    "sortedRight": 106,
    "codeLinePages": 41,
    "codeLinesAllChecksPass": 39,
-   "falseCodeLines": 5,
+   "falseCodeLines": 0,
    "neededTurning": 14,
    "turnedRight": 13,
    "keyFacts": {
     "n": 322,
-    "right": 258
+    "right": 278
    },
-   "shownVerifiedButWrong": 1,
+   "shownVerifiedButWrong": 0,
    "byFact": {
     "number": {
      "n": 85,
-     "right": 67
+     "right": 73
     },
     "Full name": {
      "n": 85,
-     "right": 55
+     "right": 68
     },
     "Date of birth": {
      "n": 85,
@@ -3432,13 +3432,13 @@
     },
     "Expiry date": {
      "n": 67,
-     "right": 62
+     "right": 63
     }
    },
    "byType": {
     "driving_licence": {
      "n": 52,
-     "right": 34
+     "right": 35
     },
     "emirates_id": {
      "n": 72,
@@ -3446,11 +3446,11 @@
     },
     "id_card": {
      "n": 72,
-     "right": 51
+     "right": 59
     },
     "passport": {
      "n": 72,
-     "right": 63
+     "right": 71
     },
     "vehicle_licence": {
      "n": 18,
@@ -3458,7 +3458,7 @@
     },
     "visa": {
      "n": 36,
-     "right": 27
+     "right": 30
     }
    },
    "byShot": {
@@ -3482,6 +3482,42 @@
      "n": 14,
      "right": 13
     }
+   },
+   "previous": {
+    "keyFacts": {
+     "n": 322,
+     "right": 258
+    },
+    "falseCodeLines": 5,
+    "shownVerifiedButWrong": 1,
+    "byFact": {
+     "number": {
+      "n": 85,
+      "right": 67
+     },
+     "Full name": {
+      "n": 85,
+      "right": 55
+     },
+     "Date of birth": {
+      "n": 85,
+      "right": 74
+     },
+     "Expiry date": {
+      "n": 67,
+      "right": 62
+     }
+    }
+   },
+   "photoCheck": {
+    "set": "development specimens",
+    "blurred": 16,
+    "blurCaught": 9,
+    "glare": 17,
+    "glareCaught": 15,
+    "good": 75,
+    "goodFlaggedBlurry": 1,
+    "goodFlaggedGlare": 0
    }
   },
   "note": "Real identity documents, used with consent and kept outside the repository. Only counts are published. Learned = leave-one-out: each document is sorted by a model that never saw it.",

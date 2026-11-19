@@ -23,8 +23,21 @@ export const TURNS = [90, 270, 180] as const;
  * of the page, at least two check digits must add up, otherwise ordinary text
  * at the foot of a form could be mistaken for code lines.
  */
-export const believableMrz = (m: { checks: { ok: boolean }[]; valid: boolean } | null, sawChevrons: boolean) =>
-  !!m && (sawChevrons || m.valid || m.checks.filter((c) => c.ok).length >= 2);
+export const believableMrz = (m: { checks: { ok: boolean }[]; valid: boolean; lines?: string[]; format?: string } | null, sawChevrons: boolean) =>
+  !!m && (sawChevrons || m.valid || (m.checks.filter((c) => c.ok).length >= 2 && shapedLikeMrz(m.lines, m.format)));
+
+/**
+ * Do the lines have the shape of real code lines? The first line starts with the
+ * document letter, and the line that carries the name holds no digits and has
+ * the "<<" between surname and given names. Rows of ordinary text at the foot
+ * of a vehicle licence ("EXPDATE2034...") passed two check digits by luck but
+ * fail this.
+ */
+export function shapedLikeMrz(lines?: string[], format?: string): boolean {
+  if (!lines?.length) return true; // nothing to judge by: leave the decision to the check digits
+  const nameLine = format === 'TD1' ? lines[lines.length - 1] : lines[0].slice(5);
+  return /^[PIACV][A-Z<]/.test(lines[0]) && !/\d/.test(nameLine) && /[A-Z]<<[A-Z]/.test(nameLine);
+}
 
 /**
  * Where the neural reader looks for the code lines: the band the first pass

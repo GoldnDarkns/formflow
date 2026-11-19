@@ -2,7 +2,7 @@ import type { DocResult } from '../engine/engine';
 import type { Analysis } from '../core/pipeline';
 import type { Field } from '../core/types';
 import { similarity } from '../core/ocr';
-import { DOC_LABEL, EID_RE } from '../core/classify';
+import { DOC_LABEL, EID_RE, type DocType } from '../core/classify';
 import type { VisionOpinion } from '../core/critic-vision';
 import { critique } from '../core/critic';
 import { alertsFor } from '../core/facts';
@@ -64,7 +64,7 @@ export function exportJson(s: DocState) {
     documentTypeConfidence: Math.round(d.classification.confidence * 100) / 100,
     trustScore: Math.round(trust.score * 100) / 100,
     keyFacts: Object.fromEntries(d.facts.map((f) => [f.key, f.value])),
-    alerts: alertsFor(d.docType, d.classification.confidence, d.facts, d.mrz).filter((a) => a.level !== 'good').map((a) => a.text),
+    alerts: alertsFor(d.docType, d.classification.confidence, d.facts, d.mrz, undefined, d.quality).filter((a) => a.level !== 'good').map((a) => a.text),
     processedAt: new Date().toISOString(),
     engine: { ocr: 'tesseract.js (eng)', layout: 'FormFlow GBDT (ONNX)', secondReader: s.second === 'done' ? 'Florence-2-base-ft' : null },
     mrz: d.mrz ? { format: d.mrz.format, valid: d.mrz.valid, lines: d.mrz.lines, fields: Object.fromEntries(d.mrz.fields.map((f) => [f.key, f.value])), checks: d.mrz.checks } : null,
@@ -170,7 +170,16 @@ export interface Packet {
   name: string;
   docs: DocState[];
   checks: { label: string; ok: boolean; detail: string }[];
+  /** one line per fact, taken from the most trustworthy document that has it */
+  profile: { key: string; value: string; verified: boolean; from: string }[];
+  /** document types a complete personal file usually has and this one lacks */
+  missing: DocType[];
+  /** the document that runs out first */
+  soonest?: { label: string; date: string; days: number };
 }
+/** What a complete personal file holds (the set a UAE travel or HR desk asks for). */
+export const FILE_NEEDS: DocType[] = ['passport', 'emirates_id', 'visa'];
+const PROFILE_KEYS = ['Full name', 'Date of birth', 'Nationality', 'Sex', 'Passport number', 'Emirates ID number', 'Visa number', 'Licence number'];
 const fact = (s: DocState, k: string) => s.doc.facts.find((f) => f.key === k)?.value ?? '';
 const tokens = (n: string) => new Set(n.toUpperCase().replace(/[^A-Z ]/g, '').split(/\s+/).filter((t) => t.length > 1));
 function samePerson(a: string, b: string) {
@@ -202,7 +211,19 @@ export function packetsOf(docs: DocState[]): Packet[] {
     // show the spelling most documents agree on
     const names = g.map((d) => fact(d, 'Full name'));
     const name = [...names].sort((a, b) => names.filter((n) => n === b).length - names.filter((n) => n === a).length)[0];
-    return { name, docs: g, checks };
+    // the person's details in one place: a value proven by a check digit beats one that is not, then the value most documents agree on
+    const profile: Packet['profile'] = [];
+    for (const key of PROFILE_KEYS) {
+      const cands = g.flatMap((d) => d.doc.facts.filter((f) => f.key === key && f.value).map((f) => ({ f, t: DOC_LABEL[d.doc.docType] })));
+      if (!cands.length) continue;
+      const count = (v: string) => cands.filter((c) => c.f.value.toUpperCase() === v.toUpperCase()).length;
+      const best = [...cands].sort((a, b) => Number(!!(b.f.proof && b.f.valid)) - Number(!!(a.f.proof && a.f.valid)) || Number(!!b.f.twice) - Number(!!a.f.twice) || count(b.f.value) - count(a.f.value))[0];
+      profile.push({ key, value: key === 'Full name' ? name : best.f.value, verified: !!(best.f.proof && best.f.valid), from: best.t });
+    }
+    const missing = FILE_NEEDS.filter((t) => !g.some((d) => d.doc.docType === t));
+    const exp = g.map((d) => ({ label: DOC_LABEL[d.doc.docType], date: fact(d, 'Expiry date') })).filter((x) => /^\d{4}-\d{2}-\d{2}$/.test(x.date)).sort((a, b) => a.date.localeCompare(b.date))[0];
+    const soonest = exp ? { ...exp, days: Math.round((new Date(exp.date + 'T00:00:00').getTime() - Date.now()) / 864e5) } : undefined;
+    return { name, docs: g, checks, profile, missing, soonest };
   });
 }
 

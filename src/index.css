@@ -802,3 +802,7 @@ section:nth-of-type(4) > .trayhead, section:nth-of-type(4) > .grid { animation-d
 }
 @media (prefers-reduced-motion: reduce) { .answer, .afact, .answer-state .mk, .review-tick { animation: none !important; } }
 .review-done { flex: 1; align-content: center; }
+.answer h1 .twice { display: inline-block; vertical-align: middle; margin-left: 0.6rem; font-style: normal; font-family: var(--mono); font-size: 0.66rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.15rem 0.45rem; border-radius: 2px; background: var(--good-bg); color: var(--good); }
+.answer h1 .twice::before { content: "✓ "; }
+.profile { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); border-top: 1.5px solid var(--ink); border-left: 1px dashed var(--line); }
+@media (max-width: 720px) { .profile { grid-template-columns: 1fr 1fr; } }

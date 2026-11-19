@@ -3,7 +3,7 @@ import { DOC_LABEL, DOC_TYPES, type DocType } from '../core/classify';
 import { alertsFor } from '../core/facts';
 import { critiqueOf, needsReview, packetsOf, trustOf, type DocState } from './state';
 import { Ring, Stamp, typeColor } from './bits';
-import { IDownload } from './icons';
+import { ICopy, IDownload } from './icons';
 
 interface Props {
   docs: DocState[];
@@ -13,9 +13,10 @@ interface Props {
   onZip: () => void;
   onTypePdf: (t: DocType) => void;
   onScan: () => void;
+  onCopyText: (text: string, what: string) => void;
 }
 
-export function Sorted({ docs, onOpen, onExportCsv, onReport, onScan, onZip, onTypePdf }: Props) {
+export function Sorted({ docs, onOpen, onExportCsv, onReport, onScan, onZip, onTypePdf, onCopyText }: Props) {
   if (!docs.length)
     return (
       <div className="empty-state">
@@ -49,7 +50,23 @@ export function Sorted({ docs, onOpen, onExportCsv, onReport, onScan, onZip, onT
             <h2 className="grow">{p.name}</h2>
             <span className="tag">{p.docs.map((d) => DOC_LABEL[d.doc.docType]).join(', ')}</span>
           </div>
-          <p className="small muted">These {p.docs.length} documents carry the same name, so their details are compared.</p>
+          <p className="small muted">These {p.docs.length} documents carry the same name, so their details are put together and compared.</p>
+          <div className="profile">
+            {p.profile.map((f) => (
+              <button key={f.key} className="afact" title={`From the ${f.from.toLowerCase()}. Tap to copy`} onClick={() => onCopyText(f.value, f.key)}>
+                <span>{f.key}{f.verified && <i className="ok">verified</i>}</span>
+                <b>{f.value}</b>
+              </button>
+            ))}
+          </div>
+          <div className="row" style={{ gap: '0.4rem' }}>
+            {p.soonest && <span className={'tag ' + (p.soonest.days < 0 ? 'bad' : p.soonest.days < 183 ? 'warn' : 'good')}>{p.soonest.days < 0 ? `${p.soonest.label} expired on ${p.soonest.date}` : `First to expire: ${p.soonest.label}, ${p.soonest.date}`}</span>}
+            {p.missing.length > 0
+              ? <span className="tag warn">Not in this pile: {p.missing.map((t) => DOC_LABEL[t]).join(', ')}</span>
+              : <span className="tag good">Passport, Emirates ID and visa are all here</span>}
+            <span className="grow" />
+            <button className="btn sm" onClick={() => onCopyText(p.profile.map((f) => `${f.key}: ${f.value}`).join('\n'), 'Details')}><ICopy /> Copy details</button>
+          </div>
           <ul className="checks">
             {p.checks.map((c) => (
               <li key={c.label} className={c.ok ? 'ok' : 'no'}>
@@ -70,7 +87,7 @@ export function Sorted({ docs, onOpen, onExportCsv, onReport, onScan, onZip, onT
               <AnimatePresence mode="popLayout">
                 {list.map((d) => {
                   const trust = trustOf(d);
-                  const alerts = alertsFor(d.doc.docType, d.doc.classification.confidence, d.doc.facts, d.doc.mrz).filter((a) => a.level !== 'good');
+                  const alerts = alertsFor(d.doc.docType, d.doc.classification.confidence, d.doc.facts, d.doc.mrz, undefined, d.doc.quality).filter((a) => a.level !== 'good');
                   const n = needsReview(d.fields);
                   const who = d.doc.facts.find((f) => f.key === 'Full name')?.value;
                   return (

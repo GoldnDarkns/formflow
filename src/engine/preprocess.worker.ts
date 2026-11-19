@@ -3,6 +3,7 @@
 // find the page -> flatten it -> even out the light -> deskew -> binarise.
 import { preprocess, resize, rgbaToGray, grayToRgba, ocrScale, backgroundUnevenness, type PreprocessOptions } from '../core/preprocess';
 import { detectPage, flattenLighting, warpQuad, type Quad } from '../core/scan';
+import { photoQuality, type PhotoQuality } from '../core/quality';
 
 export interface PreRequest {
   rgba: ArrayBuffer;
@@ -17,6 +18,7 @@ export interface PreResponse {
   baseH: number;
   quad: Quad | null; // page corners found in the original photo
   lit: boolean; // lighting was evened out
+  quality: PhotoQuality; // blur and glare, measured on the page before any clean-up
   ocr: ArrayBuffer; // RGBA of the cleaned image fed to Tesseract
   gray: ArrayBuffer; // RGBA of deskewed + upscaled grayscale (for MRZ crops)
   width: number;
@@ -33,6 +35,7 @@ self.onmessage = (e: MessageEvent<PreRequest>) => {
   let W = e.data.width, H = e.data.height;
   let quad: Quad | null = null;
   let lit = false;
+  let quality: PhotoQuality | null = null;
   if (opts.magic || e.data.quad) {
     const g0 = rgbaToGray(color, W, H);
     quad = e.data.quad ?? detectPage(g0);
@@ -42,6 +45,7 @@ self.onmessage = (e: MessageEvent<PreRequest>) => {
       W = w.width;
       H = w.height;
     }
+    quality = photoQuality(quad ? rgbaToGray(color, W, H) : g0);
     // camera photos (a page was cut out) and unevenly lit scans get their lighting fixed
     if (quad || backgroundUnevenness(quad ? rgbaToGray(color, W, H) : g0) > 12) {
       flattenLighting(color, W, H);
@@ -49,12 +53,13 @@ self.onmessage = (e: MessageEvent<PreRequest>) => {
     }
   }
   let g = rgbaToGray(color, W, H);
+  quality ??= photoQuality(g);
   const scale = ocrScale(W, H);
   g = resize(g, scale);
   const deskewOnly = preprocess(g, { ...opts, deskew: opts.deskew, binarise: false, removeLines: false });
   const full = opts.binarise ? preprocess(deskewOnly.img, { ...opts, deskew: false, binarise: true, removeLines: opts.removeLines }).img : deskewOnly.img;
   const ocr = grayToRgba(full).buffer as ArrayBuffer;
   const gray = grayToRgba(deskewOnly.img).buffer as ArrayBuffer;
-  const res: PreResponse = { color: color.buffer as ArrayBuffer, baseW: W, baseH: H, quad, lit, ocr, gray, width: g.width, height: g.height, scale, skew: deskewOnly.skew, ms: performance.now() - t };
+  const res: PreResponse = { color: color.buffer as ArrayBuffer, baseW: W, baseH: H, quad, lit, quality, ocr, gray, width: g.width, height: g.height, scale, skew: deskewOnly.skew, ms: performance.now() - t };
   (self as unknown as Worker).postMessage(res, [res.color, ocr, gray]);
 };

@@ -15,6 +15,7 @@ import type { Quad } from '../core/scan';
 import type { VisionOpinion } from '../core/critic-vision';
 import type { PreRequest, PreResponse } from './preprocess.worker';
 
+import type { PhotoQuality } from '../core/quality';
 import { believableMrz, linesFromWords, mrzCrops, mrzNeuralCrops, readingQuality, TURNS, TURN_GAIN, UPRIGHT_MIN } from '../core/orient';
 import { matchTemplate, readTemplate, templateChecks, templateWords, type Template, type TemplateMatch } from '../core/template';
 import { checkState, checkboxLabel, dropLetterBoxes, findCheckboxes, findSignatures, isSignatureCaption } from '../core/marks';
@@ -44,6 +45,7 @@ export interface DocResult {
   original: string; // the photo as taken (small), for the before/after view
   quad: Quad | null; // page corners in the photo, 0..1
   lit: boolean;
+  quality?: PhotoQuality; // blur and glare of the photo as given
   id: string;
   fileName: string;
   width: number;
@@ -431,6 +433,7 @@ export async function processDocument(file: Blob, fileName: string, opts: Prepro
     original,
     quad,
     lit: p.lit,
+    quality: p.quality,
     processedView: ocrCanvas.toDataURL('image/png'),
     skew: p.skew,
     words,

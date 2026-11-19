@@ -56,6 +56,10 @@ export interface Classification {
  * its value on the same row then read "License No. 4055325", as a person reads it.
  */
 export function linesOf(words: OcrWord[]): string[] {
+  return rowsOf(words).map((r) => r.map((w) => w.text).join(' '));
+}
+/** The same visual rows, as words (left to right), for code that needs to know where on the row a word sits. */
+export function rowsOf(words: OcrWord[]): OcrWord[][] {
   const rows: { c: number; h: number; ws: OcrWord[] }[] = [];
   for (const w of [...words].sort((p, q) => p.box[1] + p.box[3] - (q.box[1] + q.box[3]))) {
     const c = (w.box[1] + w.box[3]) / 2, h = w.box[3] - w.box[1];
@@ -70,7 +74,7 @@ export function linesOf(words: OcrWord[]): string[] {
       best.ws.push(w);
     } else rows.push({ c, h, ws: [w] });
   }
-  return rows.sort((p, q) => p.c - q.c).map((r) => r.ws.sort((p, q) => p.box[0] - q.box[0]).map((w) => w.text).join(' '));
+  return rows.sort((p, q) => p.c - q.c).map((r) => r.ws.sort((p, q) => p.box[0] - q.box[0]));
 }
 
 export const EID_RE = /784[\s-]?(\d{4})[\s-]?(\d{7})[\s-]?(\d)/;

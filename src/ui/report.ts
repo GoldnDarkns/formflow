@@ -45,7 +45,7 @@ export async function buildReport(states: DocState[]) {
       y = Math.max(y, 12 + h);
     } catch {}
     line(6);
-    for (const a of alertsFor(d.docType, d.classification.confidence, d.facts, d.mrz)) { text(`${a.level === 'good' ? 'OK' : a.level === 'warn' ? 'CHECK' : 'PROBLEM'}  ${a.text}`, L, 10, 'normal', a.level === 'good' ? [10, 143, 91] : a.level === 'warn' ? [178, 94, 0] : [211, 52, 42]); line(5.5); }
+    for (const a of alertsFor(d.docType, d.classification.confidence, d.facts, d.mrz, undefined, d.quality)) { text(`${a.level === 'good' ? 'OK' : a.level === 'warn' ? 'CHECK' : 'PROBLEM'}  ${a.text}`, L, 10, 'normal', a.level === 'good' ? [10, 143, 91] : a.level === 'warn' ? [178, 94, 0] : [211, 52, 42]); line(5.5); }
     if (d.facts.length) {
       line(4); text('Key facts', L, 12, 'bold'); line(6);
       for (const f of d.facts) { text(f.key, L, 10, 'normal', grey); text(f.value + (f.proof ? (f.valid ? `   (${f.proof} passes)` : `   (${f.proof} FAILS)`) : ''), L + 48, 10, 'bold'); line(5.5); }

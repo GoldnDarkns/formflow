@@ -41,7 +41,7 @@ export function ResultView(p: Props) {
   const [reviewing, setReviewing] = useState(false);
   const [copied, setCopied] = useState('');
   const trust = trustOf(s);
-  const alerts = alertsFor(doc.docType, doc.classification.confidence, doc.facts, doc.mrz);
+  const alerts = alertsFor(doc.docType, doc.classification.confidence, doc.facts, doc.mrz, undefined, doc.quality);
   const review = needsReview(s.fields);
   const crit = critiqueOf(s);
 
@@ -63,6 +63,7 @@ export function ResultView(p: Props) {
 
   // ---- what leads the screen: who or what this is, the facts, and whether a person still has to look ----
   const name = doc.facts.find((f) => f.key === 'Full name')?.value;
+  const nameTwice = !!doc.facts.find((f) => f.key === 'Full name')?.twice;
   const verified = doc.facts.filter((f) => f.proof && f.valid).length;
   const failed = doc.facts.filter((f) => f.proof && f.valid === false).length;
   const problem = alerts.find((a) => a.level === 'bad');
@@ -91,7 +92,7 @@ export function ResultView(p: Props) {
         <div className="answer-head">
           <div className="grow">
             <span className="answer-type">{DOC_LABEL[doc.docType]}<small>{pct(doc.classification.confidence)} sure</small></span>
-            <h1>{name ?? doc.fileName}</h1>
+            <h1>{name ?? doc.fileName}{nameTwice && <i className="twice" title="The name in the code line matches the printed name">seen twice</i>}</h1>
             {name && <p className="answer-file">{doc.fileName}{doc.turned ? ` · turned ${doc.turned}°` : ''}{doc.quad ? ' · cut out of a photo' : ''}</p>}
           </div>
           <Ring value={trust.score} size={72} stroke={7} />
@@ -104,7 +105,7 @@ export function ResultView(p: Props) {
           <div className="answer-facts">
             {shownFacts.map((f) => (
               <button className="afact" key={f.key} onClick={() => copyFact(f.key, f.value)} title="Tap to copy">
-                <span>{f.key}{f.proof && (f.valid ? <i className="ok">verified</i> : <i className="no">check failed</i>)}</span>
+                <span>{f.key}{f.proof && (f.valid ? <i className="ok">verified</i> : <i className="no">check failed</i>)}{f.twice && <i className="ok" title="Found in the code line and in the printed text">seen twice</i>}</span>
                 <b>{f.value}</b>
                 {copied === f.key && <motion.em initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}>copied</motion.em>}
               </button>

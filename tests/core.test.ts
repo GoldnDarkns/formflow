@@ -355,3 +355,50 @@ test('key facts: surname and given names printed separately are joined', () => {
   assert.equal(fact(f, 'Document number'), '091201355');
   assert.equal(fact(f, 'Date of birth'), '1991-12-14');
 });
+
+// ---- second accuracy pass: names mended from the printed text, code-line shape, photo quality ----
+import { mendName, editDistance, alertsFor } from '../src/core/facts';
+import { shapedLikeMrz } from '../src/core/orient';
+import { photoQuality } from '../src/core/quality';
+
+test('a name from the code line is mended from the printed words, and confirmed when both agree', () => {
+  const page = lineWords(['REPUBLIC OF UTOPIA', 'ALMEIDA YUKI', 'P<UTOALMEIDA<<YUKI<<<<<<<<']);
+  assert.deepEqual(mendName('UKI ALMEIDA', page), { name: 'YUKI ALMEIDA', twice: false });
+  assert.deepEqual(mendName('YUKI ALMEIDA', page), { name: 'YUKI ALMEIDA', twice: true });
+  // a correct name is never swapped for a longer word that merely contains it
+  assert.equal(mendName('ANA OLIVEIRA', lineWords(['ANA', 'P<NGAOLIVEIRA<<ANA<<<<'])).name, 'ANA OLIVEIRA');
+  assert.equal(editDistance('sarmame', 'surname'), 2);
+});
+
+test('a final L or K of a name survives the padding clean-up', () => {
+  const m = parseMrz(['P<SRBOKAFOR<<RAFAEL<<<<<<<<<<<<<<<<<<<<<<<<<', 'BV628593<1SRB6606194M3105157<<<<<<<<<<<<<<<0'])!;
+  assert.equal(m.fields.find((f) => f.key === 'Given names')?.value, 'RAFAEL');
+});
+
+test('misread labels and side-by-side name columns still give the name', () => {
+  assert.equal(fact(extractFacts('driving_licence', lineWords(['INTERNATIONAL DRIVING PERMIT', '1 Sarmame 0 IONESCU', '2. Olver names KOFI', '4, Date of beth 26/01/1968']), [], null), 'Full name'), 'KOFI IONESCU');
+  const cols: OcrWord[] = [['Surname', 40, 40], ['Given', 400, 40], ['names', 470, 40], ['MENSAH', 40, 80], ['SOFIA', 400, 80], ['ELENA', 480, 80]].map(([t, x, y]) => ({ text: t as string, box: [x as number, y as number, (x as number) + 70, (y as number) + 22] as Box, conf: 92, line: 0 }));
+  assert.equal(fact(extractFacts('id_card', cols, [], null), 'Full name'), 'SOFIA ELENA MENSAH');
+});
+
+test('ordinary text is not taken for code lines just because two check digits pass', () => {
+  assert.equal(shapedLikeMrz(['EXPDATE20340302REGDATE20240303<<<<<<', 'INSEXP20340302INSURERNORTHSTARINSURA'], 'TD2'), false);
+  assert.equal(shapedLikeMrz(['P<UTOERIKSSON<<ANNA<MARIA<<<<<<<<<<<<<<<<<<<', 'L898902C36UTO7408122F1204159ZE184226B<<<<<10'], 'TD3'), true);
+  assert.equal(believableMrz({ valid: false, checks: [{ ok: true }, { ok: true }, { ok: false }], lines: ['EXPDATE20340302REGDATE20240303<<<<<<', 'X'], format: 'TD2' }, false), false);
+});
+
+test('photo check: a blurred page scores lower than a sharp one, and a burnt-out patch counts as glare', () => {
+  const W = 600, H = 400;
+  const sharp: GrayImage = { width: W, height: H, data: new Uint8Array(W * H).fill(215) };
+  for (let y = 40; y < H - 40; y += 24) for (let x = 40; x < W - 40; x += 9) if ((x * 7 + y) % 5) for (let yy = 0; yy < 12; yy++) for (let xx = 0; xx < 3; xx++) sharp.data[(y + yy) * W + x + xx] = 30;
+  const blur: GrayImage = { width: W, height: H, data: new Uint8Array(sharp.data) };
+  for (let pass = 0; pass < 6; pass++) { const src = new Uint8Array(blur.data); for (let y = 1; y < H - 1; y++) for (let x = 1; x < W - 1; x++) { let s = 0; for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) s += src[(y + dy) * W + x + dx]; blur.data[y * W + x] = s / 9; } }
+  const a = photoQuality(sharp), b = photoQuality(blur);
+  assert.ok(a.sharpness > b.sharpness * 1.5 && !a.blurry && b.blurry, `${a.sharpness} vs ${b.sharpness}`);
+  assert.equal(a.glary, false);
+  const glare: GrayImage = { width: W, height: H, data: new Uint8Array(sharp.data) };
+  for (let y = 100; y < 220; y++) for (let x = 200; x < 380; x++) glare.data[y * W + x] = 255;
+  assert.equal(photoQuality(glare).glary, true);
+  assert.match(alertsFor('passport', 0.99, [], null, new Date(), { blurry: true, glary: false })[0].text, /blurry/);
+  assert.equal(alertsFor('form', 0.99, [], null, new Date(), { blurry: false, glary: true }).length, 0);
+});

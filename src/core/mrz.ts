@@ -83,7 +83,8 @@ function fit(l: string, n: number) {
 
 function names(s: string) {
   // the "<" padding after a name is often misread as a run of K and L; no real name has four of those in a row
-  const line = alpha(s).replace(/[KL<]{4,}/g, (m) => '<'.repeat(m.length));
+  // (a K or L that ends a real name, as in RAFAEL<<<<, sits before the first "<" and is kept)
+  const line = alpha(s).replace(/[KL<]{4,}/g, (m) => { const i = m.indexOf('<'); return i < 0 || i > 2 ? '<'.repeat(m.length) : m.slice(0, i) + '<'.repeat(m.length - i); });
   const [sur, given = ''] = line.split('<<');
   return { surname: sur.replace(/</g, ' ').trim(), given: given.replace(/</g, ' ').replace(/\s+/g, ' ').trim() };
 }
