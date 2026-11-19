@@ -42,6 +42,7 @@ npm run build          # production build in dist/ (runs scripts/copy-assets.mjs
 npm run preview        # serve dist/ on port 4173
 node scripts/e2e.mjs   # headless Chrome test of the built app (needs preview running; edit the Chrome path for Windows)
 npm run evaluate       # writes public/eval/results.json, shown on the Model card tab
+npm test               # unit tests for src/core (also run by the deploy workflow before the build)
 ```
 
 Training and evaluation need data that is **not in the repo**. All scripts expect a sibling folder `../data`:
@@ -66,6 +67,9 @@ npx tsx scripts/florence-funsd.ts 1x2 # Florence-2 on the test set (slow on CPU;
 npx tsx scripts/critic-embed.ts       # critic text embeddings + critic accuracy (needs ../data/models/Xenova/mobileclip_s0)
 npx tsx scripts/magic-eval.ts         # magic-scan experiment (needs ../data/photos)
 npx tsx scripts/evaluate.ts
+npx tsx scripts/calibrate.ts train    # fit confidence curves on the training split -> src/core/calibration.json + results.json
+python scripts/make-forms20.py        # rebuild testsets/forms20 (needs ../data/forms20/blank/*.pdf, PyMuPDF)
+npx tsx scripts/eval-forms20.ts       # score the 20 filled forms -> results.json
 npx tsx scripts/eval-own.ts ../data/own   # per-type scores on the owner's labelled documents
 ```
 
@@ -85,6 +89,8 @@ src/core/         pure TypeScript, shared by the browser and the Node scripts (n
   facts.ts        key facts per type, date parsing, Luhn check, expiry alerts
   critic.ts       critic: expectation checks, runner-up arguments, verdict
   critic-vision.ts MobileCLIP-S0 image encoder, zero-shot type opinion
+  calibration.ts  isotonic calibration of the field confidence (curves in calibration.json)
+  photo.ts        classical finder for the portrait photo on an ID (used by Redact)
   mrz.ts          ICAO 9303 parser (TD1, TD2, TD3, MRV-A/B), check digits, guarded repair
   florence.ts     Florence-2 OCR_WITH_REGION wrapper with tiling
   classifier.ts   ONNX Runtime wrapper for the two tree models (web and node)
@@ -122,6 +128,9 @@ Processing order for one page (`engine.ts → processDocument`): open image → 
 | Sample scans sorted correctly in the browser test | 8 of 8 |
 | Vision critic alone | 43 of 50 forms, 5 of 7 samples |
 | Magic scan on 20 simulated desk photos | page found 20/20, corner error 0.4% of diagonal, word recall 56.5% → 69.7% |
+| Confidence calibration error (ECE), Tesseract / PP-OCRv5, before → after | 42.1% → 4.6% / 44.6% → 8.2% |
+| 20 filled public forms (522 typed values): read / extracted / right label, Tesseract | 79.7% / 14.9% / 7.3% |
+| Same, PP-OCRv5 | 93.9% / 10.9% / 5.6% |
 
 Exact numbers are in `public/eval/results.json`.
 
@@ -130,20 +139,21 @@ Exact numbers are in `public/eval/results.json`.
 - Florence-2 captions are too generic to name a document type ("a screen with some text").
 - The 8-bit quantised MobileCLIP-S0 loses its zero-shot ability. Use fp32 for the image encoder; text embeddings are precomputed.
 - Florence-2 is a worse reader than Tesseract on these faxes and sometimes invents digits. It is used as a checker only.
+- The layout models do not transfer to modern boxed forms (the 20-form set): labels printed inside the box above the value get glued to the value by `groupWords`, so few pairs form. Reading is fine. This is the argument for template mode.
 - New VLM OCR models from late 2026 (MiniCPM-OCR, TeleOCR, PaddleOCR-VL, GLM-OCR) are far over the 100 MB limit.
 
 ## Known gaps, most important first
 
-1. Never run on the owner's machine or deployed. No live URL yet.
+1. Done 19 Nov 2026: runs on the owner's Windows machine, public repo github.com/GoldnDarkns/formflow, live at https://goldndarkns.github.io/formflow/. Not yet checked on a phone.
 2. All identity-document results are on synthetic specimens generated for testing. No real passports, Emirates IDs, licences or visas have been tested.
-3. The brief asks for 20 public forms filled in with invented data as an extra test set. Not done.
-4. The confidence figure ranks fields well but is too optimistic (fields shown at 90%+ were right about 57–60% of the time on FUNSD). It is not calibrated.
+3. Done: `testsets/forms20` (20 US federal forms, invented data, half scan-like) with results on the Model card. Extraction on them is poor (see negative results).
+4. Done for forms: confidence is calibrated (isotonic, fitted on the FUNSD training split). Not calibrated on identity documents (no labelled ID data) and no separate curve for the second-reader blend. The review flag still thresholds the raw score.
 5. Magic scan needs a page lighter than its background and has no manual corner adjustment.
 6. The sorter is rule-based, not learned.
 7. No Arabic reading and no handwriting model. Names in MRZ lines have no check digit, so a misread name is only caught by the cross-document check.
-8. Redaction does not hide face photos.
+8. Redaction now guesses the photo area on IDs and lets the person draw boxes. The guess is classical CV, tried only on the synthetic specimens (a flat grey photo box), never on a real face photo.
 9. Not built: checkbox and signature detection, template mode for known forms (both are the brief's stretch goals).
-10. No unit tests. Checks are the headless browser scripts in `scripts/`.
+10. 16 unit tests for `src/core` in `tests/` (`npm test`, run in CI). No UI tests beyond the headless browser scripts in `scripts/`.
 11. Report, 1-page model card document, demo video and presentation are not started.
 
 ## Privacy and licences

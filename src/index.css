@@ -320,3 +320,10 @@ html { overflow-x: clip; }
 .duel b { font-family: var(--display); font-size: 1.05rem; }
 .redactbar { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; padding: 0.55rem 0.7rem; border-radius: var(--r-m); background: var(--ink); color: var(--sheet); font-size: 0.86rem; }
 .redactbar .btn { border-color: transparent; }
+
+/* reliability diagrams on the model card */
+.relrow { display: flex; flex-wrap: wrap; gap: 1rem 1.5rem; }
+.relfig { margin: 0; display: flex; flex-direction: column; gap: 0.35rem; flex: 1 1 300px; max-width: 440px; }
+.relfig figcaption { font-size: 0.82rem; font-weight: 650; color: var(--ink); }
+.relfig svg { width: 100%; height: auto; }
+.relfig .tick { font-size: 10px; fill: var(--ink-3); font-family: var(--body); }

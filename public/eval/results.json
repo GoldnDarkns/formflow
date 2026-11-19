@@ -928,5 +928,1392 @@
     }
    }
   }
+ },
+ "forms20": {
+  "generated": "2026-11-19T16:45:28.693Z",
+  "set": "20 public US federal forms (IRS, OPM) filled in with invented data; odd-numbered forms degraded to look like a scan",
+  "readers": {
+   "tesseract": {
+    "all": {
+     "forms": 20,
+     "sortedAsForm": 20,
+     "typedValues": 522,
+     "read": 0.7969348659003831,
+     "extracted": 0.14942528735632185,
+     "labelled": 0.07279693486590039,
+     "fieldsFound": 312,
+     "msPerPage": 3880.4
+    },
+    "clean": {
+     "forms": 10,
+     "sortedAsForm": 10,
+     "typedValues": 280,
+     "read": 0.8392857142857143,
+     "extracted": 0.1357142857142857,
+     "labelled": 0.06428571428571428,
+     "fieldsFound": 174,
+     "msPerPage": 4028.1
+    },
+    "scanLike": {
+     "forms": 10,
+     "sortedAsForm": 10,
+     "typedValues": 242,
+     "read": 0.7479338842975206,
+     "extracted": 0.1652892561983471,
+     "labelled": 0.08264462809917356,
+     "fieldsFound": 138,
+     "msPerPage": 3732.7
+    },
+    "confidence": {
+     "fields": 132,
+     "meanShown": 0.3562553570359645,
+     "shareRight": 0.2878787878787879,
+     "ece": 0.06837656915717652,
+     "bins": [
+      {
+       "lo": 0,
+       "hi": 0.2,
+       "fields": 26,
+       "meanConfidence": 0.09338313514994437,
+       "correct": 0.07692307692307693
+      },
+      {
+       "lo": 0.2,
+       "hi": 0.4,
+       "fields": 54,
+       "meanConfidence": 0.3229727277965196,
+       "correct": 0.18518518518518517
+      },
+      {
+       "lo": 0.4,
+       "hi": 0.6,
+       "fields": 41,
+       "meanConfidence": 0.4824655124850307,
+       "correct": 0.4634146341463415
+      },
+      {
+       "lo": 0.6,
+       "hi": 0.8,
+       "fields": 11,
+       "meanConfidence": 0.6705574819954937,
+       "correct": 0.6363636363636364
+      },
+      {
+       "lo": 0.8,
+       "hi": 1,
+       "fields": 0,
+       "meanConfidence": 0,
+       "correct": 0
+      }
+     ]
+    },
+    "perForm": [
+     {
+      "file": "f14039.jpg",
+      "quality": "clean",
+      "type": "form",
+      "values": 29,
+      "read": 26,
+      "extracted": 5,
+      "labelled": 3
+     },
+     {
+      "file": "f2553.jpg",
+      "quality": "scan-like",
+      "type": "form",
+      "values": 21,
+      "read": 13,
+      "extracted": 0,
+      "labelled": 0
+     },
+     {
+      "file": "f2848.jpg",
+      "quality": "clean",
+      "type": "form",
+      "values": 45,
+      "read": 34,
+      "extracted": 8,
+      "labelled": 4
+     },
+     {
+      "file": "f3911.jpg",
+      "quality": "scan-like",
+      "type": "form",
+      "values": 35,
+      "read": 31,
+      "extracted": 16,
+      "labelled": 13
+     },
+     {
+      "file": "f4506.jpg",
+      "quality": "clean",
+      "type": "form",
+      "values": 38,
+      "read": 37,
+      "extracted": 2,
+      "labelled": 1
+     },
+     {
+      "file": "f4506t.jpg",
+      "quality": "scan-like",
+      "type": "form",
+      "values": 22,
+      "read": 8,
+      "extracted": 0,
+      "labelled": 0
+     },
+     {
+      "file": "f4868.jpg",
+      "quality": "clean",
+      "type": "form",
+      "values": 14,
+      "read": 13,
+      "extracted": 4,
+      "labelled": 1
+     },
+     {
+      "file": "f56.jpg",
+      "quality": "scan-like",
+      "type": "form",
+      "values": 24,
+      "read": 17,
+      "extracted": 5,
+      "labelled": 3
+     },
+     {
+      "file": "f8332.jpg",
+      "quality": "clean",
+      "type": "form",
+      "values": 11,
+      "read": 11,
+      "extracted": 3,
+      "labelled": 2
+     },
+     {
+      "file": "f8821.jpg",
+      "quality": "scan-like",
+      "type": "form",
+      "values": 28,
+      "read": 20,
+      "extracted": 3,
+      "labelled": 1
+     },
+     {
+      "file": "f8822.jpg",
+      "quality": "clean",
+      "type": "form",
+      "values": 22,
+      "read": 22,
+      "extracted": 5,
+      "labelled": 5
+     },
+     {
+      "file": "f8822b.jpg",
+      "quality": "scan-like",
+      "type": "form",
+      "values": 18,
+      "read": 16,
+      "extracted": 5,
+      "labelled": 2
+     },
+     {
+      "file": "f8888.jpg",
+      "quality": "clean",
+      "type": "form",
+      "values": 13,
+      "read": 8,
+      "extracted": 3,
+      "labelled": 2
+     },
+     {
+      "file": "f9465.jpg",
+      "quality": "scan-like",
+      "type": "form",
+      "values": 30,
+      "read": 26,
+      "extracted": 5,
+      "labelled": 1
+     },
+     {
+      "file": "fss4.jpg",
+      "quality": "clean",
+      "type": "form",
+      "values": 45,
+      "read": 44,
+      "extracted": 3,
+      "labelled": 0
+     },
+     {
+      "file": "fw4.jpg",
+      "quality": "scan-like",
+      "type": "form",
+      "values": 14,
+      "read": 9,
+      "extracted": 0,
+      "labelled": 0
+     },
+     {
+      "file": "fw7.jpg",
+      "quality": "clean",
+      "type": "form",
+      "values": 48,
+      "read": 31,
+      "extracted": 5,
+      "labelled": 0
+     },
+     {
+      "file": "fw8ben.jpg",
+      "quality": "scan-like",
+      "type": "form",
+      "values": 20,
+      "read": 16,
+      "extracted": 1,
+      "labelled": 0
+     },
+     {
+      "file": "fw9.jpg",
+      "quality": "clean",
+      "type": "form",
+      "values": 15,
+      "read": 9,
+      "extracted": 0,
+      "labelled": 0
+     },
+     {
+      "file": "sf1152.jpg",
+      "quality": "scan-like",
+      "type": "form",
+      "values": 30,
+      "read": 25,
+      "extracted": 5,
+      "labelled": 0
+     }
+    ],
+    "examples": [
+     {
+      "file": "f14039.jpg",
+      "label": "attach additional information and/or pages to this form",
+      "value": "Nadia Pemberton",
+      "why": "misread as \"eee Nadia Pemberton ee me ee oe re ee ee\""
+     },
+     {
+      "file": "f14039.jpg",
+      "label": "",
+      "value": "Northgate Supply Co",
+      "why": "read correctly but not linked to a label"
+     },
+     {
+      "file": "f14039.jpg",
+      "label": "(provide 9-digit SSN or ITIN)",
+      "value": "651-72-86",
+      "why": "read correctly but not linked to a label"
+     },
+     {
+      "file": "f14039.jpg",
+      "label": "If deceased, provide last known address",
+      "value": "3955 Maple Terrace",
+      "why": "read correctly but not linked to a label"
+     },
+     {
+      "file": "f14039.jpg",
+      "label": "",
+      "value": "Milford",
+      "why": "read correctly but not linked to a label"
+     },
+     {
+      "file": "f14039.jpg",
+      "label": "",
+      "value": "73537",
+      "why": "read correctly but not linked to a label"
+     },
+     {
+      "file": "f14039.jpg",
+      "label": "-",
+      "value": "2072",
+      "why": "read correctly but not linked to a label"
+     },
+     {
+      "file": "f14039.jpg",
+      "label": "(number and street or P.O. box)",
+      "value": "7575 Orchard Way",
+      "why": "read correctly but not linked to a label"
+     },
+     {
+      "file": "f14039.jpg",
+      "label": "",
+      "value": "Milford",
+      "why": "read correctly but not linked to a label"
+     },
+     {
+      "file": "f14039.jpg",
+      "label": "",
+      "value": "30873",
+      "why": "misread as \"30873-8214\""
+     },
+     {
+      "file": "f14039.jpg",
+      "label": "-",
+      "value": "8214",
+      "why": "misread as \"\""
+     },
+     {
+      "file": "f14039.jpg",
+      "label": "",
+      "value": "Brookfield",
+      "why": "read correctly but not linked to a label"
+     },
+     {
+      "file": "f2553.jpg",
+      "label": "name or address",
+      "value": "45",
+      "why": "misread as \"rr\""
+     },
+     {
+      "file": "f2553.jpg",
+      "label": "",
+      "value": "Mira Okonjo",
+      "why": "misread as \"Mira Okonjo Gp RUPP PPPP UR PPPRN\""
+     },
+     {
+      "file": "f2553.jpg",
+      "label": "",
+      "value": "Tobias Pemberton",
+      "why": "misread as \"\""
+     },
+     {
+      "file": "f2553.jpg",
+      "label": "",
+      "value": "Nadia Pemberton",
+      "why": "misread as \"Nadia Pemberton 00000000\""
+     },
+     {
+      "file": "f2553.jpg",
+      "label": "",
+      "value": "Leona Quintero",
+      "why": "misread as \"Leona Quintero eee tet e eatin eto icaim\""
+     },
+     {
+      "file": "f2553.jpg",
+      "label": "",
+      "value": "Marcus Quintero",
+      "why": "misread as \"eho Marcus Quintero RU SOR OU\""
+     },
+     {
+      "file": "f2553.jpg",
+      "label": "",
+      "value": "Odette Marlowe",
+      "why": "misread as \"Pur Odette tindrors thie Marlowe OOS UO \""
+     },
+     {
+      "file": "f2553.jpg",
+      "label": "",
+      "value": "Nadia Quintero",
+      "why": "misread as \"Nadia Quintero C00 FRO SOUR\""
+     },
+     {
+      "file": "f2848.jpg",
+      "label": "No.",
+      "value": "03219113030",
+      "why": "misread as \"\""
+     }
+    ]
+   },
+   "ppocr": {
+    "all": {
+     "forms": 20,
+     "sortedAsForm": 19,
+     "typedValues": 522,
+     "read": 0.9386973180076629,
+     "extracted": 0.10919540229885058,
+     "labelled": 0.05555555555555555,
+     "fieldsFound": 239,
+     "msPerPage": 6254.75
+    },
+    "clean": {
+     "forms": 10,
+     "sortedAsForm": 9,
+     "typedValues": 280,
+     "read": 0.9142857142857143,
+     "extracted": 0.08571428571428572,
+     "labelled": 0.04285714285714286,
+     "fieldsFound": 126,
+     "msPerPage": 7016.3
+    },
+    "scanLike": {
+     "forms": 10,
+     "sortedAsForm": 10,
+     "typedValues": 242,
+     "read": 0.9669421487603306,
+     "extracted": 0.13636363636363635,
+     "labelled": 0.07024793388429752,
+     "fieldsFound": 113,
+     "msPerPage": 5493.2
+    },
+    "confidence": {
+     "fields": 115,
+     "meanShown": 0.3855718410176071,
+     "shareRight": 0.25217391304347825,
+     "ece": 0.13339792797412883,
+     "bins": [
+      {
+       "lo": 0,
+       "hi": 0.2,
+       "fields": 21,
+       "meanConfidence": 0.1279023316210568,
+       "correct": 0.09523809523809523
+      },
+      {
+       "lo": 0.2,
+       "hi": 0.4,
+       "fields": 37,
+       "meanConfidence": 0.30074654407882495,
+       "correct": 0.21621621621621623
+      },
+      {
+       "lo": 0.4,
+       "hi": 0.6,
+       "fields": 37,
+       "meanConfidence": 0.4583448476692285,
+       "correct": 0.35135135135135137
+      },
+      {
+       "lo": 0.6,
+       "hi": 0.8,
+       "fields": 20,
+       "meanConfidence": 0.6784215629152324,
+       "correct": 0.3
+      },
+      {
+       "lo": 0.8,
+       "hi": 1,
+       "fields": 0,
+       "meanConfidence": 0,
+       "correct": 0
+      }
+     ]
+    },
+    "perForm": [
+     {
+      "file": "f14039.jpg",
+      "quality": "clean",
+      "type": "form",
+      "values": 29,
+      "read": 29,
+      "extracted": 3,
+      "labelled": 2
+     },
+     {
+      "file": "f2553.jpg",
+      "quality": "scan-like",
+      "type": "form",
+      "values": 21,
+      "read": 19,
+      "extracted": 2,
+      "labelled": 1
+     },
+     {
+      "file": "f2848.jpg",
+      "quality": "clean",
+      "type": "form",
+      "values": 45,
+      "read": 43,
+      "extracted": 4,
+      "labelled": 4
+     },
+     {
+      "file": "f3911.jpg",
+      "quality": "scan-like",
+      "type": "form",
+      "values": 35,
+      "read": 34,
+      "extracted": 1,
+      "labelled": 1
+     },
+     {
+      "file": "f4506.jpg",
+      "quality": "clean",
+      "type": "form",
+      "values": 38,
+      "read": 38,
+      "extracted": 1,
+      "labelled": 1
+     },
+     {
+      "file": "f4506t.jpg",
+      "quality": "scan-like",
+      "type": "form",
+      "values": 22,
+      "read": 22,
+      "extracted": 3,
+      "labelled": 0
+     },
+     {
+      "file": "f4868.jpg",
+      "quality": "clean",
+      "type": "form",
+      "values": 14,
+      "read": 14,
+      "extracted": 1,
+      "labelled": 0
+     },
+     {
+      "file": "f56.jpg",
+      "quality": "scan-like",
+      "type": "form",
+      "values": 24,
+      "read": 22,
+      "extracted": 10,
+      "labelled": 8
+     },
+     {
+      "file": "f8332.jpg",
+      "quality": "clean",
+      "type": "form",
+      "values": 11,
+      "read": 10,
+      "extracted": 1,
+      "labelled": 0
+     },
+     {
+      "file": "f8821.jpg",
+      "quality": "scan-like",
+      "type": "form",
+      "values": 28,
+      "read": 28,
+      "extracted": 3,
+      "labelled": 3
+     },
+     {
+      "file": "f8822.jpg",
+      "quality": "clean",
+      "type": "form",
+      "values": 22,
+      "read": 22,
+      "extracted": 5,
+      "labelled": 5
+     },
+     {
+      "file": "f8822b.jpg",
+      "quality": "scan-like",
+      "type": "form",
+      "values": 18,
+      "read": 18,
+      "extracted": 2,
+      "labelled": 2
+     },
+     {
+      "file": "f8888.jpg",
+      "quality": "clean",
+      "type": "form",
+      "values": 13,
+      "read": 7,
+      "extracted": 2,
+      "labelled": 0
+     },
+     {
+      "file": "f9465.jpg",
+      "quality": "scan-like",
+      "type": "form",
+      "values": 30,
+      "read": 28,
+      "extracted": 3,
+      "labelled": 2
+     },
+     {
+      "file": "fss4.jpg",
+      "quality": "clean",
+      "type": "form",
+      "values": 45,
+      "read": 45,
+      "extracted": 4,
+      "labelled": 0
+     },
+     {
+      "file": "fw4.jpg",
+      "quality": "scan-like",
+      "type": "form",
+      "values": 14,
+      "read": 14,
+      "extracted": 2,
+      "labelled": 0
+     },
+     {
+      "file": "fw7.jpg",
+      "quality": "clean",
+      "type": "driving_licence",
+      "values": 48,
+      "read": 38,
+      "extracted": 2,
+      "labelled": 0
+     },
+     {
+      "file": "fw8ben.jpg",
+      "quality": "scan-like",
+      "type": "form",
+      "values": 20,
+      "read": 19,
+      "extracted": 1,
+      "labelled": 0
+     },
+     {
+      "file": "fw9.jpg",
+      "quality": "clean",
+      "type": "form",
+      "values": 15,
+      "read": 10,
+      "extracted": 1,
+      "labelled": 0
+     },
+     {
+      "file": "sf1152.jpg",
+      "quality": "scan-like",
+      "type": "form",
+      "values": 30,
+      "read": 30,
+      "extracted": 6,
+      "labelled": 0
+     }
+    ],
+    "examples": [
+     {
+      "file": "f14039.jpg",
+      "label": "attach additional information and/or pages to this form",
+      "value": "Nadia Pemberton",
+      "why": "read correctly but not linked to a label"
+     },
+     {
+      "file": "f14039.jpg",
+      "label": "",
+      "value": "Northgate Supply Co",
+      "why": "read correctly but not linked to a label"
+     },
+     {
+      "file": "f14039.jpg",
+      "label": "If deceased, provide last known address",
+      "value": "3955 Maple Terrace",
+      "why": "read correctly but not linked to a label"
+     },
+     {
+      "file": "f14039.jpg",
+      "label": "",
+      "value": "Milford",
+      "why": "read correctly but not linked to a label"
+     },
+     {
+      "file": "f14039.jpg",
+      "label": "",
+      "value": "73537",
+      "why": "read correctly but not linked to a label"
+     },
+     {
+      "file": "f14039.jpg",
+      "label": "-",
+      "value": "2072",
+      "why": "read correctly but not linked to a label"
+     },
+     {
+      "file": "f14039.jpg",
+      "label": "(number and street or P.O. box)",
+      "value": "7575 Orchard Way",
+      "why": "read correctly but not linked to a label"
+     },
+     {
+      "file": "f14039.jpg",
+      "label": "",
+      "value": "Milford",
+      "why": "read correctly but not linked to a label"
+     },
+     {
+      "file": "f14039.jpg",
+      "label": "",
+      "value": "30873",
+      "why": "read correctly but not linked to a label"
+     },
+     {
+      "file": "f14039.jpg",
+      "label": "-",
+      "value": "8214",
+      "why": "read correctly but not linked to a label"
+     },
+     {
+      "file": "f14039.jpg",
+      "label": "",
+      "value": "Brookfield",
+      "why": "read correctly but not linked to a label"
+     },
+     {
+      "file": "f14039.jpg",
+      "label": "area code. The IRS may call you",
+      "value": "4105044881",
+      "why": "read correctly but not linked to a label"
+     },
+     {
+      "file": "f2553.jpg",
+      "label": "(2) Fiscal year ending (month and day) ▶",
+      "value": "86073",
+      "why": "misread as \"\""
+     },
+     {
+      "file": "f2553.jpg",
+      "label": "December",
+      "value": "Partner",
+      "why": "misread as \"ofPartner\""
+     },
+     {
+      "file": "f2848.jpg",
+      "label": "parties; Substitute or add representative(s); Sign a return;",
+      "value": "Felix Lindqvist",
+      "why": "misread as \"Lindqvist\""
+     },
+     {
+      "file": "f2848.jpg",
+      "label": "Other acts authorized:",
+      "value": "Casper Quintero",
+      "why": "misread as \"Quintero\""
+     },
+     {
+      "file": "f3911.jpg",
+      "label": "7. Type of return Individual Business, Form",
+      "value": "Bluewater",
+      "why": "misread as \"\""
+     },
+     {
+      "file": "f56.jpg",
+      "label": "appointment of receiver/fiduciary, or assignment for the ben",
+      "value": "Nadia Castellan",
+      "why": "misread as \"Castellan\""
+     },
+     {
+      "file": "f56.jpg",
+      "label": "b 709 series c 940 d 941, 943, 944",
+      "value": "Leona Lindqvist",
+      "why": "misread as \"Le0na Lindqv\""
+     },
+     {
+      "file": "f8332.jpg",
+      "label": "for the tax year(s)",
+      "value": "60086",
+      "why": "misread as \"\""
+     },
+     {
+      "file": "f8888.jpg",
+      "label": "b Routing number",
+      "value": "760671793",
+      "why": "misread as \"7 6 0 6 7 17 9 3\""
+     },
+     {
+      "file": "f8888.jpg",
+      "label": "d Account number",
+      "value": "Nadia Lindqvist",
+      "why": "misread as \"Na dia L i n d q V i s t\""
+     },
+     {
+      "file": "f8888.jpg",
+      "label": "b Routing number",
+      "value": "239682784",
+      "why": "misread as \"2 3 9 6 8 2 7 8 4\""
+     },
+     {
+      "file": "f8888.jpg",
+      "label": "d Account number",
+      "value": "Casper Quintero",
+      "why": "misread as \"C a s pe rQ u in te ro\""
+     }
+    ]
+   }
+  }
+ },
+ "calibration": {
+  "generated": "2026-11-19T16:45:12.637Z",
+  "method": "isotonic regression (pool adjacent violators), at most 12 knots, blocks of at least 25 fields",
+  "shipped": "train",
+  "readers": {
+   "tesseract": {
+    "fields": {
+     "training": 1687,
+     "testing": 516
+    },
+    "shareCorrect": {
+     "training": 0.3390634262003557,
+     "testing": 0.30426356589147285
+    },
+    "before": {
+     "ece": 0.42147235029254315,
+     "brier": 0.3576008065983131,
+     "bins": [
+      {
+       "lo": 0,
+       "hi": 0.1,
+       "fields": 0,
+       "meanConfidence": 0,
+       "correct": 0
+      },
+      {
+       "lo": 0.1,
+       "hi": 0.2,
+       "fields": 0,
+       "meanConfidence": 0,
+       "correct": 0
+      },
+      {
+       "lo": 0.2,
+       "hi": 0.3,
+       "fields": 2,
+       "meanConfidence": 0.29156584200263025,
+       "correct": 0.5
+      },
+      {
+       "lo": 0.3,
+       "hi": 0.4,
+       "fields": 19,
+       "meanConfidence": 0.3585452708884289,
+       "correct": 0.05263157894736842
+      },
+      {
+       "lo": 0.4,
+       "hi": 0.5,
+       "fields": 53,
+       "meanConfidence": 0.45399978314368217,
+       "correct": 0.018867924528301886
+      },
+      {
+       "lo": 0.5,
+       "hi": 0.6,
+       "fields": 56,
+       "meanConfidence": 0.5499288406372072,
+       "correct": 0.125
+      },
+      {
+       "lo": 0.6,
+       "hi": 0.7,
+       "fields": 76,
+       "meanConfidence": 0.6491674264551778,
+       "correct": 0.19736842105263158
+      },
+      {
+       "lo": 0.7,
+       "hi": 0.8,
+       "fields": 101,
+       "meanConfidence": 0.7523145986559369,
+       "correct": 0.27722772277227725
+      },
+      {
+       "lo": 0.8,
+       "hi": 0.9,
+       "fields": 117,
+       "meanConfidence": 0.856359270759118,
+       "correct": 0.4017094017094017
+      },
+      {
+       "lo": 0.9,
+       "hi": 1,
+       "fields": 92,
+       "meanConfidence": 0.9334561646969424,
+       "correct": 0.6195652173913043
+      }
+     ]
+    },
+    "trainToTest": {
+     "ece": 0.04583715736180944,
+     "brier": 0.1801900755271428,
+     "bins": [
+      {
+       "lo": 0,
+       "hi": 0.1,
+       "fields": 75,
+       "meanConfidence": 0.07288462416549388,
+       "correct": 0.04
+      },
+      {
+       "lo": 0.1,
+       "hi": 0.2,
+       "fields": 32,
+       "meanConfidence": 0.15003801483913723,
+       "correct": 0.15625
+      },
+      {
+       "lo": 0.2,
+       "hi": 0.3,
+       "fields": 121,
+       "meanConfidence": 0.2597347529127168,
+       "correct": 0.17355371900826447
+      },
+      {
+       "lo": 0.3,
+       "hi": 0.4,
+       "fields": 111,
+       "meanConfidence": 0.36160243377820384,
+       "correct": 0.32432432432432434
+      },
+      {
+       "lo": 0.4,
+       "hi": 0.5,
+       "fields": 73,
+       "meanConfidence": 0.4435591474531696,
+       "correct": 0.4246575342465753
+      },
+      {
+       "lo": 0.5,
+       "hi": 0.6,
+       "fields": 42,
+       "meanConfidence": 0.5553352832027542,
+       "correct": 0.5238095238095238
+      },
+      {
+       "lo": 0.6,
+       "hi": 0.7,
+       "fields": 35,
+       "meanConfidence": 0.647297146469968,
+       "correct": 0.5428571428571428
+      },
+      {
+       "lo": 0.7,
+       "hi": 0.8,
+       "fields": 27,
+       "meanConfidence": 0.7384530435456028,
+       "correct": 0.7407407407407407
+      },
+      {
+       "lo": 0.8,
+       "hi": 0.9,
+       "fields": 0,
+       "meanConfidence": 0,
+       "correct": 0
+      },
+      {
+       "lo": 0.9,
+       "hi": 1,
+       "fields": 0,
+       "meanConfidence": 0,
+       "correct": 0
+      }
+     ],
+     "curve": {
+      "x": [
+       0.3368,
+       0.3977,
+       0.4991,
+       0.5718,
+       0.7256,
+       0.7922,
+       0.8547,
+       0.8953,
+       0.9151,
+       0.9286,
+       0.9459,
+       0.9609
+      ],
+      "y": [
+       0.0185,
+       0.0714,
+       0.0976,
+       0.2215,
+       0.2997,
+       0.3871,
+       0.4049,
+       0.5132,
+       0.5897,
+       0.6071,
+       0.7101,
+       0.7556
+      ],
+      "n": 1687
+     }
+    },
+    "crossFit": {
+     "ece": 0.02199936473120902,
+     "brier": 0.18228621655080401,
+     "bins": [
+      {
+       "lo": 0,
+       "hi": 0.1,
+       "fields": 94,
+       "meanConfidence": 0.0566470983638541,
+       "correct": 0.06382978723404255
+      },
+      {
+       "lo": 0.1,
+       "hi": 0.2,
+       "fields": 80,
+       "meanConfidence": 0.14514885985272535,
+       "correct": 0.175
+      },
+      {
+       "lo": 0.2,
+       "hi": 0.3,
+       "fields": 91,
+       "meanConfidence": 0.2557518971702292,
+       "correct": 0.25274725274725274
+      },
+      {
+       "lo": 0.3,
+       "hi": 0.4,
+       "fields": 87,
+       "meanConfidence": 0.34918199973345965,
+       "correct": 0.3333333333333333
+      },
+      {
+       "lo": 0.4,
+       "hi": 0.5,
+       "fields": 64,
+       "meanConfidence": 0.4461130245317494,
+       "correct": 0.40625
+      },
+      {
+       "lo": 0.5,
+       "hi": 0.6,
+       "fields": 51,
+       "meanConfidence": 0.524355429907629,
+       "correct": 0.5686274509803921
+      },
+      {
+       "lo": 0.6,
+       "hi": 0.7,
+       "fields": 49,
+       "meanConfidence": 0.6495315300342742,
+       "correct": 0.6122448979591837
+      },
+      {
+       "lo": 0.7,
+       "hi": 0.8,
+       "fields": 0,
+       "meanConfidence": 0,
+       "correct": 0
+      },
+      {
+       "lo": 0.8,
+       "hi": 0.9,
+       "fields": 0,
+       "meanConfidence": 0,
+       "correct": 0
+      },
+      {
+       "lo": 0.9,
+       "hi": 1,
+       "fields": 0,
+       "meanConfidence": 0,
+       "correct": 0
+      }
+     ],
+     "folds": 5,
+     "curve": {
+      "x": [
+       0.4448,
+       0.5815,
+       0.6827,
+       0.7695,
+       0.8222,
+       0.8771,
+       0.9371
+      ],
+      "y": [
+       0.0426,
+       0.1346,
+       0.2188,
+       0.3182,
+       0.3684,
+       0.4205,
+       0.6463
+      ],
+      "n": 516
+     }
+    }
+   },
+   "ppocr": {
+    "fields": {
+     "training": 1652,
+     "testing": 492
+    },
+    "shareCorrect": {
+     "training": 0.4860774818401937,
+     "testing": 0.4532520325203252
+    },
+    "before": {
+     "ece": 0.4464471770422598,
+     "brier": 0.42002302707727174,
+     "bins": [
+      {
+       "lo": 0,
+       "hi": 0.1,
+       "fields": 0,
+       "meanConfidence": 0,
+       "correct": 0
+      },
+      {
+       "lo": 0.1,
+       "hi": 0.2,
+       "fields": 0,
+       "meanConfidence": 0,
+       "correct": 0
+      },
+      {
+       "lo": 0.2,
+       "hi": 0.3,
+       "fields": 0,
+       "meanConfidence": 0,
+       "correct": 0
+      },
+      {
+       "lo": 0.3,
+       "hi": 0.4,
+       "fields": 0,
+       "meanConfidence": 0,
+       "correct": 0
+      },
+      {
+       "lo": 0.4,
+       "hi": 0.5,
+       "fields": 0,
+       "meanConfidence": 0,
+       "correct": 0
+      },
+      {
+       "lo": 0.5,
+       "hi": 0.6,
+       "fields": 7,
+       "meanConfidence": 0.5620550204600606,
+       "correct": 0
+      },
+      {
+       "lo": 0.6,
+       "hi": 0.7,
+       "fields": 20,
+       "meanConfidence": 0.650896006946585,
+       "correct": 0.05
+      },
+      {
+       "lo": 0.7,
+       "hi": 0.8,
+       "fields": 56,
+       "meanConfidence": 0.757612977550545,
+       "correct": 0.21428571428571427
+      },
+      {
+       "lo": 0.8,
+       "hi": 0.9,
+       "fields": 94,
+       "meanConfidence": 0.8636292608074837,
+       "correct": 0.2553191489361702
+      },
+      {
+       "lo": 0.9,
+       "hi": 1,
+       "fields": 315,
+       "meanConfidence": 0.9590229478219228,
+       "correct": 0.5904761904761905
+      }
+     ]
+    },
+    "trainToTest": {
+     "ece": 0.08179146215091371,
+     "brier": 0.21566533766644738,
+     "bins": [
+      {
+       "lo": 0,
+       "hi": 0.1,
+       "fields": 27,
+       "meanConfidence": 0.03491660228220285,
+       "correct": 0.037037037037037035
+      },
+      {
+       "lo": 0.1,
+       "hi": 0.2,
+       "fields": 44,
+       "meanConfidence": 0.14684067247159588,
+       "correct": 0.18181818181818182
+      },
+      {
+       "lo": 0.2,
+       "hi": 0.3,
+       "fields": 42,
+       "meanConfidence": 0.25446809143411936,
+       "correct": 0.2619047619047619
+      },
+      {
+       "lo": 0.3,
+       "hi": 0.4,
+       "fields": 36,
+       "meanConfidence": 0.3595581697089097,
+       "correct": 0.25
+      },
+      {
+       "lo": 0.4,
+       "hi": 0.5,
+       "fields": 91,
+       "meanConfidence": 0.4408715350092601,
+       "correct": 0.3956043956043956
+      },
+      {
+       "lo": 0.5,
+       "hi": 0.6,
+       "fields": 28,
+       "meanConfidence": 0.5298167513306472,
+       "correct": 0.6428571428571429
+      },
+      {
+       "lo": 0.6,
+       "hi": 0.7,
+       "fields": 47,
+       "meanConfidence": 0.6647691526457579,
+       "correct": 0.5319148936170213
+      },
+      {
+       "lo": 0.7,
+       "hi": 0.8,
+       "fields": 177,
+       "meanConfidence": 0.7675712550078889,
+       "correct": 0.6497175141242938
+      },
+      {
+       "lo": 0.8,
+       "hi": 0.9,
+       "fields": 0,
+       "meanConfidence": 0,
+       "correct": 0
+      },
+      {
+       "lo": 0.9,
+       "hi": 1,
+       "fields": 0,
+       "meanConfidence": 0,
+       "correct": 0
+      }
+     ],
+     "curve": {
+      "x": [
+       0.5353,
+       0.6594,
+       0.7613,
+       0.7927,
+       0.8183,
+       0.8379,
+       0.8586,
+       0.8759,
+       0.9124,
+       0.9414,
+       0.9456,
+       0.9848
+      ],
+      "y": [
+       0,
+       0.04,
+       0.1563,
+       0.2292,
+       0.2333,
+       0.2976,
+       0.3019,
+       0.3908,
+       0.4382,
+       0.5294,
+       0.6207,
+       0.7992
+      ],
+      "n": 1652
+     }
+    },
+    "crossFit": {
+     "ece": 0.048001363845116225,
+     "brier": 0.21072882560173095,
+     "bins": [
+      {
+       "lo": 0,
+       "hi": 0.1,
+       "fields": 17,
+       "meanConfidence": 0.05225777290194981,
+       "correct": 0.058823529411764705
+      },
+      {
+       "lo": 0.1,
+       "hi": 0.2,
+       "fields": 65,
+       "meanConfidence": 0.1566706280902454,
+       "correct": 0.18461538461538463
+      },
+      {
+       "lo": 0.2,
+       "hi": 0.3,
+       "fields": 64,
+       "meanConfidence": 0.2498224524233037,
+       "correct": 0.25
+      },
+      {
+       "lo": 0.3,
+       "hi": 0.4,
+       "fields": 60,
+       "meanConfidence": 0.3483093617436854,
+       "correct": 0.3
+      },
+      {
+       "lo": 0.4,
+       "hi": 0.5,
+       "fields": 36,
+       "meanConfidence": 0.44780161796567053,
+       "correct": 0.5555555555555556
+      },
+      {
+       "lo": 0.5,
+       "hi": 0.6,
+       "fields": 77,
+       "meanConfidence": 0.5554602425507306,
+       "correct": 0.5454545454545454
+      },
+      {
+       "lo": 0.6,
+       "hi": 0.7,
+       "fields": 120,
+       "meanConfidence": 0.6570289983052777,
+       "correct": 0.7
+      },
+      {
+       "lo": 0.7,
+       "hi": 0.8,
+       "fields": 53,
+       "meanConfidence": 0.7353324263105246,
+       "correct": 0.5660377358490566
+      },
+      {
+       "lo": 0.8,
+       "hi": 0.9,
+       "fields": 0,
+       "meanConfidence": 0,
+       "correct": 0
+      },
+      {
+       "lo": 0.9,
+       "hi": 1,
+       "fields": 0,
+       "meanConfidence": 0,
+       "correct": 0
+      }
+     ],
+     "folds": 5,
+     "curve": {
+      "x": [
+       0.6486,
+       0.7562,
+       0.8036,
+       0.8605,
+       0.8973,
+       0.9182,
+       0.9407,
+       0.9637,
+       0.9817
+      ],
+      "y": [
+       0.0571,
+       0.1944,
+       0.2222,
+       0.2292,
+       0.3148,
+       0.4815,
+       0.55,
+       0.5522,
+       0.7029
+      ],
+      "n": 492
+     }
+    }
+   }
+  }
  }
 }

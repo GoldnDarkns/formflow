@@ -1,0 +1,5948 @@
+{
+ "about": "Invented data typed into public US federal forms. No real person appears.",
+ "dpi": 150,
+ "forms": [
+  {
+   "file": "f14039.jpg",
+   "source": "https://www.irs.gov/pub/irs-pdf/f14039.pdf",
+   "page": 1,
+   "quality": "clean",
+   "width": 1275,
+   "height": 1650,
+   "fields": [
+    {
+     "label": "attach additional information and/or pages to this form",
+     "tooltip": "Provide an explanation of the identity theft issue, how it impacts your tax account, when you became aware of it and provide relevant dates. If needed, attach additional information and/or pages to this form.",
+     "value": "Nadia Pemberton",
+     "box": [
+      60,
+      855,
+      1215,
+      997
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "Section C \u2013 Name and Contact Information of Identity Theft Victim (required). Victim\u2019s last name.",
+     "value": "Northgate Supply Co",
+     "box": [
+      60,
+      1077,
+      547,
+      1110
+     ]
+    },
+    {
+     "label": "(provide 9-digit SSN or ITIN)",
+     "tooltip": "Taxpayer Identification Number (provide 9-digit S S N or I T I N).",
+     "value": "651-72-86",
+     "box": [
+      960,
+      1077,
+      1215,
+      1110
+     ]
+    },
+    {
+     "label": "If deceased, provide last known address",
+     "tooltip": "Current mailing address (apartment or suite number and street, or P.O. Box) If deceased, provide last known address. .",
+     "value": "3955 Maple Terrace",
+     "box": [
+      60,
+      1159,
+      547,
+      1193
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "Current city.",
+     "value": "Milford",
+     "box": [
+      758,
+      1159,
+      945,
+      1193
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "Zip code should be either 5 digits or 9 digits. First 5 digits.",
+     "value": "73537",
+     "box": [
+      1095,
+      1159,
+      1155,
+      1192
+     ]
+    },
+    {
+     "label": "-",
+     "tooltip": "Last 4 digits.",
+     "value": "2072",
+     "box": [
+      1162,
+      1159,
+      1215,
+      1192
+     ]
+    },
+    {
+     "label": "(number and street or P.O. box)",
+     "tooltip": "Address used on last filed tax return (if different than current) (number and street or P.O. box).",
+     "value": "7575 Orchard Way",
+     "box": [
+      60,
+      1242,
+      547,
+      1275
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "Enter City.",
+     "value": "Milford",
+     "box": [
+      758,
+      1242,
+      945,
+      1275
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "Zip code should be either 5 digits or 9 digits. First 5 digits.",
+     "value": "30873",
+     "box": [
+      1095,
+      1242,
+      1155,
+      1275
+     ]
+    },
+    {
+     "label": "-",
+     "tooltip": "Last 4 digits.",
+     "value": "8214",
+     "box": [
+      1162,
+      1242,
+      1215,
+      1275
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "Current city.",
+     "value": "Brookfield",
+     "box": [
+      562,
+      1242,
+      742,
+      1275
+     ]
+    },
+    {
+     "label": "area code. The IRS may call you",
+     "tooltip": "Telephone number with area code. The I R S may call you regarding this affidavit. Home telephone number.",
+     "value": "4105044881",
+     "box": [
+      240,
+      1305,
+      488,
+      1332
+     ]
+    },
+    {
+     "label": "phone number Cell phone number",
+     "tooltip": "Cell phone number.",
+     "value": "3465335971",
+     "box": [
+      675,
+      1305,
+      938,
+      1332
+     ]
+    },
+    {
+     "label": "Best time(s) to call",
+     "tooltip": "Best time(s) to call.",
+     "value": "Manager",
+     "box": [
+      960,
+      1302,
+      1215,
+      1335
+     ]
+    },
+    {
+     "label": "contacted English Spanish Other (specify)",
+     "tooltip": "if_other",
+     "value": "Owner",
+     "box": [
+      960,
+      1337,
+      1215,
+      1362
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "Current city.",
+     "value": "Glenwood",
+     "box": [
+      562,
+      1159,
+      742,
+      1193
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "Taxpayer's first name.",
+     "value": "Rafael",
+     "box": [
+      562,
+      1077,
+      863,
+      1110
+     ]
+    },
+    {
+     "label": "initial",
+     "tooltip": "Taxpayer's middle initial.",
+     "value": "63687",
+     "box": [
+      878,
+      1077,
+      945,
+      1110
+     ]
+    },
+    {
+     "label": "Name(s) used on last filed tax return",
+     "tooltip": "Name(s) used on last filed tax return.",
+     "value": "Marcus Castellan",
+     "box": [
+      60,
+      1467,
+      742,
+      1500
+     ]
+    },
+    {
+     "label": "Last tax return filed (year shown on the tax return)",
+     "tooltip": "Last tax return filed (year shown on the tax return).",
+     "value": "61878",
+     "box": [
+      758,
+      1467,
+      1215,
+      1500
+     ]
+    },
+    {
+     "label": "known, enter",
+     "tooltip": "Tax Year(s) you believe were impacted by tax-related identity theft (example: input 2024 for the 2024 tax return even though it was filed in 2025. (if not known, enter \u2018Unknown\u2019 below)). Tax Year. 1 of 8.",
+     "value": "Treasurer",
+     "box": [
+      60,
+      1557,
+      195,
+      1579
+     ]
+    },
+    {
+     "label": "below))",
+     "tooltip": "Tax Year. 2 of 8.",
+     "value": "Wholesale",
+     "box": [
+      210,
+      1557,
+      338,
+      1579
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "Tax Year. 3 of 8.",
+     "value": "7284",
+     "box": [
+      352,
+      1557,
+      480,
+      1579
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "Tax Year. 4 of 8.",
+     "value": "18850",
+     "box": [
+      495,
+      1557,
+      622,
+      1579
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "Tax Year. 5 of 8.",
+     "value": "59073",
+     "box": [
+      638,
+      1557,
+      765,
+      1579
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "Tax Year. 6 of 8.",
+     "value": "85575",
+     "box": [
+      780,
+      1557,
+      915,
+      1579
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "Tax Year. 7 of 8.",
+     "value": "93494",
+     "box": [
+      930,
+      1557,
+      1065,
+      1579
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "Tax Year. 8 of 8.",
+     "value": "9949",
+     "box": [
+      1080,
+      1557,
+      1215,
+      1579
+     ]
+    }
+   ]
+  },
+  {
+   "file": "f2553.jpg",
+   "source": "https://www.irs.gov/pub/irs-pdf/f2553.pdf",
+   "page": 1,
+   "quality": "scan-like",
+   "width": 1275,
+   "height": 1650,
+   "fields": [
+    {
+     "label": "Name (see instructions)",
+     "tooltip": "",
+     "value": "Mira Belmore",
+     "box": [
+      167,
+      321,
+      885,
+      350
+     ]
+    },
+    {
+     "label": "Number, street, and room or suite no. If a P.O. box, see instructions.",
+     "tooltip": "",
+     "value": "1507 Orchard Way",
+     "box": [
+      167,
+      371,
+      885,
+      400
+     ]
+    },
+    {
+     "label": "City or town, state or province, country, and ZIP or foreign postal code",
+     "tooltip": "",
+     "value": "Brookfield, WI 53005",
+     "box": [
+      167,
+      421,
+      885,
+      450
+     ]
+    },
+    {
+     "label": "A Employer identification number",
+     "tooltip": "",
+     "value": "65-9693900",
+     "box": [
+      885,
+      321,
+      1200,
+      350
+     ]
+    },
+    {
+     "label": "B Date incorporated",
+     "tooltip": "",
+     "value": "12/23/2023",
+     "box": [
+      885,
+      371,
+      1200,
+      400
+     ]
+    },
+    {
+     "label": "C State of incorporation",
+     "tooltip": "",
+     "value": "Harrow and Vine LLC",
+     "box": [
+      887,
+      421,
+      1200,
+      450
+     ]
+    },
+    {
+     "label": "name or address",
+     "tooltip": "",
+     "value": "45",
+     "box": [
+      1005,
+      475,
+      1200,
+      500
+     ]
+    },
+    {
+     "label": "(2) Fiscal year ending (month and day) \u25b6",
+     "tooltip": "",
+     "value": "86073",
+     "box": [
+      510,
+      600,
+      690,
+      625
+     ]
+    },
+    {
+     "label": "December",
+     "tooltip": "",
+     "value": "Partner",
+     "box": [
+      690,
+      650,
+      915,
+      675
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "",
+     "value": "Jonas Belmore",
+     "box": [
+      120,
+      825,
+      870,
+      850
+     ]
+    },
+    {
+     "label": "representative",
+     "tooltip": "",
+     "value": "Odette Vasquez",
+     "box": [
+      870,
+      825,
+      1200,
+      850
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "",
+     "value": "Marcus Ashdown",
+     "box": [
+      120,
+      1000,
+      1200,
+      1025
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "",
+     "value": "Mira Okonjo",
+     "box": [
+      120,
+      1050,
+      1200,
+      1075
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "",
+     "value": "Tobias Pemberton",
+     "box": [
+      120,
+      1100,
+      1200,
+      1125
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "",
+     "value": "Nadia Pemberton",
+     "box": [
+      120,
+      1150,
+      1200,
+      1175
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "",
+     "value": "Leona Quintero",
+     "box": [
+      120,
+      1200,
+      1200,
+      1225
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "",
+     "value": "Ingrid Fenwick",
+     "box": [
+      120,
+      1250,
+      1200,
+      1275
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "",
+     "value": "Marcus Quintero",
+     "box": [
+      120,
+      1300,
+      1200,
+      1325
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "",
+     "value": "Odette Marlowe",
+     "box": [
+      120,
+      1350,
+      1200,
+      1375
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "",
+     "value": "Nadia Quintero",
+     "box": [
+      120,
+      1400,
+      1200,
+      1425
+     ]
+    },
+    {
+     "label": "\u25b2",
+     "tooltip": "",
+     "value": "Ingrid Draycott",
+     "box": [
+      675,
+      1525,
+      1020,
+      1550
+     ]
+    }
+   ]
+  },
+  {
+   "file": "f2848.jpg",
+   "source": "https://www.irs.gov/pub/irs-pdf/f2848.pdf",
+   "page": 1,
+   "quality": "clean",
+   "width": 1275,
+   "height": 1650,
+   "fields": [
+    {
+     "label": "Taxpayer name and address",
+     "tooltip": "",
+     "value": "8547 Orchard Way",
+     "box": [
+      75,
+      300,
+      703,
+      325
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "",
+     "value": "Casper Ashdown",
+     "box": [
+      75,
+      325,
+      703,
+      375
+     ]
+    },
+    {
+     "label": "Taxpayer identification",
+     "tooltip": "",
+     "value": "247-29-9168",
+     "box": [
+      705,
+      300,
+      870,
+      325
+     ]
+    },
+    {
+     "label": "number(s)",
+     "tooltip": "",
+     "value": "03306098292",
+     "box": [
+      878,
+      300,
+      1035,
+      325
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "",
+     "value": "4741897941",
+     "box": [
+      1042,
+      300,
+      1200,
+      325
+     ]
+    },
+    {
+     "label": "Daytime telephone number",
+     "tooltip": "",
+     "value": "(161) 165-9296",
+     "box": [
+      705,
+      350,
+      960,
+      375
+     ]
+    },
+    {
+     "label": "Plan number (if applicable)",
+     "tooltip": "",
+     "value": "Consulting",
+     "box": [
+      960,
+      350,
+      1200,
+      375
+     ]
+    },
+    {
+     "label": "Name and address",
+     "tooltip": "",
+     "value": "8130 Quarry Road",
+     "box": [
+      75,
+      450,
+      628,
+      475
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "",
+     "value": "Odette Marlowe",
+     "box": [
+      75,
+      475,
+      628,
+      525
+     ]
+    },
+    {
+     "label": "CAF No.",
+     "tooltip": "",
+     "value": "20116170740",
+     "box": [
+      810,
+      425,
+      1110,
+      450
+     ]
+    },
+    {
+     "label": "No.",
+     "tooltip": "",
+     "value": "03219113030",
+     "box": [
+      788,
+      450,
+      1110,
+      475
+     ]
+    },
+    {
+     "label": "Telephone No.",
+     "tooltip": "",
+     "value": "(375) 672-4368",
+     "box": [
+      861,
+      475,
+      1110,
+      500
+     ]
+    },
+    {
+     "label": "No.",
+     "tooltip": "",
+     "value": "Mira Okonjo",
+     "box": [
+      810,
+      500,
+      1110,
+      525
+     ]
+    },
+    {
+     "label": "Name and address",
+     "tooltip": "",
+     "value": "7062 Wexford Avenue",
+     "box": [
+      75,
+      575,
+      628,
+      600
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "",
+     "value": "Mira Quintero",
+     "box": [
+      75,
+      600,
+      628,
+      650
+     ]
+    },
+    {
+     "label": "Telephone No. Fax",
+     "tooltip": "",
+     "value": "49560865015",
+     "box": [
+      810,
+      550,
+      1110,
+      575
+     ]
+    },
+    {
+     "label": "No.",
+     "tooltip": "",
+     "value": "86162919410",
+     "box": [
+      788,
+      575,
+      1110,
+      600
+     ]
+    },
+    {
+     "label": "Telephone No.",
+     "tooltip": "",
+     "value": "(396) 644-4733",
+     "box": [
+      861,
+      600,
+      1110,
+      625
+     ]
+    },
+    {
+     "label": "No.",
+     "tooltip": "",
+     "value": "Ingrid Ashdown",
+     "box": [
+      810,
+      625,
+      1110,
+      650
+     ]
+    },
+    {
+     "label": "Name and address",
+     "tooltip": "",
+     "value": "324 Orchard Way",
+     "box": [
+      75,
+      700,
+      628,
+      725
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "",
+     "value": "Jonas Castellan",
+     "box": [
+      75,
+      725,
+      628,
+      775
+     ]
+    },
+    {
+     "label": "Telephone No. Fax",
+     "tooltip": "",
+     "value": "15846790553",
+     "box": [
+      810,
+      675,
+      1110,
+      700
+     ]
+    },
+    {
+     "label": "No.",
+     "tooltip": "",
+     "value": "71581329125",
+     "box": [
+      788,
+      700,
+      1110,
+      725
+     ]
+    },
+    {
+     "label": "Telephone No.",
+     "tooltip": "",
+     "value": "(644) 209-6143",
+     "box": [
+      860,
+      725,
+      1110,
+      750
+     ]
+    },
+    {
+     "label": "No.",
+     "tooltip": "",
+     "value": "Tobias Marlowe",
+     "box": [
+      810,
+      750,
+      1110,
+      775
+     ]
+    },
+    {
+     "label": "Name and address",
+     "tooltip": "",
+     "value": "562 Quarry Road",
+     "box": [
+      75,
+      825,
+      628,
+      850
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "",
+     "value": "Leona Vasquez",
+     "box": [
+      75,
+      850,
+      628,
+      900
+     ]
+    },
+    {
+     "label": "Telephone No. Fax",
+     "tooltip": "",
+     "value": "35694639670",
+     "box": [
+      810,
+      800,
+      1110,
+      825
+     ]
+    },
+    {
+     "label": "No.",
+     "tooltip": "",
+     "value": "59538175928",
+     "box": [
+      788,
+      825,
+      1110,
+      850
+     ]
+    },
+    {
+     "label": "Telephone No.",
+     "tooltip": "",
+     "value": "(936) 176-2377",
+     "box": [
+      860,
+      850,
+      1110,
+      875
+     ]
+    },
+    {
+     "label": "No.",
+     "tooltip": "",
+     "value": "Leona Vasquez",
+     "box": [
+      812,
+      875,
+      1110,
+      900
+     ]
+    },
+    {
+     "label": "4980H Shared Responsibility Payment, etc.) (see instructions)",
+     "tooltip": "",
+     "value": "2582",
+     "box": [
+      75,
+      1125,
+      628,
+      1175
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "",
+     "value": "Odette Draycott",
+     "box": [
+      630,
+      1125,
+      930,
+      1175
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "",
+     "value": "Partner",
+     "box": [
+      930,
+      1125,
+      1200,
+      1175
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "",
+     "value": "Ingrid Ashdown",
+     "box": [
+      75,
+      1175,
+      628,
+      1225
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "",
+     "value": "Jonas Okonjo",
+     "box": [
+      630,
+      1175,
+      930,
+      1225
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "",
+     "value": "Owner",
+     "box": [
+      930,
+      1175,
+      1200,
+      1225
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "",
+     "value": "Casper Halvorsen",
+     "box": [
+      75,
+      1225,
+      628,
+      1275
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "",
+     "value": "Mira Ashdown",
+     "box": [
+      630,
+      1225,
+      930,
+      1275
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "",
+     "value": "Partner",
+     "box": [
+      930,
+      1225,
+      1200,
+      1275
+     ]
+    },
+    {
+     "label": "parties; Substitute or add representative(s); Sign a return;",
+     "tooltip": "",
+     "value": "Felix Lindqvist",
+     "box": [
+      930,
+      1375,
+      1200,
+      1400
+     ]
+    },
+    {
+     "label": "Authorize disclosure to third parties; Substitute or add representative(s); Sign a return;",
+     "tooltip": "",
+     "value": "Rafael Lindqvist",
+     "box": [
+      135,
+      1400,
+      1200,
+      1425
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "",
+     "value": "Mira Lindqvist",
+     "box": [
+      135,
+      1425,
+      1200,
+      1450
+     ]
+    },
+    {
+     "label": "Other acts authorized:",
+     "tooltip": "",
+     "value": "Casper Quintero",
+     "box": [
+      330,
+      1475,
+      1200,
+      1500
+     ]
+    },
+    {
+     "label": "Other acts authorized:",
+     "tooltip": "",
+     "value": "Selma Fenwick",
+     "box": [
+      135,
+      1500,
+      1200,
+      1525
+     ]
+    }
+   ]
+  },
+  {
+   "file": "f3911.jpg",
+   "source": "https://www.irs.gov/pub/irs-pdf/f3911.pdf",
+   "page": 1,
+   "quality": "scan-like",
+   "width": 1275,
+   "height": 1650,
+   "fields": [
+    {
+     "label": "below is in reply to your inquiry on",
+     "tooltip": "Page 1. The information below is in reply to your inquiry on. Date.",
+     "value": "Spouse",
+     "box": [
+      540,
+      160,
+      720,
+      188
+     ]
+    },
+    {
+     "label": "inquiry on about your Federal tax refund for",
+     "tooltip": "about your Federal tax refund for. Date.",
+     "value": "73367",
+     "box": [
+      1032,
+      160,
+      1200,
+      188
+     ]
+    },
+    {
+     "label": "portions of the form that do not apply to you, you may mark them as N/A. Return to us in t",
+     "tooltip": "If you did not receive your refund or if the refund check you received was lost, stolen or destroyed, complete the entire form. If there are portions of the form that do not apply to you, you may mark them as N/A. Return to us in the envelope provided or fax the form to.",
+     "value": "Rafael Belmore",
+     "box": [
+      75,
+      244,
+      1185,
+      270
+     ]
+    },
+    {
+     "label": "1. Your name",
+     "tooltip": "Section 1. Print your current name(s), taxpayer identification number (for individuals, this may be your social security number or your I T I N, for businesses, it is your employer identification number) and address, including ZIP code. If you filed a joint return, enter the information of both spouses on lines 1 and 2 below. 1. Your name.",
+     "value": "Jonas Lindqvist",
+     "box": [
+      75,
+      515,
+      817,
+      547
+     ]
+    },
+    {
+     "label": "Taxpayer Identification Number",
+     "tooltip": "Taxpayer Identification Number.",
+     "value": "787-60-5178",
+     "box": [
+      833,
+      515,
+      1200,
+      547
+     ]
+    },
+    {
+     "label": "2. Spouse\u2019s name (if a name is entered here, spouse must sign on line 11)",
+     "tooltip": "2. Spouse\u2019s name (if a name is entered here, spouse must sign on line 11).",
+     "value": "Felix Marlowe",
+     "box": [
+      75,
+      575,
+      817,
+      608
+     ]
+    },
+    {
+     "label": "Taxpayer Identification Number",
+     "tooltip": "Taxpayer Identification Number.",
+     "value": "145-98-0388",
+     "box": [
+      833,
+      575,
+      1200,
+      608
+     ]
+    },
+    {
+     "label": "3. Current address",
+     "tooltip": "3. Current address.",
+     "value": "1015 Maple Terrace",
+     "box": [
+      75,
+      634,
+      525,
+      667
+     ]
+    },
+    {
+     "label": "Apt. No.",
+     "tooltip": "3. Apartment number.",
+     "value": "15",
+     "box": [
+      533,
+      634,
+      638,
+      667
+     ]
+    },
+    {
+     "label": "City",
+     "tooltip": "3. City.",
+     "value": "Milford, CT 06460",
+     "box": [
+      645,
+      634,
+      1013,
+      667
+     ]
+    },
+    {
+     "label": "State",
+     "tooltip": "3. State.",
+     "value": "OR",
+     "box": [
+      1020,
+      634,
+      1088,
+      667
+     ]
+    },
+    {
+     "label": "ZIP code",
+     "tooltip": "3. ZIP code.",
+     "value": "97520",
+     "box": [
+      1095,
+      634,
+      1200,
+      667
+     ]
+    },
+    {
+     "label": "Area code",
+     "tooltip": "Give us a phone number where you can be reached between 8 a.m. and 4 p.m. Include area code.. Area code.",
+     "value": "Wholesale",
+     "box": [
+      645,
+      694,
+      817,
+      728
+     ]
+    },
+    {
+     "label": "Telephone number",
+     "tooltip": "Telephone number.",
+     "value": "(265) 083-6046",
+     "box": [
+      833,
+      694,
+      1200,
+      728
+     ]
+    },
+    {
+     "label": "4. Name(s)",
+     "tooltip": "Enter the information on line 4 exactly as it appeared on your tax return, if no change from above, enter N/A in fields below. 4. Name(s).",
+     "value": "Leona Castellan",
+     "box": [
+      75,
+      792,
+      1200,
+      825
+     ]
+    },
+    {
+     "label": "Address on return if different from current address",
+     "tooltip": "4. Address on return if different from current address.",
+     "value": "6197 Orchard Way",
+     "box": [
+      75,
+      852,
+      525,
+      885
+     ]
+    },
+    {
+     "label": "Apt. No.",
+     "tooltip": "4. Apartment number.",
+     "value": "59",
+     "box": [
+      533,
+      852,
+      638,
+      885
+     ]
+    },
+    {
+     "label": "City",
+     "tooltip": "4. City.",
+     "value": "Brookfield, WI 53005",
+     "box": [
+      645,
+      852,
+      1013,
+      885
+     ]
+    },
+    {
+     "label": "State",
+     "tooltip": "4. State.",
+     "value": "WI",
+     "box": [
+      1020,
+      852,
+      1088,
+      885
+     ]
+    },
+    {
+     "label": "ZIP code",
+     "tooltip": "4. ZIP code.",
+     "value": "18042",
+     "box": [
+      1095,
+      852,
+      1200,
+      885
+     ]
+    },
+    {
+     "label": "5. Name of representative",
+     "tooltip": "If you authorized a representative to receive your refund check, enter his or her name and mailing address below. 5. Name of representative.",
+     "value": "Felix Belmore",
+     "box": [
+      75,
+      950,
+      630,
+      983
+     ]
+    },
+    {
+     "label": "6. Address (include ZIP code)",
+     "tooltip": "6. Address (include ZIP code).",
+     "value": "06460",
+     "box": [
+      645,
+      949,
+      1200,
+      983
+     ]
+    },
+    {
+     "label": "7. Type of return Individual Business, Form",
+     "tooltip": "7. Type of return. Form number.",
+     "value": "Bluewater",
+     "box": [
+      600,
+      987,
+      705,
+      1013
+     ]
+    },
+    {
+     "label": "Individual Business, Form Other",
+     "tooltip": "7. Type of return. If other, enter type of return.",
+     "value": "Bluewater Consulti",
+     "box": [
+      817,
+      983,
+      1005,
+      1013
+     ]
+    },
+    {
+     "label": "Check Direct Deposit Refund amount $",
+     "tooltip": "Refund amount.",
+     "value": "76450",
+     "box": [
+      878,
+      1020,
+      1005,
+      1050
+     ]
+    },
+    {
+     "label": "Direct Deposit Refund amount $",
+     "tooltip": "Name of bank (where you normally cash or deposit your checks).",
+     "value": "97401",
+     "box": [
+      592,
+      1050,
+      1005,
+      1080
+     ]
+    },
+    {
+     "label": "Account type Checking Saving Other",
+     "tooltip": "7. Type of return. If other, enter type of return.",
+     "value": "Partner",
+     "box": [
+      638,
+      1080,
+      1005,
+      1110
+     ]
+    },
+    {
+     "label": "Checking Saving",
+     "tooltip": "Bank R T N.",
+     "value": "Ingrid Ashdown",
+     "box": [
+      188,
+      1110,
+      517,
+      1140
+     ]
+    },
+    {
+     "label": "Account number",
+     "tooltip": "Account number.",
+     "value": "Mira Fenwick",
+     "box": [
+      712,
+      1110,
+      1005,
+      1140
+     ]
+    },
+    {
+     "label": "Tax period",
+     "tooltip": "Tax period.",
+     "value": "26694",
+     "box": [
+      1020,
+      1009,
+      1200,
+      1065
+     ]
+    },
+    {
+     "label": "Date filed",
+     "tooltip": "Date filed.",
+     "value": "12/11/2017",
+     "box": [
+      1020,
+      1092,
+      1200,
+      1147
+     ]
+    },
+    {
+     "label": "10. Signature (for business returns, signature of person authorized to sign the check)",
+     "tooltip": "Section 3. Certification. Under penalties of perjury, I declare that I have examined this form, and to the best of my knowledge and belief, the information is true, correct, and complete. I request that you send a replacement refund, and if I receive two refunds, I will return one. 10. Signature (for business returns, signature of person authorized to sign the check).",
+     "value": "Harrow and Vine LLC",
+     "box": [
+      75,
+      1467,
+      1005,
+      1507
+     ]
+    },
+    {
+     "label": "Date",
+     "tooltip": "Date.",
+     "value": "06/05/2025",
+     "box": [
+      1020,
+      1467,
+      1200,
+      1507
+     ]
+    },
+    {
+     "label": "11. Spouse\u2019s signature, if required (for businesses, enter the title of the person who sig",
+     "tooltip": "11. Spouse\u2019s signature, if required (for businesses, enter the title of the person who signed above).",
+     "value": "Summit Ridge Partners",
+     "box": [
+      75,
+      1534,
+      1005,
+      1575
+     ]
+    },
+    {
+     "label": "Date",
+     "tooltip": "Date.",
+     "value": "07/04/1985",
+     "box": [
+      1020,
+      1534,
+      1200,
+      1575
+     ]
+    }
+   ]
+  },
+  {
+   "file": "f4506.jpg",
+   "source": "https://www.irs.gov/pub/irs-pdf/f4506.pdf",
+   "page": 1,
+   "quality": "clean",
+   "width": 1275,
+   "height": 1650,
+   "fields": [
+    {
+     "label": "1a Name shown on tax return. If a joint return, enter the name shown first.",
+     "tooltip": "Page 1. 1a.  Name shown on tax return. If a joint return, enter the name shown first.",
+     "value": "Nadia Quintero",
+     "box": [
+      75,
+      371,
+      750,
+      450
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "1b. First social security number on tax return, individual taxpayer identification number, or employer identification number (see instructions).",
+     "value": "988-33-5029",
+     "box": [
+      750,
+      425,
+      1200,
+      450
+     ]
+    },
+    {
+     "label": "2a If a joint return, enter spouse\u2019s name shown on tax return.",
+     "tooltip": "2a.  If a joint return, enter spouse\u2019s name shown on tax return.",
+     "value": "Rafael Quintero",
+     "box": [
+      75,
+      471,
+      750,
+      525
+     ]
+    },
+    {
+     "label": "taxpayer identification number if joint tax return",
+     "tooltip": "2b. Second social security number or individual taxpayer identification number if joint tax return.",
+     "value": "830-20-2218",
+     "box": [
+      750,
+      500,
+      1200,
+      525
+     ]
+    },
+    {
+     "label": "3 Current name, address (including apt., room, suite, or inmate no.), city, state, and ZIP",
+     "tooltip": "3. Current nname, address (including apt., room, suite, or inmate no.), city, state, and ZIP code (see instructions).",
+     "value": "Easton, PA 18042",
+     "box": [
+      75,
+      546,
+      1200,
+      600
+     ]
+    },
+    {
+     "label": "4 Previous address shown on the last return filed if different from line 3 (see instructio",
+     "tooltip": "4. Previous address shown on the last return filed if different from line 3 (see instructions)",
+     "value": "7078 Harbour Street",
+     "box": [
+      75,
+      621,
+      1200,
+      675
+     ]
+    },
+    {
+     "label": "5 If the tax return is to be mailed to a third party (such as a mortgage company), enter t",
+     "tooltip": "5. If the tax return is to be mailed to a third party (such as a mortgage company), enter the third party\u2019s name, address, and telephone number.",
+     "value": "Northgate Supply Co",
+     "box": [
+      75,
+      696,
+      1200,
+      750
+     ]
+    },
+    {
+     "label": "1040A, and 1040EZ are generally available longer period of time. Enter only one",
+     "tooltip": "Caution. If the tax return is being mailed to a third party, ensure that you have filled in lines 6 and 7 before signing. Sign and date the form once you have filled in these lines. Completing these steps helps to protect your privacy. Once the I R S discloses your tax return to the third party listed on line 5, the I R S has no control over what the third party does with the information. If you would like to limit the third party's authority to disclose your return information, you can specify this limitation in your written agreement with the third party. Line 6. Tax return requested. Form 1040, 1120, 941, etc. and all attachments as originally submitted to the I R S, including Form(s) W-2, \rschedules, or amended returns. Copies of Forms 1040, 1040 A, and 1040 E Z are generally available for 7 years from filing before they are  destroyed by law. Other returns may be available for a longer period of time. Enter only one return number. If you need more than one type of return, you must complete another Form 4506.",
+     "value": "15567",
+     "box": [
+      570,
+      825,
+      885,
+      850
+     ]
+    },
+    {
+     "label": "Year",
+     "tooltip": "7. Year or period requested. Enter the ending date of the tax year or period using the m m/d d/y y y y format (see instructions). 2 digit month. 1 of 8.",
+     "value": "61",
+     "box": [
+      135,
+      907,
+      180,
+      932
+     ]
+    },
+    {
+     "label": "period",
+     "tooltip": "7. 2 digit day. 1 of 8.",
+     "value": "70",
+     "box": [
+      195,
+      907,
+      239,
+      932
+     ]
+    },
+    {
+     "label": "requested.",
+     "tooltip": "7. 4 digit Year. 1 of 8.",
+     "value": "4803",
+     "box": [
+      255,
+      907,
+      315,
+      932
+     ]
+    },
+    {
+     "label": "ending",
+     "tooltip": "7. 2 digit month. 2 of 8.",
+     "value": "06",
+     "box": [
+      435,
+      907,
+      480,
+      932
+     ]
+    },
+    {
+     "label": "of the",
+     "tooltip": "7. 2 digit day. 2 of 8.",
+     "value": "47",
+     "box": [
+      495,
+      907,
+      539,
+      932
+     ]
+    },
+    {
+     "label": "tax year",
+     "tooltip": "7. 4 digit Year. 2 of 8.",
+     "value": "0276",
+     "box": [
+      555,
+      907,
+      615,
+      932
+     ]
+    },
+    {
+     "label": "using the",
+     "tooltip": "7. 2 digit month. 3 of 8.",
+     "value": "76",
+     "box": [
+      705,
+      907,
+      750,
+      932
+     ]
+    },
+    {
+     "label": "/ / / /",
+     "tooltip": "7. 2 digit day. 3 of 8.",
+     "value": "72",
+     "box": [
+      765,
+      907,
+      809,
+      932
+     ]
+    },
+    {
+     "label": "format",
+     "tooltip": "7. 4 digit Year. 3 of 8.",
+     "value": "3722",
+     "box": [
+      825,
+      907,
+      885,
+      932
+     ]
+    },
+    {
+     "label": "instructions).",
+     "tooltip": "7. 2 digit month. 8 of 4.",
+     "value": "72",
+     "box": [
+      990,
+      907,
+      1035,
+      932
+     ]
+    },
+    {
+     "label": "/ / / /",
+     "tooltip": "7. 2 digit day. 4 of 8.",
+     "value": "20",
+     "box": [
+      1050,
+      907,
+      1094,
+      932
+     ]
+    },
+    {
+     "label": "/ / / /",
+     "tooltip": "7. 4 digit Year. 4 of 8.",
+     "value": "7285",
+     "box": [
+      1110,
+      907,
+      1170,
+      932
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "7. 2 digit month. 5 of 8.",
+     "value": "80",
+     "box": [
+      135,
+      957,
+      180,
+      982
+     ]
+    },
+    {
+     "label": "/",
+     "tooltip": "7. 2 digit day. 5 of 8.",
+     "value": "95",
+     "box": [
+      195,
+      957,
+      239,
+      982
+     ]
+    },
+    {
+     "label": "/ /",
+     "tooltip": "7. 4 digit Year. 5 of 8.",
+     "value": "2476",
+     "box": [
+      255,
+      957,
+      315,
+      982
+     ]
+    },
+    {
+     "label": "/ /",
+     "tooltip": "7. 2 digit month. 6 of 8.",
+     "value": "76",
+     "box": [
+      435,
+      957,
+      480,
+      982
+     ]
+    },
+    {
+     "label": "/ / /",
+     "tooltip": "7. 2 digit day. 6 of 8.",
+     "value": "37",
+     "box": [
+      495,
+      957,
+      539,
+      982
+     ]
+    },
+    {
+     "label": "/ / / /",
+     "tooltip": "7. 4 digit Year. 6 of 8.",
+     "value": "6917",
+     "box": [
+      555,
+      957,
+      615,
+      982
+     ]
+    },
+    {
+     "label": "/ / / /",
+     "tooltip": "7. 2 digit month. 7 of 8.",
+     "value": "76",
+     "box": [
+      705,
+      957,
+      750,
+      982
+     ]
+    },
+    {
+     "label": "/ / / /",
+     "tooltip": "7. 2 digit day. 7 of 8.",
+     "value": "34",
+     "box": [
+      765,
+      957,
+      809,
+      982
+     ]
+    },
+    {
+     "label": "/ / / /",
+     "tooltip": "7. 4 digit Year. 7 of 8.",
+     "value": "3265",
+     "box": [
+      825,
+      957,
+      885,
+      982
+     ]
+    },
+    {
+     "label": "/ / / /",
+     "tooltip": "7. 2 digit month. 8 of 8.",
+     "value": "78",
+     "box": [
+      990,
+      957,
+      1035,
+      982
+     ]
+    },
+    {
+     "label": "/ / / /",
+     "tooltip": "7. 2 digit day. 8 of 8.",
+     "value": "01",
+     "box": [
+      1050,
+      957,
+      1094,
+      982
+     ]
+    },
+    {
+     "label": "/ / / /",
+     "tooltip": "7. 4 digit Year. 8 of 8.",
+     "value": "3411",
+     "box": [
+      1110,
+      957,
+      1170,
+      982
+     ]
+    },
+    {
+     "label": "$",
+     "tooltip": "8b. Number of returns requested on line 7.",
+     "value": "92015",
+     "box": [
+      990,
+      1100,
+      1200,
+      1125
+     ]
+    },
+    {
+     "label": ". . . . . . . $",
+     "tooltip": "8c. Total cost. Multiply line 8a by line 8b. $.",
+     "value": "11027",
+     "box": [
+      1020,
+      1125,
+      1200,
+      1150
+     ]
+    },
+    {
+     "label": "1a or 2a",
+     "tooltip": "Caution. Do not sign this form unless all applicable lines have been completed. Sign Here. Telephone number of taxpayer on line 1a or 2a.",
+     "value": "Owner",
+     "box": [
+      915,
+      1317,
+      1200,
+      1350
+     ]
+    },
+    {
+     "label": "Signature (see instructions)",
+     "tooltip": "Print/Type name.",
+     "value": "Odette Lindqvist",
+     "box": [
+      135,
+      1400,
+      720,
+      1429
+     ]
+    },
+    {
+     "label": "Date",
+     "tooltip": "Title (if line 1a above is a corporation, partnership, estate, or trust).",
+     "value": "06/25/2016",
+     "box": [
+      722,
+      1400,
+      1200,
+      1429
+     ]
+    },
+    {
+     "label": "Spouse\u2019s signature Date",
+     "tooltip": "Print/Type name.",
+     "value": "03/12/1961",
+     "box": [
+      135,
+      1500,
+      1200,
+      1529
+     ]
+    }
+   ]
+  },
+  {
+   "file": "f4506t.jpg",
+   "source": "https://www.irs.gov/pub/irs-pdf/f4506t.pdf",
+   "page": 1,
+   "quality": "scan-like",
+   "width": 1275,
+   "height": 1650,
+   "fields": [
+    {
+     "label": "shown first.",
+     "tooltip": "Page 1. 1a. Name shown on tax return. If a joint return, enter the name shown first.",
+     "value": "Felix Fenwick",
+     "box": [
+      75,
+      360,
+      630,
+      390
+     ]
+    },
+    {
+     "label": "number, or employer identification number (see instructions)",
+     "tooltip": "1b. First social security number on tax return, individual taxpayer identification number, or employer identification number (see instructions).",
+     "value": "86-9458271",
+     "box": [
+      630,
+      360,
+      1200,
+      390
+     ]
+    },
+    {
+     "label": "2a If a joint return, enter spouse\u2019s name shown on tax return.",
+     "tooltip": "2a. If a joint return, enter spouse's name shown on tax return.",
+     "value": "Marcus Draycott",
+     "box": [
+      75,
+      413,
+      630,
+      465
+     ]
+    },
+    {
+     "label": "identification number if joint tax return",
+     "tooltip": "2b. Second social security number or individual taxpayer identification number if joint tax return.",
+     "value": "53090405714",
+     "box": [
+      630,
+      435,
+      1200,
+      465
+     ]
+    },
+    {
+     "label": "3 Current name, address (including apt., room, suite, or inmate no.), city, state, and ZIP",
+     "tooltip": "3. Current name, address (including apt., room, suite, or inmate no.), city, state, and ZIP code (see instructions).",
+     "value": "Brookfield, WI 53005",
+     "box": [
+      75,
+      488,
+      1200,
+      518
+     ]
+    },
+    {
+     "label": "4 Previous address shown on the last return filed if different from line 3 (see instructio",
+     "tooltip": "4. Previous address shown on the last return filed if different from line 3 (see instructions).",
+     "value": "1435 Harbour Street",
+     "box": [
+      75,
+      540,
+      1200,
+      570
+     ]
+    },
+    {
+     "label": "5 Customer file number (if applicable) (see instructions)",
+     "tooltip": "5. Customer file number (if applicable). Input up to 10 numeric characters (see instructions).",
+     "value": "1739658044",
+     "box": [
+      75,
+      593,
+      1200,
+      623
+     ]
+    },
+    {
+     "label": "Enter the tax form number here",
+     "tooltip": "Note: Effective July 2019, the I R S will mail tax transcript requests only to your address of record. See What\u2019s New under Future Developments on Page 2 for additional information. 6. Transcript requested. Enter the tax form number here (1040, 1065, 1120, etc.) and check the appropriate box below. Enter only one tax form number per request.",
+     "value": "36073",
+     "box": [
+      292,
+      698,
+      533,
+      720
+     ]
+    },
+    {
+     "label": "1a or 2a",
+     "tooltip": "Sign Here. Phone number of taxpayer on line 1a or 2a.",
+     "value": "Owner",
+     "box": [
+      915,
+      1425,
+      1200,
+      1455
+     ]
+    },
+    {
+     "label": "Signature (see instructions) Date",
+     "tooltip": "Title (if line 1a above is a corporation, partnership, estate, or trust).",
+     "value": "10/16/2018",
+     "box": [
+      136,
+      1478,
+      1200,
+      1508
+     ]
+    },
+    {
+     "label": "year or",
+     "tooltip": "9. Year or period requested. Enter the end date of the tax year or period requested in mm/dd/yyyy format. This may be a calendar year, fiscal year or quarter. Enter each quarter requested for quarterly returns. Example: Enter 12/31/2018 for a calendar year 2018 Form 1040 transcript. 2 digit month.",
+     "value": "75",
+     "box": [
+      135,
+      1223,
+      180,
+      1245
+     ]
+    },
+    {
+     "label": "quarter.",
+     "tooltip": "9. 2 digit day.",
+     "value": "84",
+     "box": [
+      195,
+      1223,
+      239,
+      1245
+     ]
+    },
+    {
+     "label": "Enter",
+     "tooltip": "9. 4 digit year.",
+     "value": "9105",
+     "box": [
+      255,
+      1223,
+      315,
+      1245
+     ]
+    },
+    {
+     "label": "quarter",
+     "tooltip": "9. 2 digit month.",
+     "value": "96",
+     "box": [
+      330,
+      1223,
+      375,
+      1245
+     ]
+    },
+    {
+     "label": "requested",
+     "tooltip": "9. 2 digit day.",
+     "value": "48",
+     "box": [
+      390,
+      1223,
+      434,
+      1245
+     ]
+    },
+    {
+     "label": "for",
+     "tooltip": "9. 4 digit year.",
+     "value": "5939",
+     "box": [
+      450,
+      1223,
+      510,
+      1245
+     ]
+    },
+    {
+     "label": "quarterly",
+     "tooltip": "9. 2 digit month.",
+     "value": "78",
+     "box": [
+      525,
+      1223,
+      570,
+      1245
+     ]
+    },
+    {
+     "label": "returns.",
+     "tooltip": "9. 2 digit day.",
+     "value": "20",
+     "box": [
+      585,
+      1223,
+      629,
+      1245
+     ]
+    },
+    {
+     "label": "Example:",
+     "tooltip": "9. 4 digit year.",
+     "value": "8070",
+     "box": [
+      645,
+      1223,
+      705,
+      1245
+     ]
+    },
+    {
+     "label": "Enter",
+     "tooltip": "9. 2 digit month.",
+     "value": "03",
+     "box": [
+      720,
+      1223,
+      765,
+      1245
+     ]
+    },
+    {
+     "label": "12/31/2018",
+     "tooltip": "9. 2 digit day.",
+     "value": "27",
+     "box": [
+      780,
+      1223,
+      824,
+      1245
+     ]
+    },
+    {
+     "label": "for a",
+     "tooltip": "9. 4 digit year.",
+     "value": "1377",
+     "box": [
+      840,
+      1223,
+      900,
+      1245
+     ]
+    }
+   ]
+  },
+  {
+   "file": "f4868.jpg",
+   "source": "https://www.irs.gov/pub/irs-pdf/f4868.pdf",
+   "page": 1,
+   "quality": "clean",
+   "width": 1275,
+   "height": 1650,
+   "fields": [
+    {
+     "label": "calendar year 2025, or other tax year beginning",
+     "tooltip": "",
+     "value": "45552",
+     "box": [
+      615,
+      1300,
+      705,
+      1323
+     ]
+    },
+    {
+     "label": "other tax year beginning , 2025, and ending",
+     "tooltip": "",
+     "value": "7439",
+     "box": [
+      840,
+      1300,
+      930,
+      1323
+     ]
+    },
+    {
+     "label": "year beginning , 2025, and ending , 20",
+     "tooltip": "",
+     "value": "37",
+     "box": [
+      960,
+      1300,
+      1005,
+      1323
+     ]
+    },
+    {
+     "label": "1 Your name(s) (see instructions)",
+     "tooltip": "",
+     "value": "Mira Belmore",
+     "box": [
+      75,
+      1371,
+      628,
+      1400
+     ]
+    },
+    {
+     "label": "Address (see instructions)",
+     "tooltip": "",
+     "value": "9475 Maple Terrace",
+     "box": [
+      75,
+      1421,
+      628,
+      1475
+     ]
+    },
+    {
+     "label": "City, town, or post office",
+     "tooltip": "",
+     "value": "Milford, CT 06460",
+     "box": [
+      75,
+      1496,
+      418,
+      1525
+     ]
+    },
+    {
+     "label": "State",
+     "tooltip": "",
+     "value": "OH",
+     "box": [
+      422,
+      1496,
+      493,
+      1525
+     ]
+    },
+    {
+     "label": "ZIP code",
+     "tooltip": "",
+     "value": "3842916040",
+     "box": [
+      495,
+      1496,
+      630,
+      1525
+     ]
+    },
+    {
+     "label": "2 Your social security number",
+     "tooltip": "",
+     "value": "404-00-4411",
+     "box": [
+      75,
+      1546,
+      345,
+      1575
+     ]
+    },
+    {
+     "label": "3 Spouse\u2019s social security number",
+     "tooltip": "",
+     "value": "960-76-7556",
+     "box": [
+      345,
+      1546,
+      630,
+      1575
+     ]
+    },
+    {
+     "label": "tax liability for 2025 . . . $",
+     "tooltip": "",
+     "value": "14075",
+     "box": [
+      1035,
+      1350,
+      1200,
+      1375
+     ]
+    },
+    {
+     "label": "payments . . . . . . .",
+     "tooltip": "",
+     "value": "68919",
+     "box": [
+      1035,
+      1377,
+      1200,
+      1400
+     ]
+    },
+    {
+     "label": ". . . . . . . .",
+     "tooltip": "",
+     "value": "Owner",
+     "box": [
+      1035,
+      1425,
+      1200,
+      1450
+     ]
+    },
+    {
+     "label": "7 Amount you\u2019re paying (see instructions) . .",
+     "tooltip": "",
+     "value": "83963",
+     "box": [
+      1035,
+      1452,
+      1200,
+      1475
+     ]
+    }
+   ]
+  },
+  {
+   "file": "f56.jpg",
+   "source": "https://www.irs.gov/pub/irs-pdf/f56.pdf",
+   "page": 1,
+   "quality": "scan-like",
+   "width": 1275,
+   "height": 1650,
+   "fields": [
+    {
+     "label": "Name of person for whom you\u2019re acting (as shown on the tax return)",
+     "tooltip": "",
+     "value": "Mira Okonjo",
+     "box": [
+      75,
+      221,
+      778,
+      250
+     ]
+    },
+    {
+     "label": "Identifying number",
+     "tooltip": "",
+     "value": "24238038079",
+     "box": [
+      780,
+      221,
+      975,
+      250
+     ]
+    },
+    {
+     "label": "Decedent\u2019s social security no.",
+     "tooltip": "",
+     "value": "490-06-3311",
+     "box": [
+      975,
+      221,
+      1200,
+      250
+     ]
+    },
+    {
+     "label": "Address of person for whom you\u2019re acting (number and street). If you have a P.O. box, see ",
+     "tooltip": "",
+     "value": "962 Harbour Street",
+     "box": [
+      75,
+      271,
+      1048,
+      300
+     ]
+    },
+    {
+     "label": "Room or suite no.",
+     "tooltip": "",
+     "value": "45",
+     "box": [
+      1050,
+      271,
+      1200,
+      300
+     ]
+    },
+    {
+     "label": "City or town",
+     "tooltip": "",
+     "value": "Milford, CT 06460",
+     "box": [
+      75,
+      321,
+      568,
+      350
+     ]
+    },
+    {
+     "label": "State or province",
+     "tooltip": "",
+     "value": "Owner",
+     "box": [
+      572,
+      321,
+      778,
+      350
+     ]
+    },
+    {
+     "label": "Country",
+     "tooltip": "",
+     "value": "Manager",
+     "box": [
+      782,
+      321,
+      988,
+      350
+     ]
+    },
+    {
+     "label": "ZIP or foreign postal code",
+     "tooltip": "",
+     "value": "18042",
+     "box": [
+      990,
+      321,
+      1200,
+      350
+     ]
+    },
+    {
+     "label": "Fiduciary\u2019s name",
+     "tooltip": "",
+     "value": "Casper Pemberton",
+     "box": [
+      75,
+      371,
+      943,
+      400
+     ]
+    },
+    {
+     "label": "Telephone no.",
+     "tooltip": "",
+     "value": "(059) 513-0097",
+     "box": [
+      945,
+      371,
+      1200,
+      400
+     ]
+    },
+    {
+     "label": "Address of fiduciary (number and street). If you have a P.O. box, see instructions.",
+     "tooltip": "",
+     "value": "2000 Kestrel Drive",
+     "box": [
+      75,
+      421,
+      1048,
+      450
+     ]
+    },
+    {
+     "label": "Room or suite no.",
+     "tooltip": "",
+     "value": "26",
+     "box": [
+      1050,
+      421,
+      1200,
+      450
+     ]
+    },
+    {
+     "label": "City or town",
+     "tooltip": "",
+     "value": "Easton, PA 18042",
+     "box": [
+      75,
+      471,
+      568,
+      500
+     ]
+    },
+    {
+     "label": "State or province",
+     "tooltip": "",
+     "value": "Owner",
+     "box": [
+      572,
+      471,
+      778,
+      500
+     ]
+    },
+    {
+     "label": "Country",
+     "tooltip": "",
+     "value": "Manager",
+     "box": [
+      782,
+      471,
+      988,
+      500
+     ]
+    },
+    {
+     "label": "ZIP or foreign postal code",
+     "tooltip": "",
+     "value": "44012",
+     "box": [
+      990,
+      471,
+      1200,
+      500
+     ]
+    },
+    {
+     "label": "appointment of receiver/fiduciary, or assignment for the benefit of creditors",
+     "tooltip": "",
+     "value": "Nadia Castellan",
+     "box": [
+      315,
+      700,
+      1200,
+      725
+     ]
+    },
+    {
+     "label": "1d is checked, enter the date of death:",
+     "tooltip": "",
+     "value": "07/06/1985",
+     "box": [
+      600,
+      725,
+      855,
+      750
+     ]
+    },
+    {
+     "label": "If box 1c, 1e, 1f, or 1g is checked, enter the date of appointment, taking office, or assi",
+     "tooltip": "",
+     "value": "01/17/2023",
+     "box": [
+      135,
+      775,
+      1200,
+      825
+     ]
+    },
+    {
+     "label": "If \u201cNo\u201d to line 2c, list the assets that were transferred:",
+     "tooltip": "",
+     "value": "59767",
+     "box": [
+      135,
+      900,
+      1200,
+      1000
+     ]
+    },
+    {
+     "label": "a Income b Gift c Estate d Generation-skipping transfer e Employment",
+     "tooltip": "",
+     "value": "79776",
+     "box": [
+      435,
+      1050,
+      1200,
+      1075
+     ]
+    },
+    {
+     "label": "b 709 series c 940 d 941, 943, 944",
+     "tooltip": "",
+     "value": "Leona Lindqvist",
+     "box": [
+      705,
+      1100,
+      1200,
+      1125
+     ]
+    },
+    {
+     "label": "If you checked line 5a, list the specific years or periods within your authority:",
+     "tooltip": "",
+     "value": "25902",
+     "box": [
+      135,
+      1175,
+      1200,
+      1225
+     ]
+    }
+   ]
+  },
+  {
+   "file": "f8332.jpg",
+   "source": "https://www.irs.gov/pub/irs-pdf/f8332.pdf",
+   "page": 1,
+   "quality": "clean",
+   "width": 1275,
+   "height": 1650,
+   "fields": [
+    {
+     "label": "Name of noncustodial parent",
+     "tooltip": "",
+     "value": "Odette Lindqvist",
+     "box": [
+      75,
+      200,
+      748,
+      225
+     ]
+    },
+    {
+     "label": "social security number (SSN)",
+     "tooltip": "",
+     "value": "511-02-9195",
+     "box": [
+      990,
+      200,
+      1200,
+      225
+     ]
+    },
+    {
+     "label": "I agree not to claim an exemption for",
+     "tooltip": "",
+     "value": "Selma Halvorsen",
+     "box": [
+      390,
+      325,
+      1200,
+      350
+     ]
+    },
+    {
+     "label": "for the tax year 20",
+     "tooltip": "",
+     "value": "85",
+     "box": [
+      240,
+      375,
+      285,
+      400
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "",
+     "value": "43728032136",
+     "box": [
+      735,
+      425,
+      975,
+      450
+     ]
+    },
+    {
+     "label": "I agree not to claim an exemption for",
+     "tooltip": "",
+     "value": "Rafael Quintero",
+     "box": [
+      390,
+      550,
+      1200,
+      575
+     ]
+    },
+    {
+     "label": "for the tax year(s)",
+     "tooltip": "",
+     "value": "12691",
+     "box": [
+      225,
+      600,
+      615,
+      625
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "",
+     "value": "23533177452",
+     "box": [
+      735,
+      650,
+      975,
+      675
+     ]
+    },
+    {
+     "label": "the release of claim to an exemption for",
+     "tooltip": "",
+     "value": "Felix Draycott",
+     "box": [
+      495,
+      750,
+      1200,
+      775
+     ]
+    },
+    {
+     "label": "for the tax year(s)",
+     "tooltip": "",
+     "value": "60086",
+     "box": [
+      225,
+      800,
+      615,
+      825
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "",
+     "value": "95659565088",
+     "box": [
+      735,
+      850,
+      975,
+      875
+     ]
+    }
+   ]
+  },
+  {
+   "file": "f8821.jpg",
+   "source": "https://www.irs.gov/pub/irs-pdf/f8821.pdf",
+   "page": 1,
+   "quality": "scan-like",
+   "width": 1275,
+   "height": 1650,
+   "fields": [
+    {
+     "label": "Taxpayer name and address",
+     "tooltip": "",
+     "value": "2964 Larkspur Lane",
+     "box": [
+      75,
+      250,
+      718,
+      325
+     ]
+    },
+    {
+     "label": "Taxpayer identification number(s)",
+     "tooltip": "",
+     "value": "718-72-8334",
+     "box": [
+      720,
+      250,
+      1200,
+      275
+     ]
+    },
+    {
+     "label": "Daytime telephone number",
+     "tooltip": "",
+     "value": "(103) 391-7281",
+     "box": [
+      720,
+      300,
+      960,
+      325
+     ]
+    },
+    {
+     "label": "Plan number (if applicable)",
+     "tooltip": "",
+     "value": "Partner",
+     "box": [
+      960,
+      300,
+      1200,
+      325
+     ]
+    },
+    {
+     "label": "Name and address",
+     "tooltip": "",
+     "value": "5545 Kestrel Drive",
+     "box": [
+      75,
+      400,
+      658,
+      475
+     ]
+    },
+    {
+     "label": "address CAF No.",
+     "tooltip": "",
+     "value": "256 Wexford Avenue",
+     "box": [
+      747,
+      375,
+      1200,
+      400
+     ]
+    },
+    {
+     "label": "No.",
+     "tooltip": "",
+     "value": "95227360277",
+     "box": [
+      716,
+      400,
+      1200,
+      425
+     ]
+    },
+    {
+     "label": "Telephone No.",
+     "tooltip": "",
+     "value": "(444) 365-5507",
+     "box": [
+      800,
+      425,
+      1200,
+      450
+     ]
+    },
+    {
+     "label": "No.",
+     "tooltip": "",
+     "value": "Odette Castellan",
+     "box": [
+      740,
+      450,
+      1200,
+      475
+     ]
+    },
+    {
+     "label": "Name and address",
+     "tooltip": "",
+     "value": "5182 Juniper Court",
+     "box": [
+      75,
+      525,
+      658,
+      600
+     ]
+    },
+    {
+     "label": "new: Address Telephone No. Fax No.",
+     "tooltip": "",
+     "value": "(228) 551-0376",
+     "box": [
+      747,
+      500,
+      1200,
+      525
+     ]
+    },
+    {
+     "label": "No.",
+     "tooltip": "",
+     "value": "43384188542",
+     "box": [
+      716,
+      525,
+      1200,
+      550
+     ]
+    },
+    {
+     "label": "Telephone No.",
+     "tooltip": "",
+     "value": "(680) 645-7222",
+     "box": [
+      800,
+      550,
+      1200,
+      575
+     ]
+    },
+    {
+     "label": "No.",
+     "tooltip": "",
+     "value": "Nadia Draycott",
+     "box": [
+      740,
+      575,
+      1200,
+      600
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "",
+     "value": "Marcus Okonjo",
+     "box": [
+      75,
+      825,
+      388,
+      850
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "",
+     "value": "Owner",
+     "box": [
+      390,
+      825,
+      660,
+      850
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "",
+     "value": "Sole proprietor",
+     "box": [
+      662,
+      825,
+      928,
+      850
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "",
+     "value": "Sole proprietor",
+     "box": [
+      932,
+      825,
+      1200,
+      850
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "",
+     "value": "Ingrid Draycott",
+     "box": [
+      75,
+      875,
+      388,
+      900
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "",
+     "value": "Manager",
+     "box": [
+      390,
+      875,
+      660,
+      900
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "",
+     "value": "Consulting",
+     "box": [
+      662,
+      875,
+      928,
+      900
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "",
+     "value": "Retail",
+     "box": [
+      932,
+      875,
+      1200,
+      900
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "",
+     "value": "Odette Halvorsen",
+     "box": [
+      75,
+      925,
+      388,
+      950
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "",
+     "value": "Spouse",
+     "box": [
+      390,
+      925,
+      660,
+      950
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "",
+     "value": "Wholesale",
+     "box": [
+      662,
+      925,
+      928,
+      950
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "",
+     "value": "Wholesale",
+     "box": [
+      932,
+      925,
+      1200,
+      950
+     ]
+    },
+    {
+     "label": "Signature",
+     "tooltip": "",
+     "value": "Felix Quintero",
+     "box": [
+      120,
+      1400,
+      900,
+      1450
+     ]
+    },
+    {
+     "label": "Date",
+     "tooltip": "",
+     "value": "08/18/1966",
+     "box": [
+      900,
+      1400,
+      1155,
+      1450
+     ]
+    }
+   ]
+  },
+  {
+   "file": "f8822.jpg",
+   "source": "https://www.irs.gov/pub/irs-pdf/f8822.pdf",
+   "page": 1,
+   "quality": "clean",
+   "width": 1275,
+   "height": 1650,
+   "fields": [
+    {
+     "label": "\u25b6 Decedent\u2019s name",
+     "tooltip": "",
+     "value": "Selma Okonjo",
+     "box": [
+      330,
+      450,
+      675,
+      475
+     ]
+    },
+    {
+     "label": "\u25b6 Social security number",
+     "tooltip": "",
+     "value": "381-66-6226",
+     "box": [
+      930,
+      450,
+      1200,
+      475
+     ]
+    },
+    {
+     "label": "3a Your name (first name, initial, and last name)",
+     "tooltip": "",
+     "value": "Jonas",
+     "box": [
+      75,
+      500,
+      915,
+      550
+     ]
+    },
+    {
+     "label": "3b Your social security number",
+     "tooltip": "",
+     "value": "318-85-4926",
+     "box": [
+      915,
+      500,
+      1200,
+      550
+     ]
+    },
+    {
+     "label": "4a Spouse\u2019s name (first name, initial, and last name)",
+     "tooltip": "",
+     "value": "Felix",
+     "box": [
+      75,
+      575,
+      915,
+      625
+     ]
+    },
+    {
+     "label": "4b Spouse\u2019s social security number",
+     "tooltip": "",
+     "value": "958-10-8884",
+     "box": [
+      915,
+      575,
+      1200,
+      625
+     ]
+    },
+    {
+     "label": "5a Your prior name(s). See instructions.",
+     "tooltip": "",
+     "value": "Jonas Vasquez",
+     "box": [
+      75,
+      650,
+      1200,
+      700
+     ]
+    },
+    {
+     "label": "5b Spouse\u2019s prior name(s). See instructions.",
+     "tooltip": "",
+     "value": "Leona Ashdown",
+     "box": [
+      75,
+      725,
+      1200,
+      775
+     ]
+    },
+    {
+     "label": "6a see instructions.",
+     "tooltip": "",
+     "value": "Odette Ashdown",
+     "box": [
+      75,
+      814,
+      1200,
+      850
+     ]
+    },
+    {
+     "label": "Foreign country name",
+     "tooltip": "",
+     "value": "Jonas Halvorsen",
+     "box": [
+      75,
+      871,
+      675,
+      900
+     ]
+    },
+    {
+     "label": "Foreign province/county",
+     "tooltip": "",
+     "value": "Casper Fenwick",
+     "box": [
+      675,
+      871,
+      1050,
+      900
+     ]
+    },
+    {
+     "label": "Foreign postal code",
+     "tooltip": "",
+     "value": "44012",
+     "box": [
+      1050,
+      871,
+      1200,
+      900
+     ]
+    },
+    {
+     "label": "6b Spouse\u2019s old address, if different from line 6a (no., street, apt. no., city or town, s",
+     "tooltip": "",
+     "value": "Milford, CT 06460",
+     "box": [
+      75,
+      938,
+      1200,
+      975
+     ]
+    },
+    {
+     "label": "Foreign country name",
+     "tooltip": "",
+     "value": "Mira Pemberton",
+     "box": [
+      75,
+      996,
+      675,
+      1025
+     ]
+    },
+    {
+     "label": "Foreign province/county",
+     "tooltip": "",
+     "value": "Jonas Halvorsen",
+     "box": [
+      675,
+      996,
+      1050,
+      1025
+     ]
+    },
+    {
+     "label": "Foreign postal code",
+     "tooltip": "",
+     "value": "44012",
+     "box": [
+      1050,
+      996,
+      1200,
+      1025
+     ]
+    },
+    {
+     "label": "7 New address (no., street, apt. no., city or town, state, and ZIP code). If a P.O. box, s",
+     "tooltip": "",
+     "value": "Ashland, OR 97520",
+     "box": [
+      75,
+      1063,
+      1200,
+      1100
+     ]
+    },
+    {
+     "label": "Foreign country name",
+     "tooltip": "",
+     "value": "Mira Okonjo",
+     "box": [
+      75,
+      1121,
+      675,
+      1150
+     ]
+    },
+    {
+     "label": "Foreign province/county",
+     "tooltip": "",
+     "value": "Marcus Okonjo",
+     "box": [
+      675,
+      1121,
+      1050,
+      1150
+     ]
+    },
+    {
+     "label": "Foreign postal code",
+     "tooltip": "",
+     "value": "44012",
+     "box": [
+      1050,
+      1121,
+      1200,
+      1150
+     ]
+    },
+    {
+     "label": "telephone number of person to contact (optional) \u25b6",
+     "tooltip": "",
+     "value": "(433) 134-9438",
+     "box": [
+      600,
+      1175,
+      1200,
+      1225
+     ]
+    },
+    {
+     "label": "Signature of representative, executor, administrator/if applicable Date",
+     "tooltip": "",
+     "value": "04/11/1977",
+     "box": [
+      705,
+      1325,
+      1200,
+      1350
+     ]
+    }
+   ]
+  },
+  {
+   "file": "f8822b.jpg",
+   "source": "https://www.irs.gov/pub/irs-pdf/f8822b.pdf",
+   "page": 1,
+   "quality": "scan-like",
+   "width": 1275,
+   "height": 1650,
+   "fields": [
+    {
+     "label": "4a Business name",
+     "tooltip": "",
+     "value": "Pinecrest Bakery Inc",
+     "box": [
+      75,
+      475,
+      913,
+      525
+     ]
+    },
+    {
+     "label": "4b Employer identification number",
+     "tooltip": "",
+     "value": "40-6276784",
+     "box": [
+      915,
+      475,
+      1200,
+      525
+     ]
+    },
+    {
+     "label": "5 below, see instructions.",
+     "tooltip": "",
+     "value": "Leona Quintero",
+     "box": [
+      75,
+      562,
+      1200,
+      600
+     ]
+    },
+    {
+     "label": "Foreign country name",
+     "tooltip": "",
+     "value": "Felix Pemberton",
+     "box": [
+      75,
+      621,
+      583,
+      650
+     ]
+    },
+    {
+     "label": "Foreign province/county",
+     "tooltip": "",
+     "value": "Ingrid Vasquez",
+     "box": [
+      589,
+      621,
+      956,
+      650
+     ]
+    },
+    {
+     "label": "Foreign postal code",
+     "tooltip": "",
+     "value": "51534",
+     "box": [
+      964,
+      621,
+      1200,
+      650
+     ]
+    },
+    {
+     "label": "6 below, see instructions.",
+     "tooltip": "",
+     "value": "Marcus Quintero",
+     "box": [
+      75,
+      688,
+      1200,
+      725
+     ]
+    },
+    {
+     "label": "Foreign country name",
+     "tooltip": "",
+     "value": "Rafael Belmore",
+     "box": [
+      75,
+      746,
+      581,
+      775
+     ]
+    },
+    {
+     "label": "Foreign province/county",
+     "tooltip": "",
+     "value": "Tobias Fenwick",
+     "box": [
+      587,
+      746,
+      958,
+      775
+     ]
+    },
+    {
+     "label": "Foreign postal code",
+     "tooltip": "",
+     "value": "97520",
+     "box": [
+      960,
+      746,
+      1200,
+      775
+     ]
+    },
+    {
+     "label": "7 New business location (no., street, room or suite no., city or town, state, and ZIP code",
+     "tooltip": "",
+     "value": "Easton, PA 18042",
+     "box": [
+      75,
+      796,
+      1200,
+      825
+     ]
+    },
+    {
+     "label": "Foreign country name",
+     "tooltip": "",
+     "value": "Felix Halvorsen",
+     "box": [
+      75,
+      846,
+      583,
+      875
+     ]
+    },
+    {
+     "label": "Foreign province/county",
+     "tooltip": "",
+     "value": "Felix Ashdown",
+     "box": [
+      587,
+      846,
+      958,
+      875
+     ]
+    },
+    {
+     "label": "Foreign postal code",
+     "tooltip": "",
+     "value": "97520",
+     "box": [
+      960,
+      846,
+      1200,
+      875
+     ]
+    },
+    {
+     "label": "8 New responsible party\u2019s name",
+     "tooltip": "",
+     "value": "Mira Pemberton",
+     "box": [
+      75,
+      896,
+      1200,
+      925
+     ]
+    },
+    {
+     "label": "9 New responsible party\u2019s SSN, ITIN, or EIN. (CAUTION: YOU MUST REFER TO THE INSTRUCTIONS ",
+     "tooltip": "",
+     "value": "488-21-4734",
+     "box": [
+      75,
+      948,
+      1200,
+      975
+     ]
+    },
+    {
+     "label": "examined this application, and to the best of my knowledge and belief, it is true, correct",
+     "tooltip": "",
+     "value": "Felix Ashdown",
+     "box": [
+      538,
+      1000,
+      1200,
+      1025
+     ]
+    },
+    {
+     "label": "Signature of owner, officer, or representative Date",
+     "tooltip": "",
+     "value": "08/23/1971",
+     "box": [
+      180,
+      1100,
+      1200,
+      1125
+     ]
+    }
+   ]
+  },
+  {
+   "file": "f8888.jpg",
+   "source": "https://www.irs.gov/pub/irs-pdf/f8888.pdf",
+   "page": 1,
+   "quality": "clean",
+   "width": 1275,
+   "height": 1650,
+   "fields": [
+    {
+     "label": "calendar",
+     "tooltip": "",
+     "value": "52",
+     "box": [
+      1110,
+      125,
+      1147,
+      147
+     ]
+    },
+    {
+     "label": "Name(s) shown on return",
+     "tooltip": "",
+     "value": "Leona Fenwick",
+     "box": [
+      75,
+      221,
+      928,
+      250
+     ]
+    },
+    {
+     "label": "Your social security number",
+     "tooltip": "",
+     "value": "390-54-6893",
+     "box": [
+      930,
+      221,
+      1200,
+      250
+     ]
+    },
+    {
+     "label": ". . . . . . . 1a",
+     "tooltip": "",
+     "value": "Retail",
+     "box": [
+      1005,
+      300,
+      1200,
+      325
+     ]
+    },
+    {
+     "label": "b Routing number",
+     "tooltip": "",
+     "value": "760671793",
+     "box": [
+      300,
+      350,
+      570,
+      375
+     ]
+    },
+    {
+     "label": "d Account number",
+     "tooltip": "",
+     "value": "Nadia Lindqvist",
+     "box": [
+      300,
+      400,
+      810,
+      425
+     ]
+    },
+    {
+     "label": ". . . . . . . 2a",
+     "tooltip": "",
+     "value": "Treasurer",
+     "box": [
+      1005,
+      450,
+      1200,
+      475
+     ]
+    },
+    {
+     "label": "b Routing number",
+     "tooltip": "",
+     "value": "239682784",
+     "box": [
+      300,
+      500,
+      570,
+      525
+     ]
+    },
+    {
+     "label": "d Account number",
+     "tooltip": "",
+     "value": "Casper Quintero",
+     "box": [
+      300,
+      550,
+      810,
+      575
+     ]
+    },
+    {
+     "label": ". . . . . . . 3a",
+     "tooltip": "",
+     "value": "Retail",
+     "box": [
+      1005,
+      600,
+      1200,
+      625
+     ]
+    },
+    {
+     "label": "b Routing number",
+     "tooltip": "",
+     "value": "041803825",
+     "box": [
+      300,
+      650,
+      570,
+      675
+     ]
+    },
+    {
+     "label": "d Account number",
+     "tooltip": "",
+     "value": "Casper Belmore",
+     "box": [
+      300,
+      700,
+      810,
+      725
+     ]
+    },
+    {
+     "label": "shown on your tax return . . 5",
+     "tooltip": "",
+     "value": "8211",
+     "box": [
+      1005,
+      875,
+      1200,
+      900
+     ]
+    }
+   ]
+  },
+  {
+   "file": "f9465.jpg",
+   "source": "https://www.irs.gov/pub/irs-pdf/f9465.pdf",
+   "page": 1,
+   "quality": "scan-like",
+   "width": 1275,
+   "height": 1650,
+   "fields": [
+    {
+     "label": "Form(s) (for example, Form 1040 or Form 941)",
+     "tooltip": "",
+     "value": "Felix Castellan",
+     "box": [
+      630,
+      351,
+      1200,
+      374
+     ]
+    },
+    {
+     "label": "or January 1, 2023, to June 30, 2023)",
+     "tooltip": "",
+     "value": "Jonas Vasquez",
+     "box": [
+      540,
+      400,
+      1200,
+      424
+     ]
+    },
+    {
+     "label": "Your first name and initial",
+     "tooltip": "",
+     "value": "Jonas",
+     "box": [
+      135,
+      462,
+      553,
+      486
+     ]
+    },
+    {
+     "label": "Last name",
+     "tooltip": "",
+     "value": "Ashdown",
+     "box": [
+      557,
+      462,
+      913,
+      486
+     ]
+    },
+    {
+     "label": "Your social security number",
+     "tooltip": "",
+     "value": "990-60-6340",
+     "box": [
+      917,
+      462,
+      1200,
+      486
+     ]
+    },
+    {
+     "label": "If a joint return, spouse\u2019s first name and initial",
+     "tooltip": "",
+     "value": "Selma",
+     "box": [
+      135,
+      512,
+      553,
+      536
+     ]
+    },
+    {
+     "label": "Last name",
+     "tooltip": "",
+     "value": "Draycott",
+     "box": [
+      557,
+      512,
+      913,
+      536
+     ]
+    },
+    {
+     "label": "Spouse\u2019s social security number",
+     "tooltip": "",
+     "value": "197-51-3442",
+     "box": [
+      917,
+      512,
+      1200,
+      536
+     ]
+    },
+    {
+     "label": "Current address (number and street). If you have a P.O. box and no home delivery, enter yo",
+     "tooltip": "",
+     "value": "6420 Maple Terrace",
+     "box": [
+      135,
+      563,
+      1048,
+      586
+     ]
+    },
+    {
+     "label": "Apt. number",
+     "tooltip": "",
+     "value": "21",
+     "box": [
+      1052,
+      563,
+      1200,
+      586
+     ]
+    },
+    {
+     "label": "City, town or post office, state, and ZIP code. If a foreign address, also complete the sp",
+     "tooltip": "",
+     "value": "Milford, CT 06460",
+     "box": [
+      135,
+      612,
+      1200,
+      636
+     ]
+    },
+    {
+     "label": "Foreign country name",
+     "tooltip": "",
+     "value": "Selma Vasquez",
+     "box": [
+      135,
+      662,
+      553,
+      686
+     ]
+    },
+    {
+     "label": "Foreign province/state/county",
+     "tooltip": "",
+     "value": "Casper Quintero",
+     "box": [
+      557,
+      662,
+      913,
+      686
+     ]
+    },
+    {
+     "label": "Foreign postal code",
+     "tooltip": "",
+     "value": "06460",
+     "box": [
+      917,
+      662,
+      1200,
+      686
+     ]
+    },
+    {
+     "label": "Name of your sole proprietorship business (must no longer be operating)",
+     "tooltip": "",
+     "value": "Bluewater Consulting LLC",
+     "box": [
+      135,
+      738,
+      913,
+      761
+     ]
+    },
+    {
+     "label": "Employer identification number (EIN)",
+     "tooltip": "",
+     "value": "61-6167821",
+     "box": [
+      917,
+      738,
+      1200,
+      761
+     ]
+    },
+    {
+     "label": "3",
+     "tooltip": "",
+     "value": "Manager",
+     "box": [
+      135,
+      764,
+      375,
+      786
+     ]
+    },
+    {
+     "label": "3",
+     "tooltip": "",
+     "value": "Treasurer",
+     "box": [
+      390,
+      764,
+      585,
+      786
+     ]
+    },
+    {
+     "label": "4",
+     "tooltip": "",
+     "value": "Manager",
+     "box": [
+      660,
+      764,
+      900,
+      786
+     ]
+    },
+    {
+     "label": "4",
+     "tooltip": "",
+     "value": "79772",
+     "box": [
+      915,
+      764,
+      990,
+      786
+     ]
+    },
+    {
+     "label": "4",
+     "tooltip": "",
+     "value": "Sole proprietor",
+     "box": [
+      1005,
+      764,
+      1200,
+      786
+     ]
+    },
+    {
+     "label": "time for us to call",
+     "tooltip": "",
+     "value": "Wholesale",
+     "box": [
+      1037,
+      814,
+      1200,
+      836
+     ]
+    },
+    {
+     "label": ". . . . . . . 6",
+     "tooltip": "",
+     "value": "Manager",
+     "box": [
+      1037,
+      863,
+      1200,
+      886
+     ]
+    },
+    {
+     "label": ". . . . . . . 7",
+     "tooltip": "",
+     "value": "Executor",
+     "box": [
+      1037,
+      889,
+      1200,
+      911
+     ]
+    },
+    {
+     "label": "See instructions . . . . . 8",
+     "tooltip": "",
+     "value": "Executor",
+     "box": [
+      1037,
+      914,
+      1200,
+      936
+     ]
+    },
+    {
+     "label": ". . . . . . . 9",
+     "tooltip": "",
+     "value": "Treasurer",
+     "box": [
+      1037,
+      939,
+      1200,
+      961
+     ]
+    },
+    {
+     "label": ". . . . . . 10 $",
+     "tooltip": "",
+     "value": "65014",
+     "box": [
+      1050,
+      1063,
+      1200,
+      1086
+     ]
+    },
+    {
+     "label": "$",
+     "tooltip": "",
+     "value": "58632",
+     "box": [
+      1037,
+      1089,
+      1200,
+      1111
+     ]
+    },
+    {
+     "label": "most convenient way to make your",
+     "tooltip": "",
+     "value": "815446776",
+     "box": [
+      287,
+      1164,
+      553,
+      1184
+     ]
+    },
+    {
+     "label": "12b Account number",
+     "tooltip": "",
+     "value": "Tobias Pemberton",
+     "box": [
+      287,
+      1191,
+      793,
+      1211
+     ]
+    }
+   ]
+  },
+  {
+   "file": "fss4.jpg",
+   "source": "https://www.irs.gov/pub/irs-pdf/fss4.pdf",
+   "page": 1,
+   "quality": "clean",
+   "width": 1275,
+   "height": 1650,
+   "fields": [
+    {
+     "label": "EIN",
+     "tooltip": "",
+     "value": "80-3406699",
+     "box": [
+      917,
+      121,
+      1200,
+      175
+     ]
+    },
+    {
+     "label": "1 Legal name of entity (or individual) for whom the EIN is being requested",
+     "tooltip": "",
+     "value": "27-8746971",
+     "box": [
+      107,
+      196,
+      1200,
+      225
+     ]
+    },
+    {
+     "label": "2 Trade name of business (if different from name on line 1)",
+     "tooltip": "",
+     "value": "Northgate Supply Co",
+     "box": [
+      107,
+      246,
+      613,
+      275
+     ]
+    },
+    {
+     "label": "3 Executor, administrator, trustee, \u201ccare of\u201d name",
+     "tooltip": "",
+     "value": "Casper Okonjo",
+     "box": [
+      617,
+      246,
+      1200,
+      275
+     ]
+    },
+    {
+     "label": "4a Mailing address (room, apt., suite no. and street, or P.O. box)",
+     "tooltip": "",
+     "value": "2437 Juniper Court",
+     "box": [
+      107,
+      296,
+      613,
+      325
+     ]
+    },
+    {
+     "label": "4b City, state, and ZIP code (if foreign, see instructions)",
+     "tooltip": "",
+     "value": "Ashland, OR 97520",
+     "box": [
+      107,
+      346,
+      613,
+      375
+     ]
+    },
+    {
+     "label": "5a Street address (if different) (Don\u2019t enter a P.O. box.)",
+     "tooltip": "",
+     "value": "2344 Maple Terrace",
+     "box": [
+      617,
+      296,
+      1200,
+      325
+     ]
+    },
+    {
+     "label": "5b City, state, and ZIP code (if foreign, see instructions)",
+     "tooltip": "",
+     "value": "Ashland, OR 97520",
+     "box": [
+      617,
+      346,
+      1200,
+      375
+     ]
+    },
+    {
+     "label": "6 County and state where principal business is located",
+     "tooltip": "",
+     "value": "Pinecrest Bakery Inc",
+     "box": [
+      107,
+      396,
+      1200,
+      425
+     ]
+    },
+    {
+     "label": "7a Name of responsible party",
+     "tooltip": "",
+     "value": "Odette Marlowe",
+     "box": [
+      107,
+      446,
+      688,
+      475
+     ]
+    },
+    {
+     "label": "7b SSN, ITIN, or EIN",
+     "tooltip": "",
+     "value": "323-04-7758",
+     "box": [
+      692,
+      446,
+      1200,
+      475
+     ]
+    },
+    {
+     "label": "members . . . . . . .",
+     "tooltip": "",
+     "value": "Owner",
+     "box": [
+      1035,
+      500,
+      1200,
+      525
+     ]
+    },
+    {
+     "label": "Caution: one box). If 8a is",
+     "tooltip": "",
+     "value": "10589293713",
+     "box": [
+      330,
+      575,
+      540,
+      600
+     ]
+    },
+    {
+     "label": "Estate (SSN of decedent)",
+     "tooltip": "",
+     "value": "883-11-7617",
+     "box": [
+      930,
+      575,
+      1200,
+      600
+     ]
+    },
+    {
+     "label": "Plan administrator (TIN)",
+     "tooltip": "",
+     "value": "309-73-9041",
+     "box": [
+      915,
+      600,
+      1200,
+      625
+     ]
+    },
+    {
+     "label": "Corporation (enter form number to be filed)",
+     "tooltip": "",
+     "value": "Summit Ridge Part",
+     "box": [
+      495,
+      625,
+      675,
+      650
+     ]
+    },
+    {
+     "label": "number to be filed) Trust (TIN of grantor)",
+     "tooltip": "",
+     "value": "925-02-1708",
+     "box": [
+      900,
+      625,
+      1200,
+      650
+     ]
+    },
+    {
+     "label": "Other nonprofit organization (specify)",
+     "tooltip": "",
+     "value": "Pinecrest Bakery Inc",
+     "box": [
+      450,
+      700,
+      675,
+      725
+     ]
+    },
+    {
+     "label": "organization (specify)",
+     "tooltip": "",
+     "value": "Northgate Supply Co",
+     "box": [
+      300,
+      725,
+      675,
+      750
+     ]
+    },
+    {
+     "label": "tribal governments/enterprises",
+     "tooltip": "",
+     "value": "Treasurer",
+     "box": [
+      985,
+      725,
+      1200,
+      750
+     ]
+    },
+    {
+     "label": "State",
+     "tooltip": "",
+     "value": "Executor",
+     "box": [
+      572,
+      771,
+      838,
+      800
+     ]
+    },
+    {
+     "label": "Foreign country",
+     "tooltip": "",
+     "value": "Mira Ashdown",
+     "box": [
+      842,
+      771,
+      1200,
+      800
+     ]
+    },
+    {
+     "label": "Started new business (specify type)",
+     "tooltip": "",
+     "value": "Harrow and",
+     "box": [
+      435,
+      825,
+      555,
+      850
+     ]
+    },
+    {
+     "label": "Started new business (specify type)",
+     "tooltip": "",
+     "value": "Lantern Press Ltd",
+     "box": [
+      120,
+      850,
+      555,
+      875
+     ]
+    },
+    {
+     "label": "Changed type of organization (specify new type)",
+     "tooltip": "",
+     "value": "Pinecrest Bakery Inc",
+     "box": [
+      975,
+      825,
+      1200,
+      850
+     ]
+    },
+    {
+     "label": "see line 13.) Created a trust (specify type)",
+     "tooltip": "",
+     "value": "85524",
+     "box": [
+      840,
+      875,
+      1200,
+      900
+     ]
+    },
+    {
+     "label": "withholding regulations Created a pension plan (specify type)",
+     "tooltip": "",
+     "value": "Wholesale",
+     "box": [
+      900,
+      900,
+      1200,
+      925
+     ]
+    },
+    {
+     "label": "only one box) Banking purpose (specify purpose)",
+     "tooltip": "",
+     "value": "Jonas Ashdown",
+     "box": [
+      885,
+      800,
+      1200,
+      825
+     ]
+    },
+    {
+     "label": "IRS withholding regulations Created a pension plan (specify type)",
+     "tooltip": "",
+     "value": "Partner",
+     "box": [
+      285,
+      925,
+      1200,
+      950
+     ]
+    },
+    {
+     "label": "Date business started or acquired (month, day, year). See instructions.",
+     "tooltip": "",
+     "value": "07/07/2004",
+     "box": [
+      120,
+      971,
+      690,
+      1000
+     ]
+    },
+    {
+     "label": "Closing month of accounting year",
+     "tooltip": "",
+     "value": "31396",
+     "box": [
+      737,
+      969,
+      1200,
+      1000
+     ]
+    },
+    {
+     "label": "Agricultural",
+     "tooltip": "",
+     "value": "Consulting",
+     "box": [
+      120,
+      1096,
+      300,
+      1125
+     ]
+    },
+    {
+     "label": "Household",
+     "tooltip": "",
+     "value": "Wholesale",
+     "box": [
+      300,
+      1096,
+      480,
+      1125
+     ]
+    },
+    {
+     "label": "Other",
+     "tooltip": "",
+     "value": "Partner",
+     "box": [
+      480,
+      1096,
+      690,
+      1125
+     ]
+    },
+    {
+     "label": "agent, enter date income will first be paid to",
+     "tooltip": "",
+     "value": "02/02/1997",
+     "box": [
+      825,
+      1150,
+      1200,
+      1175
+     ]
+    },
+    {
+     "label": "food service Wholesale\u2014other Retail",
+     "tooltip": "",
+     "value": "Tobias Vasquez",
+     "box": [
+      825,
+      1225,
+      1200,
+      1250
+     ]
+    },
+    {
+     "label": "Indicate principal line of merchandise sold, specific construction work done, products pro",
+     "tooltip": "",
+     "value": "Felix Fenwick",
+     "box": [
+      120,
+      1271,
+      1200,
+      1300
+     ]
+    },
+    {
+     "label": "on line 1 ever applied for and",
+     "tooltip": "",
+     "value": "7202624366",
+     "box": [
+      369,
+      1325,
+      585,
+      1350
+     ]
+    },
+    {
+     "label": "Designee\u2019s name",
+     "tooltip": "",
+     "value": "Tobias Belmore",
+     "box": [
+      182,
+      1396,
+      898,
+      1425
+     ]
+    },
+    {
+     "label": "Designee\u2019s telephone number (include area code)",
+     "tooltip": "",
+     "value": "(739) 368-3634",
+     "box": [
+      902,
+      1396,
+      1200,
+      1425
+     ]
+    },
+    {
+     "label": "Address and ZIP code",
+     "tooltip": "",
+     "value": "53005",
+     "box": [
+      182,
+      1446,
+      898,
+      1475
+     ]
+    },
+    {
+     "label": "Designee\u2019s fax number (include area code)",
+     "tooltip": "",
+     "value": "(534) 066-0791",
+     "box": [
+      902,
+      1446,
+      1200,
+      1475
+     ]
+    },
+    {
+     "label": "have examined this application, and to the best of my knowledge and belief, it is true, co",
+     "tooltip": "",
+     "value": "Odette Lindqvist",
+     "box": [
+      315,
+      1500,
+      898,
+      1525
+     ]
+    },
+    {
+     "label": "Applicant\u2019s telephone number (include area code)",
+     "tooltip": "",
+     "value": "(348) 972-0253",
+     "box": [
+      902,
+      1496,
+      1200,
+      1525
+     ]
+    },
+    {
+     "label": "Applicant\u2019s fax number (include area code)",
+     "tooltip": "",
+     "value": "(066) 017-0845",
+     "box": [
+      902,
+      1546,
+      1200,
+      1575
+     ]
+    }
+   ]
+  },
+  {
+   "file": "fw4.jpg",
+   "source": "https://www.irs.gov/pub/irs-pdf/fw4.pdf",
+   "page": 1,
+   "quality": "scan-like",
+   "width": 1275,
+   "height": 1650,
+   "fields": [
+    {
+     "label": "(a) First name and middle initial",
+     "tooltip": "",
+     "value": "Tobias",
+     "box": [
+      197,
+      196,
+      568,
+      225
+     ]
+    },
+    {
+     "label": "Last name",
+     "tooltip": "",
+     "value": "Castellan",
+     "box": [
+      572,
+      196,
+      988,
+      225
+     ]
+    },
+    {
+     "label": "Address",
+     "tooltip": "",
+     "value": "7984 Orchard Way",
+     "box": [
+      197,
+      246,
+      988,
+      275
+     ]
+    },
+    {
+     "label": "City or town, state, and ZIP code",
+     "tooltip": "",
+     "value": "Easton, PA 18042",
+     "box": [
+      197,
+      296,
+      988,
+      325
+     ]
+    },
+    {
+     "label": "(b) Social security number",
+     "tooltip": "",
+     "value": "694-79-0916",
+     "box": [
+      992,
+      196,
+      1200,
+      225
+     ]
+    },
+    {
+     "label": ". . . . . . 3(a) $",
+     "tooltip": "",
+     "value": "65075",
+     "box": [
+      870,
+      1000,
+      1003,
+      1025
+     ]
+    },
+    {
+     "label": "dependents by $500 . . . 3(b) $",
+     "tooltip": "",
+     "value": "54038",
+     "box": [
+      870,
+      1025,
+      1003,
+      1050
+     ]
+    },
+    {
+     "label": ". . . . . . 3 $",
+     "tooltip": "",
+     "value": "65665",
+     "box": [
+      1065,
+      1075,
+      1200,
+      1100
+     ]
+    },
+    {
+     "label": ". . . . . . 4(a) $",
+     "tooltip": "",
+     "value": "43384",
+     "box": [
+      1065,
+      1150,
+      1200,
+      1175
+     ]
+    },
+    {
+     "label": "Enter the result here . . 4(b) $",
+     "tooltip": "",
+     "value": "82482",
+     "box": [
+      1065,
+      1225,
+      1200,
+      1250
+     ]
+    },
+    {
+     "label": "withheld each pay period . . 4(c) $",
+     "tooltip": "",
+     "value": "84681",
+     "box": [
+      1065,
+      1262,
+      1200,
+      1287
+     ]
+    },
+    {
+     "label": "Employer\u2019s name and address",
+     "tooltip": "",
+     "value": "3795 Juniper Court",
+     "box": [
+      197,
+      1512,
+      808,
+      1575
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "",
+     "value": "Manager",
+     "box": [
+      812,
+      1550,
+      973,
+      1575
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "",
+     "value": "0396911464",
+     "box": [
+      977,
+      1550,
+      1200,
+      1575
+     ]
+    }
+   ]
+  },
+  {
+   "file": "fw7.jpg",
+   "source": "https://www.irs.gov/pub/irs-pdf/fw7.pdf",
+   "page": 1,
+   "quality": "clean",
+   "width": 1275,
+   "height": 1650,
+   "fields": [
+    {
+     "label": "enter relationship to U.S. citizen/resident alien (see instructions)",
+     "tooltip": "",
+     "value": "Treasurer",
+     "box": [
+      978,
+      375,
+      1200,
+      398
+     ]
+    },
+    {
+     "label": "and SSN/ITIN of U.S. citizen/resident alien (see instructions)",
+     "tooltip": "",
+     "value": "685-82-1570",
+     "box": [
+      1074,
+      400,
+      1200,
+      425
+     ]
+    },
+    {
+     "label": "If d or e, enter name and SSN/ITIN of U.S. citizen/resident alien (see instructions)",
+     "tooltip": "",
+     "value": "787-98-6929",
+     "box": [
+      465,
+      425,
+      1200,
+      450
+     ]
+    },
+    {
+     "label": "nonresident alien holding a U.S. visa",
+     "tooltip": "",
+     "value": "Felix Ashdown",
+     "box": [
+      315,
+      525,
+      1200,
+      550
+     ]
+    },
+    {
+     "label": "information for a and f: Enter treaty country",
+     "tooltip": "",
+     "value": "Consulting",
+     "box": [
+      481,
+      550,
+      735,
+      571
+     ]
+    },
+    {
+     "label": "treaty country and treaty article number",
+     "tooltip": "",
+     "value": "Partner",
+     "box": [
+      935,
+      550,
+      1200,
+      571
+     ]
+    },
+    {
+     "label": "1a First name",
+     "tooltip": "",
+     "value": "Ingrid",
+     "box": [
+      227,
+      596,
+      568,
+      625
+     ]
+    },
+    {
+     "label": "Middle name",
+     "tooltip": "",
+     "value": "Rafael Draycott",
+     "box": [
+      572,
+      596,
+      868,
+      625
+     ]
+    },
+    {
+     "label": "Last name",
+     "tooltip": "",
+     "value": "Draycott",
+     "box": [
+      872,
+      596,
+      1200,
+      625
+     ]
+    },
+    {
+     "label": "1b First name",
+     "tooltip": "",
+     "value": "Rafael",
+     "box": [
+      227,
+      646,
+      568,
+      675
+     ]
+    },
+    {
+     "label": "Middle name",
+     "tooltip": "",
+     "value": "Rafael Draycott",
+     "box": [
+      572,
+      646,
+      868,
+      675
+     ]
+    },
+    {
+     "label": "Last name",
+     "tooltip": "",
+     "value": "Castellan",
+     "box": [
+      872,
+      646,
+      1200,
+      675
+     ]
+    },
+    {
+     "label": "2 Street address, apartment number, or rural route number. If you have a P.O. box, see sep",
+     "tooltip": "",
+     "value": "3965 Maple Terrace",
+     "box": [
+      227,
+      696,
+      1200,
+      725
+     ]
+    },
+    {
+     "label": "City or town, state or province, and country. Include ZIP code or postal code where approp",
+     "tooltip": "",
+     "value": "Easton, PA 18042",
+     "box": [
+      227,
+      746,
+      1200,
+      775
+     ]
+    },
+    {
+     "label": "3 Street address, apartment number, or rural route number. Don\u2019t use a P.O. box number.",
+     "tooltip": "",
+     "value": "510 Kestrel Drive",
+     "box": [
+      227,
+      796,
+      1200,
+      825
+     ]
+    },
+    {
+     "label": "City or town, state or province, and country. Include postal code where appropriate.",
+     "tooltip": "",
+     "value": "Brookfield, WI 53005",
+     "box": [
+      227,
+      846,
+      1200,
+      875
+     ]
+    },
+    {
+     "label": "Date of birth (month / day /",
+     "tooltip": "",
+     "value": "33495558",
+     "box": [
+      270,
+      900,
+      480,
+      925
+     ]
+    },
+    {
+     "label": "Country of birth",
+     "tooltip": "",
+     "value": "03/10/2002",
+     "box": [
+      527,
+      900,
+      778,
+      925
+     ]
+    },
+    {
+     "label": "City and state or province (optional)",
+     "tooltip": "",
+     "value": "Easton",
+     "box": [
+      782,
+      900,
+      1063,
+      925
+     ]
+    },
+    {
+     "label": "6a Country(ies) of citizenship",
+     "tooltip": "",
+     "value": "Owner",
+     "box": [
+      227,
+      946,
+      493,
+      975
+     ]
+    },
+    {
+     "label": "6b Foreign tax I.D. number (if any)",
+     "tooltip": "",
+     "value": "11914",
+     "box": [
+      495,
+      946,
+      765,
+      975
+     ]
+    },
+    {
+     "label": "6c Type of U.S. visa (if any), number, and expiration date",
+     "tooltip": "",
+     "value": "04/18/2016",
+     "box": [
+      767,
+      946,
+      1200,
+      975
+     ]
+    },
+    {
+     "label": "documents, see instructions)",
+     "tooltip": "",
+     "value": "Partner",
+     "box": [
+      975,
+      1000,
+      1200,
+      1025
+     ]
+    },
+    {
+     "label": "Driver\u2019s license/State I.D. USCIS documentation",
+     "tooltip": "",
+     "value": "Casper Ashdown",
+     "box": [
+      353,
+      1025,
+      900,
+      1048
+     ]
+    },
+    {
+     "label": "Number:",
+     "tooltip": "",
+     "value": "Casper Castellan",
+     "box": [
+      343,
+      1050,
+      645,
+      1071
+     ]
+    },
+    {
+     "label": "Number: Exp. date:",
+     "tooltip": "",
+     "value": "94114658",
+     "box": [
+      765,
+      1050,
+      900,
+      1071
+     ]
+    },
+    {
+     "label": "the United States",
+     "tooltip": "",
+     "value": "Spouse",
+     "box": [
+      1065,
+      1050,
+      1200,
+      1071
+     ]
+    },
+    {
+     "label": "than one,",
+     "tooltip": "",
+     "value": "632",
+     "box": [
+      515,
+      1150,
+      600,
+      1175
+     ]
+    },
+    {
+     "label": "on a",
+     "tooltip": "",
+     "value": "27",
+     "box": [
+      620,
+      1150,
+      675,
+      1175
+     ]
+    },
+    {
+     "label": "and attach to",
+     "tooltip": "",
+     "value": "2606",
+     "box": [
+      695,
+      1150,
+      810,
+      1175
+     ]
+    },
+    {
+     "label": "instructions).",
+     "tooltip": "",
+     "value": "337",
+     "box": [
+      905,
+      1150,
+      990,
+      1175
+     ]
+    },
+    {
+     "label": "ITIN \u2013 \u2013 IRSN \u2013",
+     "tooltip": "",
+     "value": "01",
+     "box": [
+      1010,
+      1150,
+      1065,
+      1175
+     ]
+    },
+    {
+     "label": "\u2013 \u2013 IRSN \u2013 \u2013",
+     "tooltip": "",
+     "value": "4762",
+     "box": [
+      1085,
+      1150,
+      1200,
+      1175
+     ]
+    },
+    {
+     "label": "\u2013 \u2013",
+     "tooltip": "",
+     "value": "Wholesale",
+     "box": [
+      555,
+      1177,
+      750,
+      1200
+     ]
+    },
+    {
+     "label": "IRSN",
+     "tooltip": "",
+     "value": "Sole proprietor",
+     "box": [
+      765,
+      1177,
+      945,
+      1200
+     ]
+    },
+    {
+     "label": "\u2013 \u2013",
+     "tooltip": "",
+     "value": "Spouse",
+     "box": [
+      960,
+      1177,
+      1200,
+      1200
+     ]
+    },
+    {
+     "label": "Middle name Last name",
+     "tooltip": "",
+     "value": "Marlowe",
+     "box": [
+      699,
+      1225,
+      1200,
+      1248
+     ]
+    },
+    {
+     "label": "college/university or company (see instructions)",
+     "tooltip": "",
+     "value": "Bluewater Consulting LLC",
+     "box": [
+      380,
+      1250,
+      765,
+      1271
+     ]
+    },
+    {
+     "label": "state Length of stay",
+     "tooltip": "",
+     "value": "Treasurer",
+     "box": [
+      910,
+      1250,
+      1200,
+      1271
+     ]
+    },
+    {
+     "label": "Phone number",
+     "tooltip": "",
+     "value": "(340) 797-2288",
+     "box": [
+      870,
+      1371,
+      1200,
+      1400
+     ]
+    },
+    {
+     "label": "Name of delegate, if applicable (type or print)",
+     "tooltip": "",
+     "value": "Marcus Okonjo",
+     "box": [
+      231,
+      1425,
+      673,
+      1450
+     ]
+    },
+    {
+     "label": "Court-appointed guardian",
+     "tooltip": "",
+     "value": "Spouse",
+     "box": [
+      937,
+      1450,
+      1200,
+      1475
+     ]
+    },
+    {
+     "label": "/ / Fax",
+     "tooltip": "",
+     "value": "(380) 116-6820",
+     "box": [
+      918,
+      1475,
+      1200,
+      1500
+     ]
+    },
+    {
+     "label": "Name and title (type or print)",
+     "tooltip": "",
+     "value": "Casper Lindqvist",
+     "box": [
+      231,
+      1525,
+      615,
+      1550
+     ]
+    },
+    {
+     "label": "Name of company",
+     "tooltip": "",
+     "value": "Pinecrest Bakery Inc",
+     "box": [
+      617,
+      1525,
+      838,
+      1550
+     ]
+    },
+    {
+     "label": "Fax",
+     "tooltip": "",
+     "value": "4724745885",
+     "box": [
+      885,
+      1500,
+      1020,
+      1525
+     ]
+    },
+    {
+     "label": "Name of company EIN PTIN",
+     "tooltip": "",
+     "value": "39-2913061",
+     "box": [
+      1072,
+      1500,
+      1200,
+      1525
+     ]
+    },
+    {
+     "label": "PTIN",
+     "tooltip": "",
+     "value": "Owner",
+     "box": [
+      942,
+      1525,
+      1200,
+      1550
+     ]
+    }
+   ]
+  },
+  {
+   "file": "fw8ben.jpg",
+   "source": "https://www.irs.gov/pub/irs-pdf/fw8ben.pdf",
+   "page": 1,
+   "quality": "scan-like",
+   "width": 1275,
+   "height": 1651,
+   "fields": [
+    {
+     "label": "1 Name of individual who is the beneficial owner",
+     "tooltip": "",
+     "value": "Felix Pemberton",
+     "box": [
+      75,
+      496,
+      780,
+      525
+     ]
+    },
+    {
+     "label": "2 Country of citizenship",
+     "tooltip": "",
+     "value": "Nadia Belmore",
+     "box": [
+      784,
+      496,
+      1200,
+      525
+     ]
+    },
+    {
+     "label": "3 Permanent residence address (street, apt. or suite no., or rural route). Do not use a P.",
+     "tooltip": "",
+     "value": "1553 Maple Terrace",
+     "box": [
+      75,
+      546,
+      1200,
+      575
+     ]
+    },
+    {
+     "label": "City or town, state or province. Include postal code where appropriate.",
+     "tooltip": "",
+     "value": "Easton, PA 18042",
+     "box": [
+      75,
+      596,
+      915,
+      625
+     ]
+    },
+    {
+     "label": "Country",
+     "tooltip": "",
+     "value": "Consulting",
+     "box": [
+      919,
+      596,
+      1200,
+      625
+     ]
+    },
+    {
+     "label": "4 Mailing address (if different from above)",
+     "tooltip": "",
+     "value": "4800 Harbour Street",
+     "box": [
+      75,
+      646,
+      1200,
+      675
+     ]
+    },
+    {
+     "label": "City or town, state or province. Include postal code where appropriate.",
+     "tooltip": "",
+     "value": "Fairhaven, OH 44012",
+     "box": [
+      75,
+      696,
+      915,
+      725
+     ]
+    },
+    {
+     "label": "Country",
+     "tooltip": "",
+     "value": "Manager",
+     "box": [
+      919,
+      696,
+      1200,
+      725
+     ]
+    },
+    {
+     "label": "U.S. taxpayer identification number (SSN or ITIN), if required (see instructions)",
+     "tooltip": "",
+     "value": "786-97-9548",
+     "box": [
+      135,
+      750,
+      1200,
+      775
+     ]
+    },
+    {
+     "label": "6a Foreign tax identifying number (see instructions)",
+     "tooltip": "",
+     "value": "95925",
+     "box": [
+      75,
+      800,
+      600,
+      825
+     ]
+    },
+    {
+     "label": "7 Reference number(s) (see instructions)",
+     "tooltip": "",
+     "value": "Odette Lindqvist",
+     "box": [
+      75,
+      851,
+      600,
+      875
+     ]
+    },
+    {
+     "label": "8 Date of birth (MM-DD-YYYY) (see instructions)",
+     "tooltip": "",
+     "value": "1717472812",
+     "box": [
+      600,
+      850,
+      1200,
+      875
+     ]
+    },
+    {
+     "label": "chapter 3 purposes only) (see instructions)",
+     "tooltip": "",
+     "value": "7226 Juniper Court",
+     "box": [
+      495,
+      900,
+      915,
+      925
+     ]
+    },
+    {
+     "label": "Special rates and conditions",
+     "tooltip": "",
+     "value": "Manager",
+     "box": [
+      135,
+      975,
+      367,
+      1000
+     ]
+    },
+    {
+     "label": "owner is",
+     "tooltip": "",
+     "value": "3",
+     "box": [
+      734,
+      975,
+      780,
+      1000
+     ]
+    },
+    {
+     "label": "of the treaty identified on line 9 above to claim a % rate of withholding on (specify type",
+     "tooltip": "",
+     "value": "74867",
+     "box": [
+      135,
+      1000,
+      1185,
+      1025
+     ]
+    },
+    {
+     "label": ".",
+     "tooltip": "",
+     "value": "19338",
+     "box": [
+      1095,
+      1025,
+      1200,
+      1050
+     ]
+    },
+    {
+     "label": "Explain the additional conditions in the Article and paragraph the beneficial owner meets ",
+     "tooltip": "",
+     "value": "Leona Fenwick",
+     "box": [
+      135,
+      1050,
+      1200,
+      1075
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "",
+     "value": "6641174080",
+     "box": [
+      900,
+      1475,
+      1200,
+      1500
+     ]
+    },
+    {
+     "label": "Signature of beneficial owner (or individual authorized to sign for beneficial owner)",
+     "tooltip": "",
+     "value": "Marcus Belmore",
+     "box": [
+      225,
+      1525,
+      885,
+      1550
+     ]
+    }
+   ]
+  },
+  {
+   "file": "fw9.jpg",
+   "source": "https://www.irs.gov/pub/irs-pdf/fw9.pdf",
+   "page": 1,
+   "quality": "clean",
+   "width": 1275,
+   "height": 1650,
+   "fields": [
+    {
+     "label": "entity\u2019s name on line 2.)",
+     "tooltip": "",
+     "value": "Summit Ridge Partners",
+     "box": [
+      122,
+      246,
+      1200,
+      275
+     ]
+    },
+    {
+     "label": "2 Business name/disregarded entity name, if different from above.",
+     "tooltip": "",
+     "value": "Harrow and Vine LLC",
+     "box": [
+      122,
+      296,
+      1200,
+      325
+     ]
+    },
+    {
+     "label": "Trust/estate",
+     "tooltip": "",
+     "value": "7",
+     "box": [
+      870,
+      400,
+      930,
+      423
+     ]
+    },
+    {
+     "label": "unless it is a disregarded entity. A disregarded entity should instead check the appropria",
+     "tooltip": "",
+     "value": "Harrow and Vine LLC",
+     "box": [
+      338,
+      475,
+      930,
+      500
+     ]
+    },
+    {
+     "label": "3):",
+     "tooltip": "",
+     "value": "13270",
+     "box": [
+      1132,
+      400,
+      1200,
+      425
+     ]
+    },
+    {
+     "label": "from Foreign Account Tax Act (FATCA) reporting",
+     "tooltip": "",
+     "value": "88814",
+     "box": [
+      1043,
+      475,
+      1200,
+      500
+     ]
+    },
+    {
+     "label": "5 Address (number, street, and apt. or suite no.). See instructions.",
+     "tooltip": "",
+     "value": "3626 Maple Terrace",
+     "box": [
+      122,
+      596,
+      808,
+      625
+     ]
+    },
+    {
+     "label": "6 City, state, and ZIP code",
+     "tooltip": "",
+     "value": "Brookfield, WI 53005",
+     "box": [
+      122,
+      646,
+      808,
+      675
+     ]
+    },
+    {
+     "label": "Requester\u2019s name and address (optional)",
+     "tooltip": "",
+     "value": "3073 Orchard Way",
+     "box": [
+      812,
+      596,
+      1200,
+      675
+     ]
+    },
+    {
+     "label": "7 List account number(s) here (optional)",
+     "tooltip": "",
+     "value": "Casper Quintero",
+     "box": [
+      122,
+      696,
+      1200,
+      725
+     ]
+    },
+    {
+     "label": "Social security",
+     "tooltip": "",
+     "value": "682",
+     "box": [
+      870,
+      775,
+      960,
+      825
+     ]
+    },
+    {
+     "label": "number",
+     "tooltip": "",
+     "value": "29",
+     "box": [
+      990,
+      775,
+      1050,
+      825
+     ]
+    },
+    {
+     "label": "later. However, For other for a \u2013 \u2013",
+     "tooltip": "",
+     "value": "9651",
+     "box": [
+      1080,
+      775,
+      1200,
+      825
+     ]
+    },
+    {
+     "label": "Employer",
+     "tooltip": "",
+     "value": "30",
+     "box": [
+      870,
+      875,
+      930,
+      925
+     ]
+    },
+    {
+     "label": "identification number",
+     "tooltip": "",
+     "value": "5957740",
+     "box": [
+      960,
+      875,
+      1170,
+      925
+     ]
+    }
+   ]
+  },
+  {
+   "file": "sf1152.jpg",
+   "source": "https://www.opm.gov/forms/pdf_fill/sf1152.pdf",
+   "page": 1,
+   "quality": "scan-like",
+   "width": 1275,
+   "height": 1650,
+   "fields": [
+    {
+     "label": "Name (Last, first, middle)",
+     "tooltip": "Enter Name of the Employee (Last, First, and Middle)",
+     "value": "Mira Draycott",
+     "box": [
+      57,
+      228,
+      520,
+      256
+     ]
+    },
+    {
+     "label": "Date of birth (mm, dd, yyyy)",
+     "tooltip": "Enter Date of Birth of the Employee Using (mm/dd/yyyy)",
+     "value": "04/04/1990",
+     "box": [
+      533,
+      229,
+      878,
+      254
+     ]
+    },
+    {
+     "label": "Social Security Number",
+     "tooltip": "Enter Social Security Number of the Employee Using (999-99-9999)",
+     "value": "798-34-6644",
+     "box": [
+      894,
+      229,
+      1207,
+      254
+     ]
+    },
+    {
+     "label": "Department or agency",
+     "tooltip": "Enter Name of Department or Agency",
+     "value": "Sole proprietor",
+     "box": [
+      59,
+      310,
+      336,
+      347
+     ]
+    },
+    {
+     "label": "Bureau",
+     "tooltip": "Enter Name of Bureau",
+     "value": "Manager",
+     "box": [
+      352,
+      309,
+      622,
+      345
+     ]
+    },
+    {
+     "label": "Division",
+     "tooltip": "Enter Name of Division",
+     "value": "Consulting",
+     "box": [
+      641,
+      310,
+      881,
+      345
+     ]
+    },
+    {
+     "label": "Location (City, state and ZIP code)",
+     "tooltip": "Enter Street Address,City,State, and ZIP Code of the Employee",
+     "value": "Milford, CT 06460",
+     "box": [
+      895,
+      311,
+      1209,
+      345
+     ]
+    },
+    {
+     "label": "name of each beneficiary",
+     "tooltip": "Enter First Beneficiary Name(First,Middle Initial, and Last)",
+     "value": "Rafael Fenwick",
+     "box": [
+      67,
+      624,
+      410,
+      684
+     ]
+    },
+    {
+     "label": "each beneficiary",
+     "tooltip": "Enter Street Address,City,State, and ZIP Code of the First Beneficiary",
+     "value": "Mira Ashdown",
+     "box": [
+      448,
+      624,
+      819,
+      684
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "Enter Relationship of the First Beneficiary to the Employee",
+     "value": "Spouse",
+     "box": [
+      857,
+      633,
+      1056,
+      678
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "Enter Share to be Paid to the First Beneficiary",
+     "value": "37923",
+     "box": [
+      1096,
+      634,
+      1200,
+      675
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "Enter Second Beneficiary Name(First,Middle Initial, and Last)",
+     "value": "Felix Pemberton",
+     "box": [
+      67,
+      689,
+      409,
+      752
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "Enter Street Address,City,State, and ZIP Code of the Second Beneficiary",
+     "value": "Glenwood, IA 51534",
+     "box": [
+      451,
+      692,
+      819,
+      754
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "Enter Relationship of the Second Beneficiary to the Employee",
+     "value": "Wholesale",
+     "box": [
+      861,
+      700,
+      1056,
+      745
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "Enter Share to be Paid to Second  Beneficiary",
+     "value": "15931",
+     "box": [
+      1094,
+      701,
+      1199,
+      741
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "Enter Third Beneficiary Name(First,Middle Initial, and Last)",
+     "value": "Felix Ashdown",
+     "box": [
+      67,
+      761,
+      409,
+      821
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "Enter Street Address,City,State, and ZIP Code of the Third Beneficiary",
+     "value": "Ashland, OR 97520",
+     "box": [
+      451,
+      759,
+      818,
+      821
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "Enter Relationship of the Third Beneficiary to the Employee",
+     "value": "Sole proprietor",
+     "box": [
+      862,
+      765,
+      1058,
+      814
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "Enter Share to be Paid to Third Beneficiary",
+     "value": "69268",
+     "box": [
+      1097,
+      766,
+      1199,
+      808
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "Enter Fourth Beneficiary Name(First,Middle Initial, and Last)",
+     "value": "Selma Fenwick",
+     "box": [
+      66,
+      830,
+      406,
+      892
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "Enter Street Address,City,State, and ZIP Code of the Fourth Beneficiary",
+     "value": "Glenwood, IA 51534",
+     "box": [
+      451,
+      830,
+      819,
+      892
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "Enter Relationship of the Fourth Beneficiary to the Employee",
+     "value": "Spouse",
+     "box": [
+      865,
+      839,
+      1055,
+      887
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "Enter Share to be Paid to Forth Beneficiary",
+     "value": "22251",
+     "box": [
+      1097,
+      835,
+      1200,
+      877
+     ]
+    },
+    {
+     "label": "Date of designation (mm, dd, yyyy)",
+     "tooltip": "Enter Date of Designation Using(mm/dd/yyyy)",
+     "value": "07/23/1966",
+     "box": [
+      55,
+      919,
+      423,
+      953
+     ]
+    },
+    {
+     "label": "Total =",
+     "tooltip": "Shares Total",
+     "value": "141",
+     "box": [
+      1147,
+      909,
+      1192,
+      945
+     ]
+    },
+    {
+     "label": "Number and street",
+     "tooltip": "Enter Number and Street of the First Witness",
+     "value": "7361 Orchard Way",
+     "box": [
+      415,
+      1061,
+      794,
+      1096
+     ]
+    },
+    {
+     "label": "City, state and ZIP code",
+     "tooltip": "Enter City,State, and ZIP Code of the First Witness",
+     "value": "Ashland, OR 97520",
+     "box": [
+      812,
+      1061,
+      1212,
+      1094
+     ]
+    },
+    {
+     "label": "Number and street",
+     "tooltip": "Enter Number and Street of the Second Witness",
+     "value": "8317 Quarry Road",
+     "box": [
+      415,
+      1121,
+      792,
+      1155
+     ]
+    },
+    {
+     "label": "City, state and ZIP code",
+     "tooltip": "Enter City,State, and ZIP Code of the Second Witness",
+     "value": "Milford, CT 06460",
+     "box": [
+      811,
+      1123,
+      1210,
+      1155
+     ]
+    },
+    {
+     "label": "",
+     "tooltip": "Enter Your Return Street Address,City,State, and ZIP Code",
+     "value": "Milford, CT 06460",
+     "box": [
+      167,
+      1359,
+      742,
+      1503
+     ]
+    }
+   ]
+  }
+ ]
+}

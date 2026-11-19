@@ -6,9 +6,10 @@ import * as ortNode from 'onnxruntime-node';
 import type { Entity, Field, SecondReading } from '../src/core/types';
 import { analyse, wordAgreement, type Classifiers } from '../src/core/pipeline';
 import { loadClassifiers } from '../src/core/classifier';
-import { argmaxLabel, candidatePairs, decodeLinks, entityFeatures, pageCtx, pairFeatures, cy, cx } from '../src/core/layout';
-import { norm, scoreOcr, similarity, levenshtein } from '../src/core/ocr';
-import { DATA, gtAsEntities, loadGt, loadOcr, pages, type GtPage } from './funsd';
+import { argmaxLabel, candidatePairs, decodeLinks, entityFeatures, pageCtx, pairFeatures } from '../src/core/layout';
+import { scoreOcr } from '../src/core/ocr';
+import { DATA, gtAsEntities, loadGt, loadOcr, pages } from './funsd';
+import { gtFields, matchFields, clean, sim } from './match';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 const ort = ortNode as any;
@@ -128,39 +129,6 @@ R.linking_gt_entities = {
 };
 
 // ---------- 3. End-to-end key-value extraction from the image ----------
-function gtFields(gt: GtPage) {
-  const byId = new Map(gt.ents.map((e) => [e.id, e]));
-  const m = new Map<number, number[]>();
-  for (const k of gt.qa) {
-    const [q, a] = k.split(',').map(Number);
-    if (!m.has(q)) m.set(q, []);
-    m.get(q)!.push(a);
-  }
-  return [...m].map(([q, as]) => ({
-    key: byId.get(q)!.text.replace(/[:\s.]+$/, ''),
-    value: as.map((a) => byId.get(a)!).sort((x, y) => cy(x.box) - cy(y.box) || cx(x.box) - cx(y.box)).map((e) => e.text).join(' '),
-  }));
-}
-const clean = (s: string) => norm(s).replace(/[^\p{L}\p{N} ]/gu, '').replace(/\s+/g, ' ').trim();
-const sim = (a: string, b: string) => similarity(clean(a), clean(b));
-
-function matchFields(pred: Field[], gold: { key: string; value: string }[], thr = 0.8) {
-  const P = pred.filter((f) => f.value);
-  const used = new Set<number>();
-  const res = P.map((f) => {
-    let best = -1, bs = 0;
-    gold.forEach((g, j) => {
-      if (used.has(j)) return;
-      const ks = sim(f.key, g.key), vs = sim(f.value, g.value);
-      if (ks >= thr && vs >= thr && ks + vs > bs) { bs = ks + vs; best = j; }
-    });
-    if (best >= 0) used.add(best);
-    const exact = best >= 0 && clean(f.value) === clean(gold[best].value);
-    return { f, ok: best >= 0, exact };
-  });
-  return { res, tp: res.filter((r) => r.ok).length, nPred: P.length, nGold: gold.length };
-}
-
 async function endToEnd(c: Classifiers, useFlorence?: string, mode = 'full') {
   let tp = 0, nPred = 0, nGold = 0, ms = 0, n = 0;
   const conf: { conf: number; ok: boolean; status: string }[] = [];
@@ -176,13 +144,13 @@ async function endToEnd(c: Classifiers, useFlorence?: string, mode = 'full') {
       second = fl.regions;
     }
     const t = performance.now();
-    const an = await analyse(o.words, o.width, o.height, c, second);
+    const an = await analyse(o.words, o.width, o.height, c, second, 'form', mode === 'pp' ? 'ppocr' : 'tesseract');
     ms += performance.now() - t;
     n++;
     const gold = gtFields(gt);
     const m = matchFields(an.fields, gold);
     tp += m.tp; nPred += m.nPred; nGold += m.nGold;
-    for (const r of m.res) conf.push({ conf: r.f.confidence, ok: r.ok, status: r.f.status });
+    for (const r of m.res) conf.push({ conf: r.f.raw ?? r.f.confidence, ok: r.ok, status: r.f.status });
     if (second && an.agreement) {
       // word-level: is the Tesseract word exactly right (vs the GT word it lies in)?
       const gw = gt.ents.flatMap((e) => e.words);
@@ -259,6 +227,7 @@ for (const tiles of ['1x1', '1x2']) {
 
 for (const [k, f] of [['magic_scan', 'magic.json'], ['critic_vision', 'critic.json']]) try { R[k] = JSON.parse(fs.readFileSync(path.join(DATA, f), 'utf8')); } catch {}
 try { R.training = JSON.parse(fs.readFileSync(path.join(DATA, 'features/train_report.json'), 'utf8')); } catch {}
+try { R.calibration = JSON.parse(fs.readFileSync(path.join(ROOT, 'public/eval/results.json'), 'utf8')).calibration; } catch {}
 fs.mkdirSync(path.join(ROOT, 'public/eval'), { recursive: true });
 fs.writeFileSync(path.join(ROOT, 'public/eval/results.json'), JSON.stringify(R, null, 1));
 const r3 = (x: number) => Math.round(x * 1000) / 1000;

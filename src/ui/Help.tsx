@@ -21,6 +21,7 @@ export function Help() {
       <h2>What the colours mean</h2>
       <ul>
         <li><b style={{ color: 'var(--q)' }}>Blue</b> question/label, <b style={{ color: 'var(--a)' }}>green</b> answer/value, <b style={{ color: 'var(--h)' }}>purple</b> heading. Orange arrows link each question to its answer.</li>
+        <li><b>Confidence on forms is calibrated</b>: a field shown at 60% is right about 60% of the time on the test forms. See the Model card for the before and after.</li>
         <li><b>Confidence</b> combines the OCR's own certainty, the link classifier's probability and, if enabled, whether Florence-2 read the same text.</li>
         <li><b>Needs review</b> means at least one warning: low OCR confidence, an uncertain link, the two readers disagreeing, or a failed passport check digit.</li>
       </ul>

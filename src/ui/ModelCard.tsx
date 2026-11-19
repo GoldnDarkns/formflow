@@ -7,6 +7,54 @@ function Bar({ v }: { v: number }) {
   return <div className="bar"><div style={{ width: `${Math.max(0, Math.min(1, v)) * 100}%` }} /></div>;
 }
 
+const READER: Record<string, string> = { tesseract: 'Tesseract', ppocr: 'PP-OCRv5' };
+
+interface Bin { lo: number; hi: number; fields: number; meanConfidence: number; correct: number }
+
+/** Reliability diagram: confidence shown (x) against share actually right (y). On the diagonal = honest. */
+function Reliability({ title, before, after }: { title: string; before: Bin[]; after: Bin[] }) {
+  const W = 360, H = 250, L = 40, R = 14, T = 12, B = 36;
+  const x = (v: number) => L + v * (W - L - R), y = (v: number) => H - B - v * (H - T - B);
+  const pts = (bins: Bin[]) => bins.filter((b) => b.fields >= 5);
+  const path = (bins: Bin[]) => pts(bins).map((b, i) => `${i ? 'L' : 'M'}${x(b.meanConfidence).toFixed(1)} ${y(b.correct).toFixed(1)}`).join(' ');
+  const series = [
+    { name: 'Before', bins: before, color: 'var(--ink-3)', dash: '5 4' as string | undefined },
+    { name: 'After calibration', bins: after, color: 'var(--indigo)', dash: undefined },
+  ];
+  return (
+    <figure className="relfig">
+      <figcaption>{title}</figcaption>
+      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`${title}: confidence shown against share actually right, before and after calibration`}>
+        {[0, 0.25, 0.5, 0.75, 1].map((t) => (
+          <g key={t}>
+            <line x1={x(0)} x2={x(1)} y1={y(t)} y2={y(t)} stroke="var(--line)" strokeWidth={1} />
+            <text x={x(0) - 6} y={y(t) + 3.5} textAnchor="end" className="tick">{t * 100}%</text>
+            <text x={x(t)} y={H - B + 14} textAnchor="middle" className="tick">{t * 100}%</text>
+          </g>
+        ))}
+        <line x1={x(0)} y1={y(0)} x2={x(1)} y2={y(1)} stroke="var(--ink-3)" strokeWidth={1} strokeDasharray="2 3" opacity={0.7} />
+        <text x={x(0.72)} y={y(0.86)} textAnchor="end" className="tick">honest line</text>
+        <text x={(x(0) + x(1)) / 2} y={H - 4} textAnchor="middle" className="tick">confidence shown</text>
+        <text transform={`translate(10 ${(y(0) + y(1)) / 2}) rotate(-90)`} textAnchor="middle" className="tick">actually right</text>
+        {series.map((s) => (
+          <g key={s.name}>
+            <path d={path(s.bins)} fill="none" stroke={s.color} strokeWidth={2} strokeDasharray={s.dash} strokeLinejoin="round" />
+            {pts(s.bins).map((b) => (
+              <circle key={b.lo} cx={x(b.meanConfidence)} cy={y(b.correct)} r={4.5} fill={s.color} stroke="var(--sheet)" strokeWidth={2}>
+                <title>{`${s.name}: shown ${f(b.meanConfidence, 0)}, right ${f(b.correct, 0)} (${b.fields} fields)`}</title>
+              </circle>
+            ))}
+          </g>
+        ))}
+      </svg>
+      <div className="legend">
+        <span><i style={{ background: 'var(--ink-3)' }} />Before (raw score)</span>
+        <span><i style={{ background: 'var(--indigo)' }} />After calibration</span>
+      </div>
+    </figure>
+  );
+}
+
 export function ModelCard() {
   const [r, setR] = useState<any>(null);
   const [err, setErr] = useState('');
@@ -26,6 +74,8 @@ export function ModelCard() {
   };
   const lk = r.linking_gt_entities;
   const e2e = r.end_to_end;
+  const cal = r.calibration;
+  const f20 = r.forms20;
   const flo = (Object.entries(e2e).find(([k]) => k.endsWith('florence_1x2')) ?? Object.entries(e2e).find(([k]) => k.startsWith('gradient_boosting_with_florence'))) as [string, any] | undefined;
 
   return (
@@ -160,19 +210,48 @@ export function ModelCard() {
         </div>
       )}
 
-      {e2e.gradient_boosting?.reliability && (
+      {cal?.readers && (
         <div className="card">
           <h2>Is the confidence figure honest?</h2>
-          <p className="small">Fields are grouped by the confidence the app showed, and compared with how often they were actually right (key and value both correct) on the FUNSD test forms.</p>
+          <p className="small">A field shown as "70% sure" should be right about 70% of the time. The raw score was not: it ranked fields well but promised too much. A calibration curve (isotonic regression) was fitted on the 149 FUNSD training forms and then tested on the 50 test forms it never saw.</p>
+          <div className="summary">
+            {Object.entries(cal.readers).map(([name, v]: [string, any]) => (
+              <div className="stat" key={name}><b>{f(v.before.ece)} → {f(v.trainToTest.ece)}</b><span>calibration error, {READER[name] ?? name} reader (lower is better)</span></div>
+            ))}
+          </div>
+          <div className="relrow">
+            {Object.entries(cal.readers).map(([name, v]: [string, any]) => (
+              <Reliability key={name} title={`${READER[name] ?? name} reader, ${v.fields.testing} fields on the test forms`} before={v.before.bins} after={v.trainToTest.bins} />
+            ))}
+          </div>
           <div className="tablewrap"><table className="metrics">
-            <thead><tr><th>Confidence shown</th><th className="num">Fields</th><th className="num">Actually correct</th><th></th></tr></thead>
+            <thead><tr><th>Reader</th><th>Protocol</th><th className="num">Calibration error (ECE) ↓</th><th className="num">Brier score ↓</th></tr></thead>
             <tbody>
-              {e2e.gradient_boosting.reliability.map((b: any) => (
-                <tr key={b.range}><td>{b.range}</td><td className="num">{b.fields}</td><td className="num">{f(b.correct)}</td><td style={{ width: '30%' }}><Bar v={b.correct} /></td></tr>
-              ))}
+              {Object.entries(cal.readers).flatMap(([name, v]: [string, any]) => [
+                <tr key={name + 'b'}><td>{READER[name] ?? name}</td><td>Before (raw score)</td><td className="num">{f(v.before.ece)}</td><td className="num">{v.before.brier.toFixed(3)}</td></tr>,
+                <tr key={name + 't'}><td></td><td>After, curve fitted on training forms (used in the app)</td><td className="num">{f(v.trainToTest.ece)}</td><td className="num">{v.trainToTest.brier.toFixed(3)}</td></tr>,
+                <tr key={name + 'c'}><td></td><td>After, cross-fitted on the test forms (5 folds)</td><td className="num">{f(v.crossFit.ece)}</td><td className="num">{v.crossFit.brier.toFixed(3)}</td></tr>,
+              ])}
             </tbody>
           </table></div>
-          <p className="small">The figure ranks fields well: higher confidence is right far more often. On these old faxes it is too optimistic in absolute terms, so read it as "check the low ones first", not as a guarantee. Fields confirmed by a check digit are the exception: those are verified by arithmetic.</p>
+          <p className="small">What this means in the app: on a form, the percentage next to a field is now an estimate of how often such a field is right. The best fields on these old faxes top out around 75%, which is why a person still checks them. The curves were fitted on forms only, so fields on identity documents still show the raw score; values confirmed by a check digit are verified by arithmetic and shown at 99%. The "needs review" flag is unchanged.</p>
+        </div>
+      )}
+
+      {f20?.readers && (
+        <div className="card">
+          <h2>Extra test set: 20 public forms with invented data</h2>
+          <p className="small">{f20.set}. No real person appears. For each of the {f20.readers.tesseract?.all.typedValues} values typed into the forms we ask three things, each stricter: was the text read correctly, did it come out as the value of a field, and did that field carry the right label.</p>
+          <div className="tablewrap"><table className="metrics">
+            <thead><tr><th>Reader</th><th>Forms</th><th className="num">Sorted as form</th><th className="num">Read ↑</th><th className="num">Extracted ↑</th><th className="num">Right label ↑</th><th className="num">Time / page</th></tr></thead>
+            <tbody>
+              {Object.entries(f20.readers).flatMap(([name, v]: [string, any]) => ([['all', 'All 20'], ['clean', 'Clean (10)'], ['scanLike', 'Scan-like (10)']] as const).map(([k, label]) => (
+                <tr key={name + k}><td>{k === 'all' ? READER[name] ?? name : ''}</td><td>{label}</td><td className="num">{v[k].sortedAsForm}/{v[k].forms}</td><td className="num">{f(v[k].read)}</td><td className="num">{f(v[k].extracted)}</td><td className="num">{f(v[k].labelled)}</td><td className="num">{ms(v[k].msPerPage)}</td></tr>
+              )))}
+            </tbody>
+          </table></div>
+          <p className="small"><b>What went wrong:</b> the readers cope well with these forms, but the layout models do not. They were trained on 1980s–90s faxes where a label usually sits to the left of its value. Modern tax forms print a small label inside the box, directly above the typed value, and the grouping step often glues the two together ("Last name Ashdown"), so no label and value pair is formed. This is a domain-shift failure, not a reading failure, and it is the case for a template mode for known forms.</p>
+          <p className="small">The calibrated confidence did transfer: on the fields found here the app showed {f(f20.readers.tesseract?.confidence.meanShown)} on average and {f(f20.readers.tesseract?.confidence.shareRight)} were right (Tesseract reader), so it no longer over-promises on forms it has never seen.</p>
         </div>
       )}
 
