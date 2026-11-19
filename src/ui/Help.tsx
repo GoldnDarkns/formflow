@@ -3,13 +3,14 @@ export function Help() {
     <div className="prose" style={{ maxWidth: 780, margin: '0 auto' }}><div className="card">
       <h1>How to use FormFlow</h1>
       <ol>
+        <li><b>New here?</b> Press "Take the 60-second tour" on the Scan tab. It runs on made-up sample documents.</li>
         <li><b>Scan.</b> Choose or photograph as many pages as you like, in any order. Lay each page flat, fill the frame, avoid shadows and glare.</li>
         <li><b>Let it sort.</b> Each page is stamped with what FormFlow thinks it is and lands in that tray. If the stamp is wrong, open the document and change "Sorted as".</li>
         <li><b>Check.</b> Open a document. Doubtful fields come first. Tap one to see it highlighted on the page with a close-up, fix the text, then tick it.</li>
         <li><b>Export.</b> Download JSON for one document or CSV for all of them.</li>
       </ol>
       <h2>Magic scan</h2>
-      <p>For photos, FormFlow finds the sheet of paper, cuts away everything around it, flattens the perspective and evens out shadows. Use the Photo / Cut out switch above a document to compare. It works best when the page is lighter than the surface it lies on. If no page is found, the image is used as it is.</p>
+      <p>For photos, FormFlow finds the sheet of paper, cuts away everything around it, flattens the perspective and evens out shadows. Use the Photo / Cut out switch above a document to compare, and "Before / after" to drag a divider between the scan and the cleaned page the reader saw. It works best when the page is lighter than the surface it lies on. If no page is found, the image is used as it is.</p>
       <h2>The critic</h2>
       <p>After the sorter decides what a page is, the critic checks the decision three ways: does the page contain what that type should contain, what argues for a different type, and what does a separate vision model think when it looks only at the picture. The vision model is the weaker witness, so it can raise a doubt but never changes the type by itself.</p>
       <h2>PDFs, reports and redacted copies</h2>

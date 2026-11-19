@@ -1,4 +1,4 @@
-// Headless browser test of the built app: drop the 7 sample scans, check the
+// Headless browser test of the built app: drop the sample scans, check the
 // sorting, capture screenshots. usage: node scripts/e2e.mjs [url] [outDir]
 import puppeteer from 'puppeteer-core';
 import fs from 'node:fs';
@@ -26,18 +26,18 @@ await page.goto(url, { waitUntil: 'networkidle0' });
 await sleep(900);
 await page.screenshot({ path: `${out}/1-scan.png` });
 const t0 = Date.now();
-await clickText('Try 8 sample scans');
+await clickText('sample scans');
 await page.waitForSelector('.cutout', { timeout: 60000 });
 await page.waitForFunction(() => document.querySelectorAll('.mini').length >= 2, { timeout: 120000 });
 await sleep(700);
 await page.screenshot({ path: `${out}/2-reading.png` });
-await page.waitForFunction(() => document.querySelectorAll('.mini').length === 7, { timeout: 240000 });
+await page.waitForFunction(() => document.querySelectorAll('.mini').length === 8, { timeout: 240000 });
 await page.waitForSelector('.cutout svg', { timeout: 60000 });
 await sleep(380);
 await page.screenshot({ path: `${out}/2b-cutout.png` });
-await page.waitForFunction(() => document.querySelectorAll('.mini').length === 8 && !document.querySelector('.cutout'), { timeout: 240000 });
+await page.waitForFunction(() => document.querySelectorAll('.mini').length === 9 && !document.querySelector('.cutout'), { timeout: 240000 });
 await sleep(2500);
-console.log('8 documents in', ((Date.now() - t0) / 1000).toFixed(1), 's');
+console.log('9 documents in', ((Date.now() - t0) / 1000).toFixed(1), 's');
 await clickText('Open the trays');
 await sleep(1600);
 await page.screenshot({ path: `${out}/3-trays.png`, fullPage: true });

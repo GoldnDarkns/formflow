@@ -2317,7 +2317,7 @@
   }
  },
  "templates": {
-  "generated": "2026-11-19T17:25:03.678Z",
+  "generated": "2026-11-19T18:06:41.037Z",
   "protocol": "Templates taught from the blank form (printed words as anchors, one labelled box per entry field); tested on the filled copies, each matched against all 20 templates",
   "readers": {
    "tesseract": {
@@ -2328,7 +2328,7 @@
      "typedValues": 522,
      "labelled": 0.7490421455938697,
      "exact": 0.6666666666666666,
-     "msPerPage": 5.3336950000000005
+     "msPerPage": 4.683339999999996
     },
     "clean": {
      "forms": 10,
@@ -2337,7 +2337,7 @@
      "typedValues": 280,
      "labelled": 0.8321428571428572,
      "exact": 0.7928571428571428,
-     "msPerPage": 5.726599999999991
+     "msPerPage": 5.021359999999999
     },
     "scanLike": {
      "forms": 10,
@@ -2346,48 +2346,48 @@
      "typedValues": 242,
      "labelled": 0.6528925619834711,
      "exact": 0.5206611570247934,
-     "msPerPage": 4.94079000000001
+     "msPerPage": 4.345319999999992
     },
     "confidence": {
      "fields": 485,
-     "meanShown": 0.7147835051546377,
+     "meanShown": 0.7956389532580054,
      "shareRight": 0.8061855670103093,
-     "ece": 0.09226804123711402,
+     "ece": 0.09487824047609383,
      "bins": [
       {
        "lo": 0,
        "hi": 0.2,
-       "fields": 76,
-       "meanConfidence": 0.050131578947368416,
-       "correct": 0.2236842105263158
+       "fields": 20,
+       "meanConfidence": 0.07380459486166009,
+       "correct": 0.35
       },
       {
        "lo": 0.2,
        "hi": 0.4,
-       "fields": 29,
-       "meanConfidence": 0.28310344827586204,
-       "correct": 0.27586206896551724
+       "fields": 23,
+       "meanConfidence": 0.30765554300771697,
+       "correct": 0.08695652173913043
       },
       {
        "lo": 0.4,
        "hi": 0.6,
-       "fields": 24,
-       "meanConfidence": 0.5133333333333334,
-       "correct": 0.625
+       "fields": 48,
+       "meanConfidence": 0.5077987914862916,
+       "correct": 0.1875
       },
       {
        "lo": 0.6,
        "hi": 0.8,
-       "fields": 45,
-       "meanConfidence": 0.7111111111111111,
-       "correct": 0.9333333333333333
+       "fields": 59,
+       "meanConfidence": 0.6951702986279258,
+       "correct": 0.711864406779661
       },
       {
        "lo": 0.8,
        "hi": 1,
-       "fields": 311,
-       "meanConfidence": 0.9335369774919604,
-       "correct": 0.9935691318327974
+       "fields": 335,
+       "meanConfidence": 0.9311741293532333,
+       "correct": 0.9880597014925373
       }
      ]
     },
@@ -2660,7 +2660,7 @@
      "typedValues": 522,
      "labelled": 0.9348659003831418,
      "exact": 0.9061302681992337,
-     "msPerPage": 3.140744999999998
+     "msPerPage": 3.155109999999996
     },
     "clean": {
      "forms": 10,
@@ -2669,7 +2669,7 @@
      "typedValues": 280,
      "labelled": 0.9107142857142857,
      "exact": 0.8928571428571429,
-     "msPerPage": 3.5558700000000103
+     "msPerPage": 3.5513999999999952
     },
     "scanLike": {
      "forms": 10,
@@ -2678,13 +2678,13 @@
      "typedValues": 242,
      "labelled": 0.9628099173553719,
      "exact": 0.9214876033057852,
-     "msPerPage": 2.7256199999999864
+     "msPerPage": 2.7588199999999974
     },
     "confidence": {
      "fields": 518,
-     "meanShown": 0.9882083757963716,
+     "meanShown": 0.9935418346118059,
      "shareRight": 0.9420849420849421,
-     "ece": 0.04777183813476393,
+     "ece": 0.0531234347126437,
      "bins": [
       {
        "lo": 0,
@@ -2696,30 +2696,30 @@
       {
        "lo": 0.2,
        "hi": 0.4,
-       "fields": 2,
-       "meanConfidence": 0.28653162717819214,
-       "correct": 0.5
+       "fields": 0,
+       "meanConfidence": 0,
+       "correct": 0
       },
       {
        "lo": 0.4,
        "hi": 0.6,
-       "fields": 3,
-       "meanConfidence": 0.5222177108128866,
-       "correct": 0.3333333333333333
+       "fields": 1,
+       "meanConfidence": 0.5683655738830566,
+       "correct": 1
       },
       {
        "lo": 0.6,
        "hi": 0.8,
-       "fields": 1,
-       "meanConfidence": 0.6441088914871216,
-       "correct": 0
+       "fields": 2,
+       "meanConfidence": 0.6821463877956072,
+       "correct": 0.5
       },
       {
        "lo": 0.8,
        "hi": 1,
-       "fields": 512,
-       "meanConfidence": 0.9943517839535905,
-       "correct": 0.94921875
+       "fields": 515,
+       "meanConfidence": 0.9955767222901772,
+       "correct": 0.9436893203883495
       }
      ]
     },

@@ -32,6 +32,7 @@ interface Props {
   onFiles: (files: { blob: Blob; name: string }[]) => void;
   onOpen: (id: string) => void;
   onSorted: () => void;
+  onTour: () => void;
 }
 
 const SAMPLES = [
@@ -42,8 +43,14 @@ const SAMPLES = [
   ['samples/specimen-driving-licence.jpg', 'Scan 5'],
   ['samples/specimen-emirates-id-back.jpg', 'Scan 6'],
   ['samples/form-report.png', 'Scan 7'],
+  ['samples/form-w9-filled.jpg', 'Scan 8'],
   ['samples/photo-on-desk.jpg', 'Phone photo'],
 ];
+export const SAMPLE_COUNT = SAMPLES.length;
+/** The made-up sample documents shipped with the app. */
+export async function sampleFiles(): Promise<{ blob: Blob; name: string }[]> {
+  return Promise.all(SAMPLES.map(async ([f, name]) => ({ blob: await (await fetch(import.meta.env.BASE_URL + f)).blob(), name })));
+}
 const FAN = [
   { r: -16, c: 'var(--t-visa)' },
   { r: -5, c: 'var(--t-passport)' },
@@ -69,10 +76,7 @@ export function ScanPage(p: Props) {
     }
     p.onFiles(out);
   };
-  const samples = async () => {
-    const files = await Promise.all(SAMPLES.map(async ([f, name]) => ({ blob: await (await fetch(import.meta.env.BASE_URL + f)).blob(), name })));
-    p.onFiles(files);
-  };
+  const samples = async () => p.onFiles(await sampleFiles());
   const mb = (b?: number) => ((b ?? 0) / 1e6).toFixed(0);
 
   return (
@@ -97,7 +101,8 @@ export function ScanPage(p: Props) {
         <div className="row actions">
           <button className="btn primary" onClick={() => fileRef.current?.click()}><IUpload /> Choose images or PDFs</button>
           <button className="btn" onClick={() => camRef.current?.click()}><ICamera /> Take a photo</button>
-          <button className="btn ghost" disabled={busy} onClick={samples}>Try 8 sample scans</button>
+          <button className="btn ghost" disabled={busy} onClick={samples}>Try {SAMPLE_COUNT} sample scans</button>
+          <button className="btn ghost tourbtn" disabled={busy} onClick={p.onTour}><ISpark /> Take the 60-second tour</button>
         </div>
         <input ref={camRef} type="file" accept="image/*" capture="environment" hidden onChange={(e) => { pick(e.target.files); e.target.value = ''; }} />
         <input ref={fileRef} type="file" accept="image/*,application/pdf" multiple hidden onChange={(e) => { pick(e.target.files); e.target.value = ''; }} />
@@ -135,7 +140,7 @@ export function ScanPage(p: Props) {
               <div className="strip">
                 <AnimatePresence initial={false}>
                   {p.recent.map((d) => (
-                    <motion.button key={d.doc.id} className="mini" layout initial={{ opacity: 0, x: -24 }} animate={{ opacity: 1, x: 0 }} transition={{ type: 'spring', stiffness: 300, damping: 26 }} onClick={() => p.onOpen(d.doc.id)}>
+                    <motion.button key={d.doc.id} className="mini" layout initial={{ opacity: 0, y: -70, scale: 1.35, rotate: -5 }} animate={{ opacity: 1, y: 0, scale: 1, rotate: 0 }} transition={{ type: 'spring', stiffness: 260, damping: 22 }} onClick={() => p.onOpen(d.doc.id)}>
                       <div className="thumb"><img src={d.doc.view} alt="" /><Stamp type={d.doc.docType} confidence={d.doc.classification.confidence} /></div>
                       <span>{d.doc.facts.find((f) => f.key === 'Full name')?.value ?? d.doc.fileName}</span>
                     </motion.button>

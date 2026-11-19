@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, MotionConfig, motion } from 'motion/react';
 import { applyTemplate, criticLook, deleteUserTemplate, loadCritic, loadPpReader, loadSecondReader, processDocument, reanalyse, retype, saveUserTemplate, secondRead, warmUp } from './engine/engine';
 import type { Template } from './core/template';
@@ -6,7 +6,8 @@ import type { Quad } from './core/scan';
 import { downloadReport } from './ui/report';
 import { DEFAULT_PRE, type PreprocessOptions } from './core/preprocess';
 import type { DocType } from './core/classify';
-import { ScanPage, type Active, type SecondReaderState } from './ui/ScanPage';
+import { SAMPLE_COUNT, ScanPage, sampleFiles, type Active, type SecondReaderState } from './ui/ScanPage';
+import { Tour, type TourStep } from './ui/Tour';
 import { Sorted } from './ui/Sorted';
 import { ResultView } from './ui/ResultView';
 import { ModelCard } from './ui/ModelCard';
@@ -136,6 +137,36 @@ export default function App() {
     setToast('Template forgotten');
   };
 
+  // ---- guided tour on the sample scans ----
+  const [tour, setTour] = useState<number | null>(null);
+  const activeRef = useRef(active);
+  activeRef.current = active;
+  const queueRef = useRef(queue);
+  queueRef.current = queue;
+  const tourSteps = useMemo<TourStep[]>(() => {
+    const all = () => docsRef.current;
+    const show = (pick: (d: DocState) => boolean) => () => { const d = all().find(pick); if (d) openDoc(d.doc.id); else { setOpen(null); setTab('sorted'); } };
+    const busy = () => !!activeRef.current || queueRef.current.length > 0;
+    return [
+      { title: 'A 60-second tour', body: `FormFlow reads a mixed pile of scans on this device and sorts it. The tour uses ${SAMPLE_COUNT} made-up sample documents: no real person appears, and nothing leaves your browser.`, before: () => { setOpen(null); setTab('scan'); } },
+      {
+        title: 'Reading the pile', target: '.live',
+        body: 'Each page is opened, straightened, read and stamped with its type. A phone photo is cut out of its background first. All of it runs here, in the browser.',
+        before: () => { setOpen(null); setTab('scan'); if (!all().length && !busy()) sampleFiles().then((f) => setQueue((q) => [...q, ...f])).catch(() => setToast('Could not load the samples')); },
+        ready: () => all().length > 0 && !busy(),
+        waiting: () => `Reading the samples: ${all().length} of ${all().length + queueRef.current.length + (activeRef.current ? 1 : 0)} done`,
+      },
+      { title: 'Sorted into trays', target: '.packet', body: 'Five of the documents carry the same name, so FormFlow compares them. Here it caught a date of birth and a name spelling that do not match across documents: the kind of slip that gets an application rejected.', before: () => { setOpen(null); setTab('sorted'); window.scrollTo({ top: 0 }); } },
+      { title: 'How sure is it?', target: '.trust', body: 'Every document gets a trust score. On a passport the long code lines at the bottom carry check digits, so the number, birth date and expiry are verified by arithmetic, not by a guess.', before: show((d) => d.doc.docType === 'passport') },
+      { title: 'A person checks the doubtful ones', target: '.fields', body: 'Doubtful fields come first, each with a close-up from the page. Nothing is accepted on your behalf: you fix the text or tick it. On forms the percentage is calibrated, so 60% means right about 60% of the time.', before: show((d) => d.doc.docType === 'passport') },
+      { title: 'A form it already knows', target: '.tplnote', body: 'This tax form matched a built-in template, so every box is read directly and keeps its proper label. You can teach it your own forms with "Teach this form".', before: show((d) => !!d.doc.template) },
+      { title: 'Ticks, signatures and privacy tools', target: '.viewer', body: 'Checkboxes are read as ticked or not, and a signature line as signed or not. Below the page: "Redact" blacks out numbers and the photo on a copy, "Photo" lets you fix the page corners, and "Before / after" shows what the clean-up did.', before: show((d) => !!d.doc.template) },
+      { title: 'Measured, including the failures', target: '.summary', body: 'The Model card reports every result from the evaluation scripts: reading accuracy, calibration before and after, the 20-form test set, and where the system fails. Nothing here is a promise it cannot back.', before: () => { setOpen(null); setTab('model'); window.scrollTo({ top: 0 }); } },
+      { title: 'Your turn', body: 'Drop in your own scans or PDFs, or take a photo. Use only documents you have the right to use. Everything stays on this device until you export it.', before: () => { setOpen(null); setTab('scan'); window.scrollTo({ top: 0 }); } },
+    ];
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (new URLSearchParams(location.search).has('tour')) setTour(0); }, []);
+
   const nav: [Tab, string, typeof IScan][] = [['scan', 'Scan', IScan], ['sorted', 'Trays', IList], ['model', 'Model card', IChart], ['help', 'Help', IHelp]];
 
   return (
@@ -157,7 +188,7 @@ export default function App() {
             <motion.div key={tab + (tab === 'sorted' ? open ?? '' : '')} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.14 }}>
               {tab === 'scan' && (
                 <ScanPage pre={pre} setPre={setPre} second={second} toggleSecond={toggleSecond} critic={critic} setCritic={setCritic} active={active} queue={queue.length} recent={docs}
-                  onFiles={(fs) => setQueue((q) => [...q, ...fs])} onOpen={openDoc} onSorted={() => { setOpen(null); setTab('sorted'); }} />
+                  onFiles={(fs) => setQueue((q) => [...q, ...fs])} onOpen={openDoc} onSorted={() => { setOpen(null); setTab('sorted'); }} onTour={() => setTour(0)} />
               )}
               {tab === 'sorted' && !current && (
                 <Sorted docs={docs} onOpen={openDoc} onScan={() => setTab('scan')} onExportCsv={() => download('formflow-export.csv', exportCsv(docs), 'text/csv')} onReport={() => downloadReport(docs)} />
@@ -188,6 +219,7 @@ export default function App() {
             </motion.div>
           </AnimatePresence>
         </main>
+        {tour !== null && <Tour steps={tourSteps} index={tour} onIndex={setTour} onClose={() => setTour(null)} />}
         <AnimatePresence>{toast && <motion.div className="toast" role="status" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 16 }}>{toast}</motion.div>}</AnimatePresence>
       </div>
     </MotionConfig>

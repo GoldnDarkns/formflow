@@ -4,11 +4,31 @@ FormFlow is an installable web app (PWA) that turns scanned forms, passports, ID
 
 MAIB AI 221 Computer Vision with Applications, Final Project 9 (Public sector).
 
+**Live app:** https://goldndarkns.github.io/formflow/ · **Guided tour (about a minute, uses made-up sample documents):** https://goldndarkns.github.io/formflow/?tour
+
 | | |
 |---|---|
 | **User** | A back-office clerk digitising application forms and identity documents |
 | **Decision supported** | Which extracted values can go straight into the system, and which need a human check |
 | **Cost of an error** | A wrong passport number or date of birth on a file means rework or a rejected application, so uncertain fields are always flagged instead of silently accepted |
+
+## Added after the first version
+
+All numbers are on the Model card tab of the app and in `public/eval/results.json`.
+
+| Addition | What it does | Measured |
+|---|---|---|
+| Calibrated confidence | The percentage on a form field is fitted (isotonic regression on the FUNSD training split) to match how often such fields are right | Calibration error 42.1% → 4.6% (Tesseract), 44.6% → 8.2% (PP-OCRv5) on the test split |
+| 20-form test set | 20 public US federal forms filled with invented data, half degraded to look scanned (`testsets/forms20`) | Text read 79.5% / 93.7%; right label and value only 7.7% / 6.1% without a template |
+| Template mode | Teach a form once (printed words + labelled boxes); later copies are recognised, aligned and read box by box | Right label and value 74.9% / 93.5%; right template 20 of 20 |
+| Checkboxes | Square outlines found and read by the ink inside | 93.9% found and read right without a template, 100% with one (196 boxes) |
+| Signatures | Pen strokes by the "Signature" caption: signed or not signed, never whose | 72.7% without a template, 87.9% with one (33 lines, synthetic scribbles) |
+| Redaction | Covers the ID photo (a guess) and lets the person draw extra black boxes | Tried on the synthetic specimens only |
+| Manual page corners | Drag the four corners on the photo and read the page again | Tried by hand |
+| Guided tour, before/after slider | A spotlight tour on the samples; a divider to compare the scan with what the reader saw | n/a |
+| Unit tests | `npm test`, 24 tests on the core, run before every deploy | n/a |
+
+Honest limits: identity documents are tested only on synthetic specimens; the ticks and signatures in the test set are machine-made; the layout models do not transfer to modern boxed forms without a template; the document sorter is rule-based.
 
 ## What it does
 

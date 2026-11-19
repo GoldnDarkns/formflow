@@ -28,7 +28,7 @@ This file is the full context for continuing the project. It was built in a Clau
 
 ## First tasks (nothing below has been done yet)
 
-1. `npm install`, then `npm run dev` and check the app loads and the 8 sample scans sort correctly ("Try 8 sample scans").
+1. `npm install`, then `npm run dev` and check the app loads and the 9 sample scans sort correctly ("Try 9 sample scans"; the ninth is a filled W-9 that shows template mode).
 2. `git init -b main`, commit, create a **public** GitHub repo and push (`gh repo create formflow --public --source . --push`).
 3. On GitHub: Settings → Pages → Source: GitHub Actions. The workflow in `.github/workflows/deploy.yml` builds and publishes on every push to `main`. Confirm the live URL works on a phone.
 4. Test with the owner's real documents (his own, or with consent). Keep them outside the repo in `../data/own/<type>/`. Never commit them.
@@ -99,7 +99,7 @@ src/core/         pure TypeScript, shared by the browser and the Node scripts (n
   florence.ts     Florence-2 OCR_WITH_REGION wrapper with tiling
   classifier.ts   ONNX Runtime wrapper for the two tree models (web and node)
 src/engine/       browser orchestration: engine.ts plus workers (preprocess, ocr, florence, critic) and pdf.ts
-src/ui/           React UI: ScanPage, Sorted (trays), ResultView, DocViewer, ModelCard, Help, bits (Ring, Stamp, CutOut), state, report
+src/ui/           React UI: ScanPage, Sorted (trays), ResultView, DocViewer, ModelCard, Help, Tour (guided tour, also `?tour` in the URL), bits (Ring, Stamp, CutOut), state, report
 scripts/          OCR caching, dataset building, training, tree2onnx.py, evaluation, browser tests
 public/models/    entity_gbdt.onnx, link_gbdt.onnx, critic-text.json, ppocr/
 public/eval/      results.json (evaluation output shown in the app)
@@ -165,6 +165,8 @@ Exact numbers are in `public/eval/results.json`.
 9. Template mode is built (`core/template.ts`, built-in library of the 20 public forms, "Teach this form" in the viewer, user templates in localStorage `ff.templates`). Checkbox and signature detection are built (`core/marks.ts`, fields with source `mark`); ticks in the test set are PDF tick marks and signatures are synthetic scribbles, so real pen marks are untested, and signatures are only reported as present or absent. Template limits: library labels are auto-derived from the PDF text above each box and some are clumsy; digit-cell boxes read poorly with Tesseract; teaching was tried in the browser on one FUNSD sample only; a template field's confidence is the lowest word confidence, not calibrated.
 10. 16 unit tests for `src/core` in `tests/` (`npm test`, run in CI). No UI tests beyond the headless browser scripts in `scripts/`.
 11. Report, 1-page model card document, demo video and presentation are not started.
+12. Batch 3 (looks) added 19 Nov 2026: guided tour, before/after slider in the viewer, a ninth sample, page-drop animation. Checked in the built-in browser at desktop and 375 px wide; not on a real phone. Note for testing: the in-app Browser pane pauses animations when hidden, so page transitions stall and scripted clicks misfire unless the pane is shown.
+13. Template field confidence is the mean word confidence (was the minimum); still not calibrated.
 
 ## Privacy and licences
 

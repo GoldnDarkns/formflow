@@ -167,12 +167,13 @@ export function readTemplate(match: TemplateMatch, words: OcrWord[], W: number, 
     const qId = entities.length;
     entities.push({ id: qId, text: s.label, box: [box[0], box[1], box[0] + 1, box[1] + 1], words: [], label: 'question', probs: [1, 0, 0, 0] });
     const value = vals.map((w) => w.text).join(' ');
-    const ocr = vals.length ? Math.min(...vals.map((w) => w.conf)) / 100 : 0;
+    // mean, not minimum: one stray speck read as a word should not sink a box that is otherwise read cleanly
+    const ocr = vals.length ? vals.reduce((a, w) => a + w.conf, 0) / vals.length / 100 : 0;
     const aId = entities.length;
     entities.push({ id: aId, text: value, box, words: vals, label: 'answer', probs: [0, 1, 0, 0] });
     links.push({ q: qId, a: aId, p: match.score });
     const reasons: string[] = [];
-    if (value && ocr < 0.7) reasons.push('Low OCR confidence');
+    if (value && (ocr < 0.7 || Math.min(...vals.map((w) => w.conf)) < 40)) reasons.push('Low OCR confidence');
     fields.push({
       key: s.label, value, qId, aId,
       confidence: value ? ocr : 0.5,

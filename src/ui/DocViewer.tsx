@@ -54,6 +54,13 @@ export function DocViewer({ s, selected, onSelect, onTeach, onCorners }: Props) 
   const svgRef = useRef<SVGSVGElement>(null);
   const drag = useRef<{ x: number; y: number } | null>(null);
   const nextId = useRef(1);
+  // before / after: a divider the person drags across the page to compare the scan with what the reader saw
+  const [split, setSplit] = useState(50);
+  const pageRef = useRef<HTMLDivElement>(null);
+  const moveSplit = (ev: React.PointerEvent) => {
+    const r = pageRef.current!.getBoundingClientRect();
+    setSplit(Math.min(100, Math.max(0, ((ev.clientX - r.left) / r.width) * 100)));
+  };
   // corner mode: drag the four page corners on the photo, then read the page again
   const FULL: Quad = [[0.04, 0.04], [0.96, 0.04], [0.96, 0.96], [0.04, 0.96]];
   const [corners, setCorners] = useState<Quad | null>(null);
@@ -147,7 +154,7 @@ export function DocViewer({ s, selected, onSelect, onTeach, onCorners }: Props) 
         <div className="seg">
           {(doc.quad || onCorners) && <button className={mode === 'photo' ? 'on' : ''} onClick={() => { setMode('photo'); setRedact(false); setTeach(false); }}>Photo</button>}
           <button className={mode === 'page' ? 'on' : ''} onClick={() => setMode('page')}>{doc.quad ? 'Cut out' : 'Page'}</button>
-          <button className={mode === 'reader' ? 'on' : ''} onClick={() => setMode('reader')}>What the reader saw</button>
+          <button className={mode === 'reader' ? 'on' : ''} onClick={() => { setMode('reader'); setSplit(50); setRedact(false); setTeach(false); }}>Before / after</button>
         </div>
       </div>
       {redact && (
@@ -200,8 +207,9 @@ export function DocViewer({ s, selected, onSelect, onTeach, onCorners }: Props) 
           ))}
         </div>
       ) : (
-      <div className="docwrap">
-        <img src={processed ? doc.processedView : doc.view} alt="Scanned document" />
+      <div className="docwrap" ref={pageRef}>
+        <img src={processed ? doc.processedView : doc.view} alt={processed ? 'The cleaned page the reader saw' : 'Scanned document'} />
+        {processed && <img className="cmp" src={doc.view} alt="The scan before clean-up" style={{ clipPath: `inset(0 ${100 - split}% 0 0)` }} />}
         <svg ref={svgRef} viewBox={`0 0 ${doc.width} ${doc.height}`} preserveAspectRatio="none" style={redact || teach ? { touchAction: 'none' } : undefined}>
           {/* in redact mode, dragging on empty page draws a new black box */}
           {(redact || teach) && <rect x={0} y={0} width={doc.width} height={doc.height} fill="transparent" style={{ cursor: 'crosshair' }} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp} />}
@@ -215,12 +223,12 @@ export function DocViewer({ s, selected, onSelect, onTeach, onCorners }: Props) 
           {layers.second && doc.second?.map((r, i) => (
             <rect key={'s' + i} x={r.box[0]} y={r.box[1]} width={r.box[2] - r.box[0]} height={r.box[3] - r.box[1]} fill="none" stroke="var(--t-visa)" strokeWidth={lw} strokeDasharray={`${lw * 3} ${lw * 2}`} />
           ))}
-          {layers.links && !teach && analysis.links.filter((l) => ents[l.q].words.length > 0).map((l, i) => {
+          {layers.links && !teach && !processed && analysis.links.filter((l) => ents[l.q].words.length > 0).map((l, i) => {
             const q = ents[l.q].box, a = ents[l.a].box;
             const right = a[0] >= q[2] - 5;
             return <line key={i} x1={right ? q[2] : cx(q)} y1={right ? cy(q) : q[3]} x2={right ? a[0] : cx(a)} y2={right ? cy(a) : a[1]} stroke="var(--ink-3)" strokeWidth={lw * 1.2} opacity={0.35 + 0.65 * l.p} markerEnd="url(#arr)" />;
           })}
-          {layers.boxes && !teach && ents.filter((e) => e.box[2] - e.box[0] > 2).map((e) => {
+          {layers.boxes && !teach && !processed && ents.filter((e) => e.box[2] - e.box[0] > 2).map((e) => {
             const warn = reviewA.has(e.id);
             return (
               <rect key={e.id} x={e.box[0] - 2} y={e.box[1] - 2} width={e.box[2] - e.box[0] + 4} height={e.box[3] - e.box[1] + 4} rx={3}
@@ -246,6 +254,17 @@ export function DocViewer({ s, selected, onSelect, onTeach, onCorners }: Props) 
           ))}
           {(redact || teach) && draft && <rect x={draft[0]} y={draft[1]} width={draft[2] - draft[0]} height={draft[3] - draft[1]} fill="#000" fillOpacity={0.6} stroke="var(--marker)" strokeWidth={lw} pointerEvents="none" />}
         </svg>
+        {processed && (
+          <>
+            <span className="cmp-tag l" style={{ opacity: split > 14 ? 1 : 0 }}>Scan</span>
+            <span className="cmp-tag r" style={{ opacity: split < 78 ? 1 : 0 }}>What the reader saw</span>
+            <div className="cmp-bar" style={{ left: `${split}%` }} role="slider" tabIndex={0} aria-label="Compare the scan with what the reader saw" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(split)}
+              onPointerDown={(ev) => { ev.currentTarget.setPointerCapture(ev.pointerId); moveSplit(ev); }} onPointerMove={(ev) => ev.currentTarget.hasPointerCapture(ev.pointerId) && moveSplit(ev)}
+              onKeyDown={(ev) => { if (ev.key === 'ArrowLeft') setSplit((v) => Math.max(0, v - 4)); if (ev.key === 'ArrowRight') setSplit((v) => Math.min(100, v + 4)); }}>
+              <i />
+            </div>
+          </>
+        )}
       </div>
       )}
       <div className="row" style={{ justifyContent: 'space-between' }}>
