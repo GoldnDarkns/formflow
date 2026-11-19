@@ -3310,5 +3310,58 @@
     "signatureOk": 2
    }
   ]
+ },
+ "sorter_real": {
+  "generated": "2026-11-19T19:33:37.197Z",
+  "pipeline": {
+   "sortedRightWithShippedModel": 42,
+   "turnedUpright": 3,
+   "codeLinePages": 14,
+   "codeLinesFound": 13,
+   "codeLinesAllChecksPass": 8,
+   "medianMsPerPage": 3086
+  },
+  "firstRun": {
+   "sortedRight": 28,
+   "codeLinesAllChecksPass": 4,
+   "turnedUpright": 0
+  },
+  "note": "Real identity documents, used with consent and kept outside the repository. Only counts are published. Learned = leave-one-out: each document is sorted by a model that never saw it.",
+  "documents": 48,
+  "publicForms": 169,
+  "byType": {
+   "driving_licence": {
+    "n": 21,
+    "rules": 16,
+    "learned": 16
+   },
+   "emirates_id": {
+    "n": 11,
+    "rules": 10,
+    "learned": 10
+   },
+   "form": {
+    "n": 1,
+    "rules": 1,
+    "learned": 1
+   },
+   "other": {
+    "n": 1,
+    "rules": 0,
+    "learned": 0
+   },
+   "passport": {
+    "n": 8,
+    "rules": 7,
+    "learned": 7
+   },
+   "vehicle_licence": {
+    "n": 6,
+    "rules": 6,
+    "learned": 6
+   }
+  },
+  "handRules": 0.8333333333333334,
+  "learnedLeftOut": 0.8333333333333334
  }
 }

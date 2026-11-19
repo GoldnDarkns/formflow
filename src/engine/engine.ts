@@ -15,6 +15,7 @@ import type { Quad } from '../core/scan';
 import type { VisionOpinion } from '../core/critic-vision';
 import type { PreRequest, PreResponse } from './preprocess.worker';
 
+import { believableMrz, mrzCrops, readingQuality, TURNS, TURN_GAIN, UPRIGHT_MIN } from '../core/orient';
 import { matchTemplate, readTemplate, templateChecks, templateWords, type Template, type TemplateMatch } from '../core/template';
 import { checkState, checkboxLabel, dropLetterBoxes, findCheckboxes, findSignatures, isSignatureCaption } from '../core/marks';
 import type { Box, Field } from '../core/types';
@@ -34,6 +35,7 @@ export interface Step {
 export interface DocResult {
   source: Blob; // the file as given, kept in memory so the page can be read again with corrected corners
   manualQuad?: boolean; // the corners were set by hand
+  turned: number; // degrees the photo was turned to read it upright (0, 90, 180, 270)
   template?: TemplateMatch; // set when the page was read with a known-form template
   kind: 'form' | 'id';
   docType: DocType;
@@ -234,26 +236,28 @@ function mrzBand(words: OcrWord[], scale: number, H: number): [number, number] |
 const mrzScore = (m: MrzResult | null) => (m ? m.checks.filter((c) => c.ok).length + (m.valid ? 10 : 0) : -1);
 
 /**
- * Read the MRZ from several crops (tight band, a taller band that catches an ID
- * card's filler-free first line, and the binarised image) and keep the reading
- * whose check digits agree best. Stops as soon as every check digit passes.
+ * Read the code lines from several crops (where the first pass saw rows of "<",
+ * the bottom quarter, the bottom 40%; each from the grey page and from the
+ * cleaned black-and-white page) and keep the reading whose check digits agree
+ * best. Stops as soon as every check digit passes, so a clean passport costs
+ * one extra read and only hard pages cost more.
  */
-async function readMrz(sources: HTMLCanvasElement[], band: [number, number]): Promise<MrzResult | null> {
-  const [y0, y1] = band;
-  const lineH = (y1 - y0) / 3;
-  const bands: [number, number][] = [[y0, y1], [Math.max(0, y0 - lineH * 1.5), y1]];
+async function readMrz(gray: HTMLCanvasElement, clean: HTMLCanvasElement, band: [number, number] | null, nWords: number): Promise<MrzResult | null> {
+  const crops = mrzCrops(band, gray.height, nWords);
+  if (!crops.length) return null;
   const w = await tesseractMrz();
   let best: MrzResult | null = null;
-  for (const src of sources)
-    for (const [a, b] of bands) {
-      const c = canvas(src.width, Math.round(b - a));
-      c.getContext('2d')!.drawImage(src, 0, a, src.width, b - a, 0, 0, src.width, b - a);
-      const { data } = await w.recognize(c);
-      const lines = findMrzLines(data.text);
-      const m = lines.length >= 2 ? parseMrz(lines) : null;
-      if (mrzScore(m) > mrzScore(best)) best = m;
-      if (best?.valid) return best;
-    }
+  for (const cr of crops) {
+    const src = cr.binarised ? clean : gray;
+    const h = Math.max(1, cr.y1 - cr.y0);
+    const c = canvas(src.width, h);
+    c.getContext('2d')!.drawImage(src, 0, cr.y0, src.width, h, 0, 0, src.width, h);
+    const { data } = await w.recognize(c);
+    const lines = findMrzLines(data.text);
+    const m = lines.length >= 2 ? parseMrz(lines) : null;
+    if (believableMrz(m, !!band) && mrzScore(m) > mrzScore(best)) best = m;
+    if (best?.valid) return best;
+  }
   return best;
 }
 
@@ -265,7 +269,7 @@ function shrink(c: HTMLCanvasElement, max: number) {
   return o;
 }
 
-export async function processDocument(file: Blob, fileName: string, opts: PreprocessOptions, onStep: (s: Step[]) => void, onLive?: (l: Live) => void, manualQuad?: Quad): Promise<DocResult> {
+export async function processDocument(file: Blob, fileName: string, opts: PreprocessOptions, onStep: (s: Step[]) => void, onLive?: (l: Live) => void, manualQuad?: Quad, turn = 0): Promise<DocResult> {
   const t0 = performance.now();
   const steps: Step[] = [
     { name: 'Open image', state: 'running' },
@@ -287,7 +291,7 @@ export async function processDocument(file: Blob, fileName: string, opts: Prepro
   sctx.fillStyle = '#fff';
   sctx.fillRect(0, 0, W0, H0);
   sctx.drawImage(bmp, 0, 0, W0, H0);
-  const original = shrink(src, 900).toDataURL('image/jpeg', 0.7);
+  let original = shrink(src, 900).toDataURL('image/jpeg', 0.7);
   onLive?.({ original });
   const rgba = sctx.getImageData(0, 0, W0, H0).data.buffer as ArrayBuffer;
   upd(0, { state: 'done', ms: performance.now() - t, detail: `${W0}×${H0}` });
@@ -295,41 +299,79 @@ export async function processDocument(file: Blob, fileName: string, opts: Prepro
   upd(1, { state: 'running' });
   const tessP = tesseract();
   const clfP = classifiers();
-  // corners dragged by the person (0..1 of the photo) replace the automatic page finder
-  const p = await runPre({ rgba, width: W0, height: H0, opts, quad: manualQuad ? (manualQuad.map(([x, y]) => [x * W0, y * H0]) as Quad) : undefined });
-  const W = p.baseW, H = p.baseH;
-  const quad = p.quad ? (p.quad.map(([x, y]) => [x / W0, y / H0]) as Quad) : null;
-
-  // colour view of the flattened page, rotated by the skew angle so overlays line up
-  const flat = rgbaToCanvas(p.color, W, H);
-  const view = canvas(W, H);
-  const vctx = view.getContext('2d')!;
-  vctx.fillStyle = '#fff';
-  vctx.fillRect(0, 0, W, H);
-  vctx.translate(W / 2, H / 2);
-  vctx.rotate((-p.skew * Math.PI) / 180);
-  vctx.drawImage(flat, -W / 2, -H / 2);
-  const viewUrl = view.toDataURL('image/jpeg', 0.9);
-  onLive?.({ quad, flat: viewUrl });
-  upd(1, { state: 'done', ms: p.ms, detail: [quad ? 'page cut out' : '', p.lit ? 'lighting fixed' : '', p.skew ? `straightened ${Math.abs(p.skew).toFixed(1)}°` : ''].filter(Boolean).join(', ') || 'already clean' });
-  // give the cut-out animation a moment on screen when a page was found
-  if (quad) await new Promise((r) => setTimeout(r, 900));
-  const ocrCanvas = rgbaToCanvas(p.ocr, p.width, p.height);
-
-  t = performance.now();
-  upd(2, { state: 'running' });
-  let words: OcrWord[];
-  let readBy = 'Tesseract';
-  if (opts.reader === 'ppocr') {
-    // neural reader works on the deskewed grayscale page (it does not want a binarised image)
-    const r = await ppRead(p.gray.slice(0), p.width, p.height);
-    words = cleanWords(r.words.map((w) => ({ ...w, box: w.box.map((v) => v / p.scale) as OcrWord['box'] })));
-    readBy = `PP-OCRv5 on ${r.device === 'webgpu' ? 'GPU' : 'CPU'}`;
+  // one full reading of the page as it stands: find it, flatten it, clean it, read it
+  const readPage = async (buf: ArrayBuffer, w0: number, h0: number, first: boolean) => {
+    // corners dragged by the person (0..1 of the photo) replace the automatic page finder
+    const p = await runPre({ rgba: buf, width: w0, height: h0, opts, quad: manualQuad ? (manualQuad.map(([x, y]) => [x * w0, y * h0]) as Quad) : undefined });
+    const W = p.baseW, H = p.baseH;
+    const quad = p.quad ? (p.quad.map(([x, y]) => [x / w0, y / h0]) as Quad) : null;
+    // colour view of the flattened page, rotated by the skew angle so overlays line up
+    const flat = rgbaToCanvas(p.color, W, H);
+    const view = canvas(W, H);
+    const vctx = view.getContext('2d')!;
+    vctx.fillStyle = '#fff';
+    vctx.fillRect(0, 0, W, H);
+    vctx.translate(W / 2, H / 2);
+    vctx.rotate((-p.skew * Math.PI) / 180);
+    vctx.drawImage(flat, -W / 2, -H / 2);
+    const viewUrl = view.toDataURL('image/jpeg', 0.9);
+    if (first) {
+      onLive?.({ quad, flat: viewUrl });
+      upd(1, { state: 'done', ms: p.ms, detail: [quad ? 'page cut out' : '', p.lit ? 'lighting fixed' : '', p.skew ? `straightened ${Math.abs(p.skew).toFixed(1)}°` : ''].filter(Boolean).join(', ') || 'already clean' });
+      // give the cut-out animation a moment on screen when a page was found
+      if (quad) await new Promise((r) => setTimeout(r, 900));
+      t = performance.now();
+      upd(2, { state: 'running' });
+    }
+    const ocrCanvas = rgbaToCanvas(p.ocr, p.width, p.height);
+    let words: OcrWord[];
+    let readBy = 'Tesseract';
+    if (opts.reader === 'ppocr') {
+      // neural reader works on the deskewed grayscale page (it does not want a binarised image)
+      const r = await ppRead(p.gray.slice(0), p.width, p.height);
+      words = cleanWords(r.words.map((w) => ({ ...w, box: w.box.map((v) => v / p.scale) as OcrWord['box'] })));
+      readBy = `PP-OCRv5 on ${r.device === 'webgpu' ? 'GPU' : 'CPU'}`;
+    } else {
+      const tw = await tessP;
+      const { data } = await tw.recognize(ocrCanvas, {}, { blocks: true });
+      words = cleanWords(wordsFromTesseract(data.blocks as any, p.scale));
+    }
+    return { p, W, H, quad, viewUrl, ocrCanvas, words, readBy };
+  };
+  const turnedCanvas = (deg: number) => {
+    const swap = deg % 180 !== 0;
+    const c = canvas(swap ? H0 : W0, swap ? W0 : H0);
+    const x = c.getContext('2d', { willReadFrequently: true })!;
+    x.translate(c.width / 2, c.height / 2);
+    x.rotate((deg * Math.PI) / 180);
+    x.drawImage(src, -W0 / 2, -H0 / 2);
+    return c;
+  };
+  let turned = turn;
+  let page: Awaited<ReturnType<typeof readPage>>;
+  if (turn) {
+    // the caller already knows which way up this page goes (re-reading with corrected corners)
+    const c = turnedCanvas(turn);
+    original = shrink(c, 900).toDataURL('image/jpeg', 0.7);
+    page = await readPage(c.getContext('2d')!.getImageData(0, 0, c.width, c.height).data.buffer as ArrayBuffer, c.width, c.height, true);
   } else {
-    const tw = await tessP;
-    const { data } = await tw.recognize(ocrCanvas, {}, { blocks: true });
-    words = cleanWords(wordsFromTesseract(data.blocks as any, p.scale));
+    page = await readPage(rgba, W0, H0, true);
+    // photographed sideways or upside down? almost no clean words come out, so turn it and read again
+    if (readingQuality(page.words) <= UPRIGHT_MIN && !manualQuad) {
+      for (const deg of TURNS) {
+        const c = turnedCanvas(deg);
+        const alt = await readPage(c.getContext('2d')!.getImageData(0, 0, c.width, c.height).data.buffer as ArrayBuffer, c.width, c.height, false);
+        if (readingQuality(alt.words) >= readingQuality(page.words) + TURN_GAIN) {
+          page = alt; turned = deg;
+          original = shrink(c, 900).toDataURL('image/jpeg', 0.7);
+          onLive?.({ original, quad: alt.quad, flat: alt.viewUrl });
+          if (readingQuality(alt.words) >= 8) break;
+        }
+      }
+    }
   }
+  const { p, W, H, quad, viewUrl, ocrCanvas, words } = page;
+  const readBy = page.readBy + (turned ? `, turned ${turned}°` : '');
   upd(2, { state: 'done', ms: performance.now() - t, detail: `${words.length} words, ${readBy}` });
 
   // machine-readable zone first: it is the strongest clue to the document type
@@ -337,7 +379,7 @@ export async function processDocument(file: Blob, fileName: string, opts: Prepro
   upd(3, { state: 'running' });
   let mrz: MrzResult | null = null;
   const band = mrzBand(words, p.scale, p.height);
-  if (band) mrz = await readMrz([rgbaToCanvas(p.gray, p.width, p.height), ocrCanvas], band);
+  mrz = await readMrz(rgbaToCanvas(p.gray, p.width, p.height), ocrCanvas, band, words.length);
   let cls = classifyDocument(words, W, H, mrz);
   // a page whose printed words line up with a known form is that form, whatever the sorter thought
   const tm = mrz?.valid ? null : matchTemplate(await templates(), words, W, H);
@@ -357,6 +399,7 @@ export async function processDocument(file: Blob, fileName: string, opts: Prepro
   return {
     source: file,
     manualQuad: !!manualQuad,
+    turned,
     template: tm ?? undefined,
     kind,
     docType: cls.type,

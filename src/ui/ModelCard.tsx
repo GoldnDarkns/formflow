@@ -78,6 +78,7 @@ export function ModelCard() {
   const f20 = r.forms20;
   const tpl = r.templates;
   const marks = r.marks;
+  const real = r.sorter_real;
   const flo = (Object.entries(e2e).find(([k]) => k.endsWith('florence_1x2')) ?? Object.entries(e2e).find(([k]) => k.startsWith('gradient_boosting_with_florence'))) as [string, any] | undefined;
 
   return (
@@ -174,7 +175,7 @@ export function ModelCard() {
       {r.doc_type && (
         <div className="card">
           <h2>Recognising the document type</h2>
-          <p className="small">Each page is sorted as passport, Emirates ID, ID card, driving licence, visa, form or other, from the machine-readable zone, tell-tale text and page layout. The confidence is a softmax over the evidence weights.</p>
+          <p className="small">Each page is sorted as passport, Emirates ID, ID card, driving licence, vehicle licence, visa, form or other, from the machine-readable zone, tell-tale text and page layout. The confidence is a softmax over the evidence weights.</p>
           <div className="summary">
             <div className="stat"><b>{f(r.doc_type.funsd_forms.accuracy, 0)}</b><span>of {r.doc_type.funsd_forms.pages} FUNSD forms sorted as "form"</span></div>
             <div className="stat"><b>{f(r.doc_type.funsd_forms.meanConfidence, 0)}</b><span>mean confidence on those forms</span></div>
@@ -297,6 +298,28 @@ export function ModelCard() {
             </tbody>
           </table></div>
           <p className="small">Limits, stated plainly: the ticks are the PDF's own tick marks and the signatures are synthetic pen scribbles drawn by a script, so real pens, stamps and faint marks are untested. Without a template a signature is only looked for where the reader finds the word "Signature", which it misses on about one line in five here; a template knows the place from the blank form. The app reports whether a line is signed. It does not compare or verify signatures.</p>
+        </div>
+      )}
+
+      {real?.documents && (
+        <div className="card">
+          <h2>First test on real documents</h2>
+          <p className="small">Everything above was measured on public forms and made-up specimens. This section is the first test on real identity documents: {real.documents} pages (driving licences, Emirates IDs, passports, vehicle licences) supplied by the project owner with the holders' consent. Many are phone photos; some are sideways, blurred or have glare. The documents stay on the owner's computer and only the counts below are published.</p>
+          <div className="summary">
+            <div className="stat"><b>{real.firstRun.sortedRight}/{real.documents} → {real.pipeline?.sortedRightWithShippedModel}/{real.documents}</b><span>pages sorted into the right type, first run → now</span></div>
+            <div className="stat"><b>{real.firstRun.codeLinesAllChecksPass}/{real.pipeline?.codeLinePages} → {real.pipeline?.codeLinesAllChecksPass}/{real.pipeline?.codeLinePages}</b><span>code-line pages where every check digit passes</span></div>
+            <div className="stat"><b>{f(real.learnedLeftOut, 0)}</b><span>sorted right when the page was left out of training</span></div>
+          </div>
+          <div className="tablewrap"><table className="metrics">
+            <thead><tr><th>True type</th><th className="num">Pages</th><th className="num">Hand-set rules</th><th className="num">Learned, page left out</th></tr></thead>
+            <tbody>
+              {Object.entries(real.byType).map(([t, v]: [string, any]) => (
+                <tr key={t}><td>{t.replace(/_/g, ' ')}</td><td className="num">{v.n}</td><td className="num">{v.rules}/{v.n}</td><td className="num">{v.learned}/{v.n}</td></tr>
+              ))}
+            </tbody>
+          </table></div>
+          <p className="small"><b>What the first run exposed, and what was changed:</b> pages photographed sideways came out as noise, so a page with almost no clean words is now turned and read again ({real.pipeline?.turnedUpright} pages were turned). Passport code lines were often missed, so the app now tries several crops and keeps the reading whose check digits add up. The sorter did not know vehicle licences, international permits or non-English titles; its clues were extended and its weights are now fitted on these documents plus {real.publicForms} public forms, pulled towards the hand-set rules so types with no real examples keep working.</p>
+          <p className="small"><b>How far to trust these numbers:</b> the clues were revised after looking at these same pages, so "hand-set rules" here is optimistic, and the learned weights do no better than those revised rules on the left-out pages. The fairer figures are the left-out one and, better, a separate set of documents not used at all, which has not been run yet. On the 50 public test forms, which were never used for fitting, the learned sorter gets 50 right and the hand-set rules 47. What still fails is reading, not sorting: blur, glare and the backs of cards that are mostly numbers.</p>
         </div>
       )}
 

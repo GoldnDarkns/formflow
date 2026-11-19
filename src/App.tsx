@@ -119,7 +119,7 @@ export default function App() {
     const old = current.doc.id;
     setToast('Reading the page again…');
     try {
-      const doc = await processDocument(current.doc.source, current.doc.fileName, pre, () => {}, undefined, q);
+      const doc = await processDocument(current.doc.source, current.doc.fileName, pre, () => {}, undefined, q, current.doc.turned);
       const st: DocState = { doc, analysis: doc.analysis, fields: toEditable(doc.analysis.fields), second: 'none' };
       st.fields = markMrz(st);
       setDocs((ds) => ds.map((d) => (d.doc.id === old ? st : d)));

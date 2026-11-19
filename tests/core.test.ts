@@ -2,6 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
+import fs from 'node:fs';
 import { checkDigit, parseMrz, findMrzLines } from '../src/core/mrz';
 import { parseDate, luhnOk } from '../src/core/facts';
 import { levenshtein, similarity, substringDistance, scoreOcr } from '../src/core/ocr';
@@ -264,4 +265,50 @@ test('ZIP input: images and PDFs come out in name order; folders, hidden files a
   assert.deepEqual(out.map((e) => e.pdf), [true, false, false]);
   assert.equal(out[1].blob.type, 'image/png');
   assert.equal(out[2].blob.size, 3);
+});
+
+
+// ---------- lessons from real documents ----------
+import { believableMrz, mrzCrops, readingQuality } from '../src/core/orient';
+import { CLUES, priorModel, sorterFeatures, classifyFeatures } from '../src/core/classify';
+
+test('a sideways page reads as almost no clean words', () => {
+  const upright = ['Driving', 'Licence', 'Name', 'Nationality', 'Date', 'Birth'].map((t, i) => ({ ...W(t, 40, 40 + i * 30), conf: 92 }));
+  const sideways = ['lI', 'rn', '1l|', 'VVe', 'ii'].map((t, i) => ({ ...W(t, 40, 40 + i * 30), conf: 35 }));
+  assert.ok(readingQuality(upright) >= 4);
+  assert.equal(readingQuality(sideways), 0);
+});
+
+test('code lines found only by searching the page bottom need two passing check digits', () => {
+  const junk = { valid: false, checks: [{ ok: false }, { ok: true }, { ok: false }] };
+  const good = { valid: false, checks: [{ ok: true }, { ok: true }, { ok: false }] };
+  assert.equal(believableMrz(junk, false), false);
+  assert.equal(believableMrz(good, false), true);
+  assert.equal(believableMrz(junk, true), true, 'kept when the page really showed rows of <');
+  assert.equal(believableMrz(null, true), false);
+});
+
+test('code-line search: long text pages with no "<" are skipped, others get four places twice', () => {
+  assert.equal(mrzCrops(null, 2000, 400).length, 0);
+  assert.equal(mrzCrops(null, 2000, 80).length, 4);
+  assert.equal(mrzCrops([1500, 1700], 2000, 80).length, 8);
+});
+
+test('sorter: a vehicle licence is not a driving licence', () => {
+  const words = ['UNITED', 'ARAB', 'EMIRATES', 'Vehicle', 'License', 'Traffic', 'Plate', 'No.', 'Place', 'of', 'Issue', 'Owner', 'Exp.', 'Date', 'Ins.', 'Exp.', 'Policy', 'No.', 'Mortgage', 'By'].map((t, i) => W(t, 40 + (i % 5) * 150, 40 + Math.floor(i / 5) * 40, 20, Math.floor(i / 5)));
+  assert.equal(classifyFeatures(sorterFeatures(words, 1200, 750, null), priorModel()).type, 'vehicle_licence');
+  assert.equal(classifyDocument(words, 1200, 750, null).type, 'vehicle_licence');
+});
+
+test('sorter: an international driving permit in French is a driving licence', () => {
+  const words = ['PERMIS', 'INTERNATIONAL', 'DE', 'CONDUIRE', 'Convention', 'on', 'Road', 'Traffic', 'Valid', 'until'].map((t, i) => W(t, 40 + (i % 4) * 180, 40 + Math.floor(i / 4) * 40, 20, Math.floor(i / 4)));
+  assert.equal(classifyDocument(words, 900, 1200, null).type, 'driving_licence');
+});
+
+test('sorter model: one number per clue and type, nothing else', () => {
+  const m = JSON.parse(fs.readFileSync(path.resolve(import.meta.dirname, '../src/core/sorter.json'), 'utf8'));
+  if (!m.fitted) return;
+  assert.deepEqual(Object.keys(m).sort(), ['bias', 'clues', 'fitted', 'note', 'types', 'weights']);
+  assert.deepEqual(m.clues, CLUES.map((c) => c.id));
+  assert.ok(m.weights.every((r: unknown[]) => r.length === CLUES.length && r.every((v) => typeof v === 'number')));
 });

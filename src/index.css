@@ -395,7 +395,7 @@ html { overflow-x: clip; }
   --indigo: #1f3fbf; /* ballpoint blue */
   --marker: #ffe24a;
   --good: #0a7d50; --good-bg: #dff2e3; --warn: #a35400; --warn-bg: #fdeec4; --bad: #c02a20; --bad-bg: #fbe1dc;
-  --t-passport: #1f3fbf; --t-emirates_id: #0a7d50; --t-id_card: #0e7c86; --t-driving_licence: #b0237f; --t-visa: #cf4424; --t-form: #5c5f55; --t-other: #85877b;
+  --t-passport: #1f3fbf; --t-emirates_id: #0a7d50; --t-id_card: #0e7c86; --t-driving_licence: #b0237f; --t-vehicle_licence: #8a5a00; --t-visa: #cf4424; --t-form: #5c5f55; --t-other: #85877b;
   --q: #1f3fbf; --a: #0a7d50; --h: #b0237f; --o: #9a9b8f;
   --r-s: 3px; --r-m: 4px; --r-l: 5px;
   --lift: 0 1px 0 rgb(0 0 0 / 0.28), 0 2px 3px rgb(0 0 0 / 0.16), 0 18px 30px -18px rgb(0 0 0 / 0.6);
