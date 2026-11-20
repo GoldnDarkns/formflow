@@ -1,5 +1,5 @@
 import { FlowMap } from './FlowMap';
-import { Explain } from './Explain';
+import { Explain, Privacy } from './Explain';
 import { useEffect, useState } from 'react';
 
 const f = (x?: number, d = 1) => (x === undefined || Number.isNaN(x) ? '—' : (x * 100).toFixed(d) + '%');
@@ -100,6 +100,11 @@ export function ModelCard() {
         <h2>The project from A to Z</h2>
         <p className="small">The problem, how each part of it is answered, and for every piece of the system: what we used, why, how it works and what we measured. Open a letter to read it.</p>
         <Explain />
+      </div>
+      <div className="card">
+        <h2>Privacy: the document never leaves your device</h2>
+        <p className="small">This was the main reason for building FormFlow. Where the document is, what is saved, what goes over the internet, and how that is enforced rather than only promised.</p>
+        <Privacy />
       </div>
       <div className="card">
         <h2>The whole path of one page</h2>

@@ -26,7 +26,7 @@ const STAGES: Stage[] = [
     name: 'Take in', note: 'on your device, nothing uploaded',
     nodes: [
       { n: '1', title: 'Open the file', kind: 'cv', by: 'Browser, pdf.js, fflate', out: 'one image per page, at most 2400 px on its long side',
-        more: 'A photo, a scan, a PDF or a ZIP. PDFs become one image per page and a ZIP is unpacked (up to 80 pages). Large photos are shrunk so a phone does not run out of memory.' },
+        more: 'The file is opened in the tab\'s memory; it is never uploaded or written to storage. A photo, a scan, a PDF or a ZIP. PDFs become one image per page and a ZIP is unpacked (up to 80 pages). Large photos are shrunk so a phone does not run out of memory.' },
       { n: '2', title: 'Check the photo', kind: 'cv', by: 'Edge sharpness and burnt-out blocks', out: 'blurry? glare? If so: "take it again"',
         more: 'Sharpness is measured at the strongest 4% of edges; below 0.30 the photo counts as blurry. Glare is the share of pure white 18-pixel blocks with no texture; 1.2% or more counts as glare on cards and booklets.' },
     ],
@@ -82,8 +82,10 @@ const STAGES: Stage[] = [
     nodes: [
       { n: '14', title: 'You review', kind: 'person', by: 'One doubtful field at a time', out: 'confirmed or corrected values',
         more: 'Each doubtful field is shown with that part of the page enlarged. Correct, Skip or Not a field. Nothing doubtful is accepted without you.' },
-      { n: '15', title: 'Export', kind: 'rule', by: 'jsPDF, fflate', out: 'JSON, CSV, report, searchable PDF, ZIP by type, redacted copy',
-        more: 'Files are named after what was read. Scan PDFs carry the text invisibly on top of the picture so they can be searched. Values nobody confirmed are marked "review" in every export.' },
+      { n: '15', title: 'Export', kind: 'rule', by: 'jsPDF, fflate, made on the device', out: 'JSON, CSV, report, searchable PDF, ZIP by type, redacted copy',
+        more: 'Files are built in the tab and saved only when you press a button, to wherever your device keeps downloads. They are named after what was read. Scan PDFs carry the text invisibly on top of the picture so they can be searched. Values nobody confirmed are marked "review" in every export.' },
+      { n: '16', title: 'Close the page', kind: 'person', by: 'The browser', out: 'the document and everything read from it are gone',
+        more: 'The document was only ever in the tab\'s memory. Nothing was written to storage and nothing was sent anywhere, so closing or reloading the tab leaves no copy behind. Only your settings, any form templates you taught (printed labels and box positions, never the values) and the cached model files remain.' },
     ],
   },
 ];
@@ -111,6 +113,7 @@ export function FlowMap() {
         {(Object.keys(KIND) as Kind[]).map((k) => <span key={k}><i className={'flow-kind ' + k}>{KIND[k]}</i></span>)}
         <span className="muted">Tap a step for the detail</span>
       </div>
+      <p className="flow-privacy"><b>Everything below happens inside your browser tab, on your phone or laptop.</b> Nothing is uploaded: the internet is used only to download the app and the model files once. Closing the tab wipes the document and everything read from it.</p>
       <div className="flow-start">Photo, scan, PDF or ZIP</div>
       {STAGES.map((s) => (
         <section className="flow-stage" key={s.name}>

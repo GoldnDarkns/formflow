@@ -12,16 +12,16 @@ const PROBLEM: { pain: string; answer: string; proof: string }[] = [
     proof: 'Key facts right on held-back ID specimens: 94% with two readers, 87% with one. No value marked "verified" was wrong.' },
   { pain: 'Uploading IDs to online tools is a privacy risk',
     answer: 'Every model runs inside the browser on your own device. The page works offline and sends no document anywhere.',
-    proof: 'Open the browser network tab while reading a page: no upload. The models are downloaded once and cached.' },
+    proof: 'There is no server to receive a document, and the browser itself blocks any connection to another server (tested). After the first visit it works in airplane mode. Details in "Privacy" below.' },
 ];
 
 interface Part { name: string; what: string; why: string; how: string; result: string }
 const PARTS: Part[] = [
-  { name: 'A. Where it runs',
-    what: 'A web app (React, installable on a phone) with all models compiled to run in the browser through WebAssembly and ONNX Runtime Web.',
-    why: 'The whole point is that an ID never leaves the device. It also means no server, no account and no cost.',
-    how: 'Heavy work runs in background workers so the screen stays smooth. Models are downloaded once and kept on the device.',
-    result: 'Total download for the default path is small enough for a phone; the optional models load only when switched on.' },
+  { name: 'A. Where it runs, and why that keeps it private',
+    what: 'A web app (React, installable on a phone) with every model compiled to run inside the browser through WebAssembly and ONNX Runtime Web. The site is plain files on GitHub Pages: there is no server program at all.',
+    why: 'The whole point is that an ID never leaves the device. With no server there is nothing that could receive it. It also means no account and no cost.',
+    how: 'The photo is held in the open tab\'s memory and processed by background workers inside that same tab. Model files are downloaded once and cached. A browser security rule (Content Security Policy) only lets the page download from its own site and Hugging Face, and refuses every other connection.',
+    result: 'Tested: a deliberate attempt to send data from the page to another server was blocked by the browser. The default readers need no internet after the first visit.' },
   { name: 'B. Finding the document in the photo',
     what: 'Two finders. An outline finder (colour edges, then the largest closed shape with four straight sides) and a bright-page finder (the largest light region the dark surface cannot reach).',
     why: 'If the card is small and tilted in the photo, every later step fails. The first version only found light pages on dark tables, so a pale card on a white table was not cut out at all.',
@@ -101,6 +101,33 @@ export function Explain() {
             <dt>How it works</dt><dd>{p.how}</dd>
             <dt>What we measured</dt><dd><b>{p.result}</b></dd>
           </dl>
+        </details>
+      ))}
+    </div>
+  );
+}
+
+const PRIVACY: [string, string][] = [
+  ['Where is my document while it is read?', 'Only in the memory of the open browser tab. The photo, the cleaned page and the text read from it live there while the tab is open. The work happens in background workers that belong to the same tab, on your phone or laptop. Closing or reloading the tab wipes all of it.'],
+  ['Is it saved anywhere?', 'No document and no value read from one is ever written to the device\'s storage by the app. The only things the app keeps are your settings (which reader, critic on or off), forms you teach as templates (only the printed label words and box positions; the values written in them are deliberately left out), and the app and model files, cached so it works offline. A file is saved only when you press an export button, and then it goes where your phone or laptop puts downloads, like any download you choose.'],
+  ['What goes over the internet?', 'Downloads only, never uploads. On the first visit the app itself comes from GitHub Pages, and the reading models come from the same site. The two optional models (the critic and Florence-2) are downloaded from Hugging Face, an open model library. Nothing goes the other way: no photo, no text, no result. There is no account, no analytics, no cookies and no tracking.'],
+  ['How is that guaranteed, not just promised?', '1. There is no server: the site is static files, so there is no program anywhere that could receive a document. 2. The browser enforces a Content Security Policy written into the page: it may connect only to its own site and to Hugging Face for model downloads; any other connection is refused by the browser before it happens. We tested this: a deliberate attempt to send data to another server was blocked. 3. It works offline: after the first visit, switch on airplane mode and it still reads documents with the default readers. That can be shown live. 4. Anyone can check: the code is public on GitHub, and the browser\'s network panel shows every request the page makes.'],
+  ['Can my document be copied or used for training?', 'Not by FormFlow. The models are fixed files; they do not learn while you use them, and nothing you read is sent anywhere, so there is nothing to collect. The only way a document becomes training data is if you press "Save as labelled example", which saves a file on your own device for you to keep or share yourself. The models were trained on public FUNSD forms, made-up specimens, and the owner\'s own documents used with consent on his own computer only; those are never published, only counts.'],
+  ['What is outside our control?', 'Hugging Face and GitHub see that a file was downloaded, as with any website (the address it went to, not your document). Files you export are ordinary files on your device. A screenshot, a shared download, or a harmful browser extension on your own device is outside what any web page can prevent.'],
+];
+
+export function Privacy() {
+  return (
+    <div className="explain">
+      <div className="xp-privacy">
+        <div><span className="xp-tag ok">On your device</span><b>Photo, cleaned page, text, results, every model run</b><p className="muted">Held in the open tab's memory. Wiped when the tab closes.</p></div>
+        <div><span className="xp-tag">Downloaded once</span><b>The app and the model files</b><p className="muted">From the site itself and Hugging Face. Cached for offline use.</p></div>
+        <div><span className="xp-tag bad">Never sent</span><b>Your document, or anything read from it</b><p className="muted">No server exists to receive it, and the browser blocks any other connection.</p></div>
+      </div>
+      {PRIVACY.map(([q, a]) => (
+        <details className="fold xp-part" key={q}>
+          <summary><span className="grow">{q}</span></summary>
+          <p className="small" style={{ marginTop: '0.6rem', lineHeight: 1.6 }}>{a}</p>
         </details>
       ))}
     </div>
