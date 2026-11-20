@@ -263,9 +263,24 @@ export function backgroundUnevenness(g: GrayImage): number {
   return Math.sqrt(levels.reduce((a, b) => a + (b - m) ** 2, 0) / levels.length);
 }
 
+/** share of black pixels in a black-and-white image */
+export function inkShare(g: GrayImage): number {
+  let n = 0;
+  for (let i = 0; i < g.data.length; i++) if (g.data[i] < 128) n++;
+  return n / g.data.length;
+}
+/** above this share of black the cleaned page is taken to be speckled, not printed */
+export const SPECKLED = 0.16;
 /** Otsu for evenly lit scans, Sauvola (local) when the background varies. */
 export function binariseAuto(g: GrayImage): { img: GrayImage; method: 'otsu' | 'sauvola' } {
-  return backgroundUnevenness(g) > 12 ? { img: sauvola(g), method: 'sauvola' } : { img: otsuBinarise(g), method: 'otsu' };
+  if (backgroundUnevenness(g) <= 12) return { img: otsuBinarise(g), method: 'otsu' };
+  const local = sauvola(g);
+  // A threshold set around every pixel turns a textured background (fabric, wood, a grainy photo) into
+  // thousands of specks, and the reader then spends minutes on them. Print covers a few percent of a
+  // page; when far more than that came out black, one threshold for the whole page is used instead.
+  if (inkShare(local) <= SPECKLED) return { img: local, method: 'sauvola' };
+  const global = otsuBinarise(g);
+  return inkShare(global) < inkShare(local) ? { img: global, method: 'otsu' } : { img: local, method: 'sauvola' };
 }
 
 export interface PreprocessOptions {

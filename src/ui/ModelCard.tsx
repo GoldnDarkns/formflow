@@ -1,3 +1,4 @@
+import { FlowMap } from './FlowMap';
 import { useEffect, useState } from 'react';
 
 const f = (x?: number, d = 1) => (x === undefined || Number.isNaN(x) ? '—' : (x * 100).toFixed(d) + '%');
@@ -94,6 +95,11 @@ export function ModelCard() {
         </div>
       </div>
 
+      <div className="card">
+        <h2>The whole path of one page</h2>
+        <p className="small">What happens to a page, in order, and what does each piece of work. Tap a step for the detail; the measurements for each step follow below.</p>
+        <FlowMap />
+      </div>
       <div className="card">
         <h2>Intended use</h2>
         <p>Helping a back-office clerk digitise scanned paper forms and identity documents (passports, ID cards, visas, licences) into structured key–value data, with a person reviewing every flagged field before it is used. <b>Out of scope:</b> automatic decisions about people without human review, identity verification or fraud detection (the app does not check that a document is genuine), handwriting-heavy forms, and non-Latin scripts.</p>

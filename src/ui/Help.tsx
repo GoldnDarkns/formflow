@@ -1,3 +1,4 @@
+import { FlowMap } from './FlowMap';
 export function Help() {
   return (
     <div className="prose" style={{ maxWidth: 780, margin: '0 auto' }}><div className="card">
@@ -9,6 +10,9 @@ export function Help() {
         <li><b>Check.</b> Open a document. Doubtful fields come first. Tap one to see it highlighted on the page with a close-up, fix the text, then tick it.</li>
         <li><b>Export.</b> Download JSON for one document or CSV for all of them. In the trays, the "PDF" button on a folder gives every scan of that type as one PDF (all the passports, all the Emirates IDs), and "Everything as ZIP" gives a folder per type with its scans and data.</li>
       </ol>
+      <h2>How it works, from the photo to the answer</h2>
+      <p>Every page goes down this path. Blue steps use a learned model, teal steps are plain image processing, orange steps are rules or arithmetic, and the pink step is you.</p>
+      <FlowMap />
       <h2>Magic scan</h2>
       <p>For photos, FormFlow finds the sheet of paper, cuts away everything around it, flattens the perspective and evens out shadows. Use the Photo / Cut out switch above a document to compare, and "Before / after" to drag a divider between the scan and the cleaned page the reader saw. It works best when the page is lighter than the surface it lies on. If no page is found, the image is used as it is.</p>
       <h2>The critic</h2>

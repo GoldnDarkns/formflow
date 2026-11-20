@@ -4,7 +4,7 @@
 //   3. even out the lighting so shadows and dark corners become white paper
 // Pure typed-array code: runs in the Web Worker and in the Node test scripts.
 import type { GrayImage } from './types';
-import { downscale, otsu } from './preprocess';
+import { otsu } from './preprocess';
 
 export type Pt = [number, number];
 export type Quad = [Pt, Pt, Pt, Pt]; // top-left, top-right, bottom-right, bottom-left
@@ -38,13 +38,81 @@ const quadArea = (q: Quad) => {
 };
 
 /**
+ * Shrink by averaging every block of pixels. Picking single pixels (as `downscale` does) keeps all
+ * the grain of a textured surface, and the page outline then breaks up; the mean of a block does not.
+ */
+function shrinkMean(g: GrayImage, max: number): { img: GrayImage; scale: number } {
+  const s = Math.min(1, max / Math.max(g.width, g.height));
+  if (s === 1) return { img: g, scale: 1 };
+  const w = Math.max(1, Math.round(g.width * s)), h = Math.max(1, Math.round(g.height * s));
+  const sum = new Float64Array(w * h), cnt = new Uint32Array(w * h);
+  for (let y = 0; y < g.height; y++) {
+    const row = Math.min(h - 1, Math.floor(y * s)) * w;
+    for (let x = 0; x < g.width; x++) { const i = row + Math.min(w - 1, Math.floor(x * s)); sum[i] += g.data[y * g.width + x]; cnt[i]++; }
+  }
+  const data = new Uint8Array(w * h);
+  for (let i = 0; i < data.length; i++) data[i] = cnt[i] ? sum[i] / cnt[i] : 255;
+  return { img: { width: w, height: h, data }, scale: s };
+}
+
+/** Convex hull of a set of points (monotone chain), counter-clockwise in image coordinates. */
+function convexHull(pts: Pt[]): Pt[] {
+  const p = [...pts].sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  const cross = (o: Pt, a: Pt, b: Pt) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+  const half = (list: Pt[]) => { const hll: Pt[] = []; for (const q of list) { while (hll.length >= 2 && cross(hll[hll.length - 2], hll[hll.length - 1], q) <= 0) hll.pop(); hll.push(q); } hll.pop(); return hll; };
+  return [...half(p), ...half(p.reverse())];
+}
+
+/**
+ * The four corners of a page from the outline of its region: the hull's long edges give the
+ * direction of each of the four sides, each side is the line of that direction touching the
+ * hull, and the corners are where neighbouring sides cross. Null when four sides cannot be told apart.
+ */
+function sidesQuad(outline: Pt[], w: number, h: number): Quad | null {
+  const hull = convexHull(outline);
+  if (hull.length < 4) return null;
+  const edges = hull.map((a, i) => { const b = hull[(i + 1) % hull.length]; const dx = b[0] - a[0], dy = b[1] - a[1]; return { a, b, len: Math.hypot(dx, dy), ang: Math.atan2(dy, dx) }; });
+  const main = edges.reduce((m, e) => (e.len > m.len ? e : m)).ang;
+  const cx = hull.reduce((t, p) => t + p[0], 0) / hull.length, cy = hull.reduce((t, p) => t + p[1], 0) / hull.length;
+  // side k = edges running along main + k * 90 degrees (the hull is walked one way, so each side has its own direction)
+  const lines: { nx: number; ny: number; c: number }[] = [];
+  for (let k = 0; k < 4; k++) {
+    const want = main + (k * Math.PI) / 2;
+    let sx = 0, sy = 0, total = 0;
+    for (const e of edges) {
+      const d = Math.atan2(Math.sin(e.ang - want), Math.cos(e.ang - want));
+      if (Math.abs(d) > (25 * Math.PI) / 180) continue;
+      // long edges are real sides, short ones are the ragged bits; and a real side runs square to the
+      // longest one, while the edge bridging a missing corner runs well off it
+      const wgt = e.len * e.len * Math.exp(-((d / 0.12) ** 2));
+      sx += Math.cos(want + d) * wgt; sy += Math.sin(want + d) * wgt; total += e.len;
+    }
+    if (total < Math.min(w, h) * 0.08) return null;
+    const n = Math.hypot(sx, sy), dx = sx / n, dy = sy / n;
+    // outward normal, and the line of this direction that touches the hull
+    let nx = dy, ny = -dx;
+    if (nx * (hull[0][0] - cx) + ny * (hull[0][1] - cy) < 0 && hull.every((p) => nx * (p[0] - cx) + ny * (p[1] - cy) <= 0)) { nx = -nx; ny = -ny; }
+    const side = edges.filter((e) => Math.abs(Math.atan2(Math.sin(e.ang - want), Math.cos(e.ang - want))) <= (25 * Math.PI) / 180);
+    const mid = side.reduce((t, e) => t + (nx * ((e.a[0] + e.b[0]) / 2 - cx) + ny * ((e.a[1] + e.b[1]) / 2 - cy)) * e.len, 0);
+    if (mid < 0) { nx = -nx; ny = -ny; }
+    lines.push({ nx, ny, c: Math.max(...hull.map((p) => nx * p[0] + ny * p[1])) });
+  }
+  const meet = (p: (typeof lines)[0], q: (typeof lines)[0]): Pt | null => { const det = p.nx * q.ny - p.ny * q.nx; return Math.abs(det) < 1e-6 ? null : [(p.c * q.ny - p.ny * q.c) / det, (p.nx * q.c - p.c * q.nx) / det]; };
+  const cs: Pt[] = [];
+  for (let k = 0; k < 4; k++) { const c = meet(lines[k], lines[(k + 1) % 4]); if (!c) return null; cs.push([Math.min(w - 1, Math.max(0, c[0])), Math.min(h - 1, Math.max(0, c[1]))]); }
+  const by = (f: (p: Pt) => number) => cs.reduce((m, p) => (f(p) < f(m) ? p : m));
+  const q: Quad = [by((p) => p[0] + p[1]), by((p) => -(p[0] - p[1])), by((p) => -(p[0] + p[1])), by((p) => p[0] - p[1])];
+  return new Set(q).size === 4 ? q : null;
+}
+
+/**
  * Find the page: the largest bright region that the dark background cannot
  * reach from the image border. Returns its four corners in full-resolution
  * pixels, or null when the page already fills the frame or nothing page-like
  * is found (then the image is used as it is).
  */
 export function detectPage(g: GrayImage): Quad | null {
-  const { img: small, scale } = downscale(g, 360);
+  const { img: small, scale } = shrinkMean(g, 360);
   const b = boxBlur(small, 2);
   const { width: w, height: h } = b;
   const thr = otsu(b);
@@ -84,6 +152,7 @@ export function detectPage(g: GrayImage): Quad | null {
   // corners = extreme points along the two diagonals
   let tl: Pt = [0, 0], tr: Pt = [0, 0], br: Pt = [0, 0], bl: Pt = [0, 0];
   let mTl = Infinity, mTr = -Infinity, mBr = -Infinity, mBl = Infinity;
+  const edge: Pt[] = [];
   for (let y = 0; y < h; y++)
     for (let x = 0; x < w; x++) {
       if (lab[y * w + x] !== best) continue;
@@ -92,11 +161,15 @@ export function detectPage(g: GrayImage): Quad | null {
       if (s > mBr) { mBr = s; br = [x, y]; }
       if (d > mTr) { mTr = d; tr = [x, y]; }
       if (d < mBl) { mBl = d; bl = [x, y]; }
+      if (x === 0 || y === 0 || x === w - 1 || y === h - 1 || lab[y * w + x - 1] !== best || lab[y * w + x + 1] !== best || lab[(y - 1) * w + x] !== best || lab[(y + 1) * w + x] !== best) edge.push([x, y]);
     }
-  const q: Quad = [tl, tr, br, bl];
+  // Something dark near a corner of the page (a portrait photo, a stamp, a thumb) lets the background
+  // eat into it, and the extreme point then sits well inside the page. The four straight sides are
+  // still there, so the corners are taken as the crossings of the sides instead.
+  const q: Quad = sidesQuad(edge, w, h) ?? [tl, tr, br, bl];
   const area = quadArea(q);
   // must look like a quadrilateral: the region fills the quad, and the quad is a real crop
-  if (area < w * h * 0.12 || bestN / area < 0.8 || bestN / area > 1.2 || area > w * h * 0.96) return null;
+  if (area < w * h * 0.12 || bestN / area < 0.7 || bestN / area > 1.2 || area > w * h * 0.96) return null;
   return q.map(([x, y]) => [x / scale, y / scale]) as Quad;
 }
 

@@ -20,7 +20,17 @@ import { believableMrz, linesFromWords, mrzCrops, mrzNeuralCrops, readingQuality
 import { matchTemplate, readTemplate, templateChecks, templateWords, type Template, type TemplateMatch } from '../core/template';
 import { checkState, checkboxLabel, dropLetterBoxes, findCheckboxes, findSignatures, isSignatureCaption } from '../core/marks';
 import type { Box, Field } from '../core/types';
-import { rgbaToGray } from '../core/preprocess';
+import { rgbaToGray, SPECKLED } from '../core/preprocess';
+
+/** longest the classical reader may take on one page before the neural reader takes over */
+const READ_LIMIT_MS = 20000;
+/** share of black pixels in the cleaned page (RGBA, already black and white) */
+function rgbaInk(buf: ArrayBuffer): number {
+  const d = new Uint8Array(buf);
+  let n = 0;
+  for (let i = 0; i < d.length; i += 16) if (d[i] < 128) n++;
+  return n / (d.length / 16);
+}
 export const BASE = new URL(import.meta.env.BASE_URL, location.href).href;
 ort.env.wasm.wasmPaths = BASE + 'ort/';
 ort.env.wasm.numThreads = 1;
@@ -249,7 +259,7 @@ const mrzScore = (m: MrzResult | null) => (m ? m.checks.filter((c) => c.ok).leng
  * best. Stops as soon as every check digit passes, so a clean passport costs
  * one extra read and only hard pages cost more.
  */
-async function readMrz(gray: HTMLCanvasElement, clean: HTMLCanvasElement, band: [number, number] | null, nWords: number, grayRgba?: ArrayBuffer): Promise<MrzResult | null> {
+async function readMrz(gray: HTMLCanvasElement, clean: HTMLCanvasElement, band: [number, number] | null, nWords: number, grayRgba?: ArrayBuffer, classical = true): Promise<MrzResult | null> {
   const crops = mrzCrops(band, gray.height, nWords);
   if (!crops.length) return null;
   let best: MrzResult | null = null;
@@ -269,6 +279,8 @@ async function readMrz(gray: HTMLCanvasElement, clean: HTMLCanvasElement, band: 
       console.warn('neural code-line read unavailable, using the classical reader', e);
     }
   }
+  // on a grainy page the classical reader would crawl through the specks, so the neural result stands
+  if (!classical) return best;
   const w = await tesseractMrz();
   for (const cr of crops) {
     const src = cr.binarised ? clean : gray;
@@ -320,7 +332,7 @@ export async function processDocument(file: Blob, fileName: string, opts: Prepro
   upd(0, { state: 'done', ms: performance.now() - t, detail: `${W0}×${H0}` });
 
   upd(1, { state: 'running' });
-  const tessP = tesseract();
+  tesseract().catch(() => (tess = null));
   const clfP = classifiers();
   // one full reading of the page as it stands: find it, flatten it, clean it, read it
   const readPage = async (buf: ArrayBuffer, w0: number, h0: number, first: boolean) => {
@@ -347,19 +359,37 @@ export async function processDocument(file: Blob, fileName: string, opts: Prepro
       upd(2, { state: 'running' });
     }
     const ocrCanvas = rgbaToCanvas(p.ocr, p.width, p.height);
-    let words: OcrWord[];
+    let words: OcrWord[] = [];
     let readBy = 'Tesseract';
-    if (opts.reader === 'ppocr') {
-      // neural reader works on the deskewed grayscale page (it does not want a binarised image)
+    let reader: 'tesseract' | 'ppocr' = 'tesseract';
+    // the neural reader works on the deskewed grayscale page (it does not want a binarised image)
+    const neural = async (why: string) => {
       const r = await ppRead(p.gray.slice(0), p.width, p.height);
       words = cleanWords(r.words.map((w) => ({ ...w, box: w.box.map((v) => v / p.scale) as OcrWord['box'] })));
-      readBy = `PP-OCRv5 on ${r.device === 'webgpu' ? 'GPU' : 'CPU'}`;
-    } else {
-      const tw = await tessP;
-      const { data } = await tw.recognize(ocrCanvas, {}, { blocks: true });
-      words = cleanWords(wordsFromTesseract(data.blocks as any, p.scale));
+      readBy = `PP-OCRv5 on ${r.device === 'webgpu' ? 'GPU' : 'CPU'}${why}`;
+      reader = 'ppocr';
+    };
+    // A page photographed on fabric, wood or any grainy surface comes out of the clean-up covered in
+    // specks, and the classical reader can spend minutes on them. Such a page goes to the neural reader,
+    // and so does any page the classical reader has not finished within READ_LIMIT_MS.
+    if (opts.reader === 'ppocr') await neural('');
+    else if (rgbaInk(p.ocr) > SPECKLED) await neural(', the page is too grainy for the fast reader');
+    else {
+      const tw = await tesseract();
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      const done = await Promise.race([
+        tw.recognize(ocrCanvas, {}, { blocks: true }),
+        new Promise<null>((r) => { timer = setTimeout(() => r(null), READ_LIMIT_MS); }),
+      ]);
+      clearTimeout(timer);
+      if (done) words = cleanWords(wordsFromTesseract(done.data.blocks as any, p.scale));
+      else {
+        tess = null; // stop the stuck reader; a fresh one is made for the next page
+        tw.terminate().catch(() => {});
+        await neural(', the fast reader took too long');
+      }
     }
-    return { p, W, H, quad, viewUrl, ocrCanvas, words, readBy };
+    return { p, W, H, quad, viewUrl, ocrCanvas, words, readBy, reader };
   };
   const turnedCanvas = (deg: number) => {
     const swap = deg % 180 !== 0;
@@ -393,7 +423,7 @@ export async function processDocument(file: Blob, fileName: string, opts: Prepro
       }
     }
   }
-  const { p, W, H, quad, viewUrl, ocrCanvas, words } = page;
+  const { p, W, H, quad, viewUrl, ocrCanvas, words, reader } = page;
   const readBy = page.readBy + (turned ? `, turned ${turned}°` : '');
   upd(2, { state: 'done', ms: performance.now() - t, detail: `${words.length} words, ${readBy}` });
 
@@ -402,7 +432,7 @@ export async function processDocument(file: Blob, fileName: string, opts: Prepro
   upd(3, { state: 'running' });
   let mrz: MrzResult | null = null;
   const band = mrzBand(words, p.scale, p.height);
-  mrz = await readMrz(rgbaToCanvas(p.gray, p.width, p.height), ocrCanvas, band, words.length, p.gray);
+  mrz = await readMrz(rgbaToCanvas(p.gray, p.width, p.height), ocrCanvas, band, words.length, p.gray, rgbaInk(p.ocr) <= SPECKLED);
   let cls = classifyDocument(words, W, H, mrz);
   // a page whose printed words line up with a known form is that form, whatever the sorter thought
   const tm = mrz?.valid ? null : matchTemplate(await templates(), words, W, H);
@@ -414,7 +444,7 @@ export async function processDocument(file: Blob, fileName: string, opts: Prepro
   const kind = ID_TYPES.includes(cls.type) ? 'id' : 'form';
   const c = await clfP;
   const analysis = addMarks(
-    tm ? templateAnalysis(tm, { words, width: W, height: H }) : await analyse(words, W, H, c, undefined, kind, opts.reader === 'ppocr' ? 'ppocr' : 'tesseract'),
+    tm ? templateAnalysis(tm, { words, width: W, height: H }) : await analyse(words, W, H, c, undefined, kind, reader),
     { kind, words, width: W, height: H, grayRgba: p.gray, grayW: p.width, grayH: p.height, ocrScale: p.scale }, tm);
   const facts = extractFacts(cls.type, words, analysis.fields, mrz);
   upd(4, { state: 'done', ms: performance.now() - t, detail: tm ? `${analysis.fields.filter((f) => f.value).length} of ${analysis.fields.length} boxes filled, template: ${tm.template.name}` : `${analysis.fields.filter((f) => f.value).length} fields` });
@@ -440,7 +470,7 @@ export async function processDocument(file: Blob, fileName: string, opts: Prepro
     processedView: ocrCanvas.toDataURL('image/png'),
     skew: p.skew,
     words,
-    reader: opts.reader === 'ppocr' ? 'ppocr' : 'tesseract',
+    reader,
     analysis,
     mrz,
     steps,

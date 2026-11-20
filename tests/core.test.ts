@@ -424,3 +424,27 @@ test('a code line cannot confirm its own misreading of a name', () => {
   // a label word is never taken for part of a name
   assert.equal(mendName('ANA DE SOUZA', lineWords(['DATA', 'DATE', 'SOUZA', 'I<UTO<<<', 'SOUZA<<ANA<DE<<<'])).name, 'ANA DE SOUZA');
 });
+
+import { detectPage } from '../src/core/scan';
+import { binariseAuto, inkShare, SPECKLED } from '../src/core/preprocess';
+
+test('page finder: a dark patch that eats one corner of the page does not move that corner', () => {
+  const W = 600, H = 800, data = new Uint8Array(W * H).fill(60);
+  // a light page from (100,120) to (500,700), with a dark photo in its bottom-left corner reaching the page edge
+  for (let y = 120; y < 700; y++) for (let x = 100; x < 500; x++) data[y * W + x] = y > 520 && x < 230 ? 60 : 232;
+  const q = detectPage({ width: W, height: H, data });
+  assert.ok(q, 'page found');
+  const want = [[100, 120], [500, 120], [500, 700], [100, 700]];
+  q!.forEach((p, i) => assert.ok(Math.hypot(p[0] - want[i][0], p[1] - want[i][1]) < 14, `corner ${i} at ${p.map(Math.round)}`));
+});
+
+test('clean-up: a grainy surface is recognised as speckle, plain print is not', () => {
+  const W = 400, H = 400;
+  let seed = 7; const rnd = () => ((seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff);
+  const grain = new Uint8Array(W * H), print = new Uint8Array(W * H).fill(235);
+  for (let i = 0; i < grain.length; i++) grain[i] = 150 + Math.round((rnd() - 0.5) * 160 + (i % W) * 0.2);
+  for (let y = 40; y < 360; y += 40) for (let x = 40; x < 360; x++) for (let k = 0; k < 4; k++) print[(y + k) * W + x] = 30;
+  for (let i = 0; i < print.length; i++) print[i] = Math.max(0, print[i] - Math.round((i % W) * 0.12)); // uneven light
+  assert.ok(inkShare(binariseAuto({ width: W, height: H, data: grain }).img) > SPECKLED);
+  assert.ok(inkShare(binariseAuto({ width: W, height: H, data: print }).img) < SPECKLED);
+});
