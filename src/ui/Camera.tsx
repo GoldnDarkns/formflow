@@ -8,7 +8,7 @@ import { createPortal } from 'react-dom';
 import { useEffect, useRef, useState } from 'react';
 import { motion } from 'motion/react';
 import { ICheck, IX } from './icons';
-import { findDocument, type Pt, type Quad } from '../core/scan';
+import { detectCard, detectObject, detectPage, type Pt, type Quad } from '../core/scan';
 import { rgbaToGray } from '../core/preprocess';
 
 const TRACK_SIDE = 320; // the finder looks at a copy this many pixels on its long side
@@ -22,7 +22,8 @@ function locate(src: CanvasImageSource, sw: number, sh: number, small: HTMLCanva
   const ctx = small.getContext('2d', { willReadFrequently: true })!;
   ctx.drawImage(src, 0, 0, w, h);
   const d = ctx.getImageData(0, 0, w, h).data;
-  const q = findDocument(d, w, h, rgbaToGray(d, w, h));
+  // a clean outline on a plain surface first; then four straight edges (a card held in a hand); then a bright page on a grainy surface
+  const q = detectObject(d, w, h) ?? detectCard(d, w, h) ?? detectPage({ width: w, height: h, data: rgbaToGray(d, w, h).data });
   return q ? (q.map(([x, y]) => [x / w, y / h]) as Quad) : null;
 }
 
@@ -46,6 +47,7 @@ export function Camera({ onShots, onClose, onFallback }: Props) {
   const follow = useRef<{ q: Quad | null; miss: number; still: number }>({ q: null, miss: 0, still: 0 });
   const small = useRef<HTMLCanvasElement | null>(null);
   const [flash, setFlash] = useState(0);
+  const [torch, setTorch] = useState<'none' | 'off' | 'on'>('none'); // the phone's light, where the browser lets a page switch it
 
   useEffect(() => {
     let cancelled = false;
@@ -56,6 +58,9 @@ export function Camera({ onShots, onClose, onFallback }: Props) {
         stream.current = s;
         if (video.current) { video.current.srcObject = s; video.current.play().catch(() => {}); }
         setState('live');
+        // Android Chrome can switch the light on; Safari on iPhone does not offer it to web pages
+        const caps = s.getVideoTracks()[0]?.getCapabilities?.() as (MediaTrackCapabilities & { torch?: boolean }) | undefined;
+        if (caps?.torch) setTorch('off');
       })
       .catch((e) => { if (!cancelled) { setError(e?.name === 'NotAllowedError' ? 'The camera was not allowed.' : 'The camera could not be opened.'); setState('error'); } });
     const o = document.body.style.overflow;
@@ -86,6 +91,10 @@ export function Camera({ onShots, onClose, onFallback }: Props) {
     return () => clearInterval(id);
   }, [state]);
 
+  const light = () => {
+    const on = torch !== 'on';
+    stream.current?.getVideoTracks()[0]?.applyConstraints({ advanced: [{ torch: on } as MediaTrackConstraintSet] }).then(() => setTorch(on ? 'on' : 'off')).catch(() => setTorch('none'));
+  };
   const shoot = () => {
     const v = video.current;
     if (!v || !v.videoWidth) return;
@@ -133,7 +142,11 @@ export function Camera({ onShots, onClose, onFallback }: Props) {
           <button role="radio" aria-checked={shape === 'card'} className={shape === 'card' ? 'on' : ''} onClick={() => setShape('card')}>Card</button>
           <button role="radio" aria-checked={shape === 'page'} className={shape === 'page' ? 'on' : ''} onClick={() => setShape('page')}>Page</button>
         </div>
-        <span style={{ width: 44 }} />
+        {torch === 'none' ? <span style={{ width: 44 }} /> : (
+          <button className={'cam-round' + (torch === 'on' ? ' on' : '')} onClick={light} aria-pressed={torch === 'on'} aria-label={torch === 'on' ? 'Switch the light off' : 'Switch the light on'} title="Light">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill={torch === 'on' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z" /></svg>
+          </button>
+        )}
       </div>
       <div className="cam-bottom">
         <div className="cam-strip">{shots.slice(-3).map((s) => <motion.img key={s.url} src={s.url} alt="" initial={{ scale: 0.4, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} />)}{shots.length > 3 && <span>+{shots.length - 3}</span>}</div>

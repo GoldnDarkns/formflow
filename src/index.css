@@ -211,7 +211,8 @@ select.type { border: 1.5px solid var(--line); background: var(--sheet); border-
 /* ---------- trust ring ---------- */
 .ring { position: relative; display: inline-grid; place-items: center; flex: none; }
 .ring svg { rotate: -90deg; display: block; }
-.ring .n { position: absolute; font-family: var(--display); font-weight: 750; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.ring .cap { font-style: normal; font-family: var(--mono); font-size: 0.58rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); margin-top: 0.15rem; }
+.ring .n { top: 0; left: 0; right: 0; display: grid; place-items: center; grid-auto-flow: column; justify-content: center; position: absolute; font-family: var(--display); font-weight: 750; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
 .ring .n small { font-size: 0.55em; font-weight: 650; }
 
 /* ---------- detail ---------- */
@@ -771,6 +772,7 @@ section:nth-of-type(4) > .trayhead, section:nth-of-type(4) > .grid { animation-d
 .cam-flash { position: absolute; inset: 0; background: #fff; pointer-events: none; }
 .cam-msg { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 1rem; text-align: center; padding: 2rem; margin: 0; }
 .cam-top { position: absolute; left: 0; right: 0; top: 0; display: flex; align-items: center; justify-content: space-between; padding: calc(0.8rem + env(safe-area-inset-top)) 0.9rem 0.8rem; }
+.cam-round.on { background: var(--marker); color: #191b18; }
 .cam-round { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%; border: 0; background: rgb(0 0 0 / 0.55); color: #fff; }
 .cam-seg { display: flex; padding: 3px; border-radius: 6px; background: rgb(0 0 0 / 0.55); }
 .cam-seg button { border: 0; background: transparent; color: #fff; font-weight: 700; font-size: 0.9rem; padding: 0.5rem 1.1rem; border-radius: 4px; min-height: 40px; transition: background 0.15s, color 0.15s; }

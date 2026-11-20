@@ -499,3 +499,22 @@ test('identity documents: noise pairs are dropped, real printed labels are kept 
   const out = tidyIdFields([f('FUND! A! GOGETT 92', 'o ag', 0.42), f('HIJ', 'J!', 0.69), f('LICEN®', 'LL', 0.54), f('ATIONALIT', 'UTOPIA'), f('Place of Issue', 'Port Sample'), f('Date of Birth', '1990-01-01')], [{ key: 'Date of birth', value: '1990-01-01', from: 'text' } as any]);
   assert.deepEqual(out.map((x) => [x.key, x.value]), [['Nationality', 'UTOPIA'], ['Place of issue', 'Port Sample']]);
 });
+
+import { detectCard, quadHoldsWords } from '../src/core/scan';
+
+test('four-edges finder: a card over a busy background with a finger across one edge is found', () => {
+  const W = 640, H = 480;
+  // background of coloured rings, a pale card, and a skin-coloured blob over its right edge
+  const card = (x: number, y: number) => x > 200 && x < 470 && y > 150 && y < 320;
+  const px = paint(W, H, [0, 0, 0], null, (x, y) => {
+    if ((x - 475) ** 2 / 45 ** 2 + (y - 230) ** 2 / 18 ** 2 < 1) return [214, 168, 140];
+    if (card(x, y)) return (y % 30 < 3 && x > 230 && x < 400) ? [60, 60, 70] : [232, 236, 226];
+    return [[90, 120, 200], [200, 90, 80], [70, 160, 110], [180, 170, 60]][(Math.hypot(x - 100, y - 420) / 70 | 0) % 4];
+  });
+  const q = detectCard(px, W, H);
+  assert.ok(q, 'the card was not found');
+  for (const t of [[200, 150], [470, 150], [470, 320], [200, 320]]) assert.ok(Math.min(...q!.map((p) => Math.hypot(p[0] - t[0], p[1] - t[1]))) < 20);
+  // the words of the card lie inside it; words spread over the whole picture do not
+  assert.equal(quadHoldsWords(q!, [[250, 180], [300, 200], [350, 240], [420, 300], [230, 290]], W, H), true);
+  assert.equal(quadHoldsWords(q!, [[50, 40], [600, 60], [350, 240], [80, 440], [590, 430]], W, H), false);
+});

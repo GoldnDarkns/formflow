@@ -20,12 +20,13 @@ export function Ring({ value, size = 56, stroke = 6, label }: { value: number; s
     return () => { c.stop(); un(); };
   }, [value, mv]);
   return (
-    <span className="ring" style={{ width: size, height: size }} role="img" aria-label={`${label ?? 'Trust score'} ${pct(value)}`}>
+    <span className="ring" style={{ width: size }} role="img" aria-label={`${label ?? 'Overall trust in what was read'} ${pct(value)}`} title="Overall trust: how far everything read from this document can be relied on (the fields, the checks and the type together). The percentage next to the type is only about the type.">
       <svg width={size} height={size}>
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--line)" strokeWidth={stroke} />
         <motion.circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={trustColor(value)} strokeWidth={stroke} strokeLinecap="round" strokeDasharray={C} style={{ strokeDashoffset: offset }} />
       </svg>
-      <span className="n" style={{ fontSize: size * 0.34 }}><span ref={num}>0</span><small>%</small></span>
+      <span className="n" style={{ fontSize: size * 0.34, height: size }}><span ref={num}>0</span><small>%</small></span>
+      <em className="cap">trust</em>
     </span>
   );
 }

@@ -11,7 +11,7 @@ import type { OcrWord, SecondReading } from '../core/types';
 import type { PreprocessOptions } from '../core/preprocess';
 import { classifyDocument, DOC_LABEL, ID_TYPES, type Classification, type DocType } from '../core/classify';
 import { extractFacts, type Fact } from '../core/facts';
-import type { Quad } from '../core/scan';
+import { detectCard, quadHoldsWords, type Pt, type Quad } from '../core/scan';
 import type { VisionOpinion } from '../core/critic-vision';
 import type { PreRequest, PreResponse } from './preprocess.worker';
 
@@ -335,10 +335,10 @@ export async function processDocument(file: Blob, fileName: string, opts: Prepro
   tesseract().catch(() => (tess = null));
   const clfP = classifiers();
   // one full reading of the page as it stands: find it, flatten it, clean it, read it
-  const readPage = async (buf: ArrayBuffer, w0: number, h0: number, first: boolean) => {
+  const readPage = async (buf: ArrayBuffer, w0: number, h0: number, first: boolean, force?: Quad) => {
     // corners dragged by the person (0..1 of the photo) replace the automatic page finder
     // so do the corners the camera was showing when the picture was taken (upright reading only)
-    const given = manualQuad ?? (first && !turn ? camQuad : undefined);
+    const given = force ?? manualQuad ?? (first && !turn ? camQuad : undefined);
     const p = await runPre({ rgba: buf, width: w0, height: h0, opts, quad: given ? (given.map(([x, y]) => [x * w0, y * h0]) as Quad) : undefined });
     const W = p.baseW, H = p.baseH;
     const quad = p.quad ? (p.quad.map(([x, y]) => [x / w0, y / h0]) as Quad) : null;
@@ -423,6 +423,20 @@ export async function processDocument(file: Blob, fileName: string, opts: Prepro
           if (readingQuality(alt.words) >= 8) break;
         }
       }
+    }
+  }
+  // An identity document that was read but not cut out (held in a hand, or lying among other things):
+  // look for its four straight edges, and if the shape found holds the words that were read, cut it
+  // out and read it again. The first reading is kept if the second one is clearly poorer.
+  // (A page already recognised as a form is left alone: forms are full of boxes. An uncut card often reads too
+  // poorly to be recognised at all, so "other" is tried as well.)
+  if (!page.quad && !manualQuad && classifyDocument(page.words, page.W, page.H, null).type !== 'form') {
+    const c = turned ? turnedCanvas(turned) : src;
+    const d = c.getContext('2d', { willReadFrequently: true })!.getImageData(0, 0, c.width, c.height).data;
+    const q = detectCard(d, c.width, c.height);
+    if (q && quadHoldsWords(q, page.words.map((w) => [(w.box[0] + w.box[2]) / 2, (w.box[1] + w.box[3]) / 2] as Pt), c.width, c.height)) {
+      const alt = await readPage(d.buffer as ArrayBuffer, c.width, c.height, false, q.map(([x, y]) => [x / c.width, y / c.height]) as Quad);
+      if (readingQuality(alt.words) >= readingQuality(page.words) * 0.7) { page = alt; onLive?.({ quad: alt.quad, flat: alt.viewUrl }); }
     }
   }
   const { p, W, H, quad, viewUrl, ocrCanvas, words, reader } = page;

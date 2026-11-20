@@ -294,6 +294,130 @@ export function detectObject(rgba: Uint8ClampedArray | Uint8Array, W: number, H:
 }
 
 /**
+ * Find a card held in a hand or lying among other things, where no clean outline can be traced:
+ * look for its four straight edges instead. Edge pixels vote for straight lines (a Hough
+ * transform, each pixel voting only near its own edge direction); the strongest lines are
+ * paired into two roughly parallel pairs at right angles; and the four-sided shape whose sides
+ * are best covered by real edges, with the proportions of a card or page, wins. Fingers may hide
+ * part of a side. A printed form is full of such boxes, so callers use this only when they know
+ * a document is being photographed (the live camera) or can check the answer against the text read.
+ */
+export function detectCard(rgba: Uint8ClampedArray | Uint8Array, W: number, H: number, max = 320): Quad | null {
+  const s = Math.min(1, max / Math.max(W, H));
+  const w = Math.max(8, Math.round(W * s)), h = Math.max(8, Math.round(H * s)), n = w * h;
+  const sum = [new Float32Array(n), new Float32Array(n), new Float32Array(n)], cnt = new Uint16Array(n);
+  const step = Math.max(1, Math.floor(1 / s / 3));
+  for (let y = 0; y < H; y += step) {
+    const row = Math.min(h - 1, Math.floor(y * s)) * w;
+    for (let x = 0; x < W; x += step) {
+      const i = row + Math.min(w - 1, Math.floor(x * s)), j = (y * W + x) * 4;
+      sum[0][i] += rgba[j]; sum[1][i] += rgba[j + 1]; sum[2][i] += rgba[j + 2]; cnt[i]++;
+    }
+  }
+  const ch = sum.map((p) => { const d = new Uint8Array(n); for (let i = 0; i < n; i++) d[i] = cnt[i] ? p[i] / cnt[i] : 255; return boxBlur({ width: w, height: h, data: d }, 1).data; });
+  // gradient (strongest channel) with its direction
+  const mag = new Float32Array(n), dir = new Float32Array(n);
+  const hist = new Uint32Array(512);
+  for (let y = 1; y < h - 1; y++)
+    for (let x = 1; x < w - 1; x++) {
+      const i = y * w + x;
+      let bx = 0, by = 0, bm = 0;
+      for (const c of ch) { const gx = c[i + 1] - c[i - 1], gy = c[i + w] - c[i - w], m = Math.abs(gx) + Math.abs(gy); if (m > bm) { bm = m; bx = gx; by = gy; } }
+      mag[i] = bm; dir[i] = Math.atan2(by, bx);
+      hist[Math.min(511, bm | 0)]++;
+    }
+  let acc = 0, thr = 511;
+  for (; thr > 5; thr--) { acc += hist[thr]; if (acc >= n * 0.2) break; }
+  const edge = new Uint8Array(n);
+  // lines as (angle of the normal in degrees 0..179, distance from the origin)
+  const diag = Math.ceil(Math.hypot(w, h)), R = 2 * diag + 1;
+  const votes = new Uint16Array(180 * R);
+  const cs = new Float32Array(180), sn = new Float32Array(180);
+  for (let t = 0; t < 180; t++) { cs[t] = Math.cos((t * Math.PI) / 180); sn[t] = Math.sin((t * Math.PI) / 180); }
+  for (let y = 1; y < h - 1; y++)
+    for (let x = 1; x < w - 1; x++) {
+      const i = y * w + x;
+      if (mag[i] < thr) continue;
+      edge[i] = 1;
+      const a = Math.round((dir[i] * 180) / Math.PI);
+      for (let d = -5; d <= 5; d++) { const t = (((a + d) % 180) + 180) % 180; votes[t * R + Math.round(x * cs[t] + y * sn[t]) + diag]++; }
+    }
+  // an edge here or within two pixels: a line found to the nearest degree drifts that far over the length of a side
+  let near = edge;
+  for (let pass = 0; pass < 2; pass++) {
+    const o = new Uint8Array(n);
+    for (let y = 1; y < h - 1; y++) for (let x = 1; x < w - 1; x++) { const i = y * w + x; if (near[i] || near[i - 1] || near[i + 1] || near[i - w] || near[i + w]) o[i] = 1; }
+    near = o;
+  }
+  // strongest lines, no two alike
+  const order: number[] = [];
+  const floor = Math.min(w, h) * 0.14;
+  for (let i = 0; i < votes.length; i++) if (votes[i] >= floor) order.push(i);
+  order.sort((a, b) => votes[b] - votes[a]);
+  const lines: { t: number; r: number; c: number; s: number }[] = [];
+  for (const i of order) {
+    const t = (i / R) | 0, r = (i % R) - diag;
+    if (lines.some((l) => { const dt = Math.abs(l.t - t); return (dt < 7 && Math.abs(l.r - r) < 7) || (dt > 173 && Math.abs(l.r + r) < 7); })) continue;
+    lines.push({ t, r, c: cs[t], s: sn[t] });
+    if (lines.length >= 34) break;
+  }
+  const meet = (p: (typeof lines)[0], q: (typeof lines)[0]): Pt | null => { const det = p.c * q.s - p.s * q.c; return Math.abs(det) < 1e-6 ? null : [(p.r * q.s - p.s * q.r) / det, (p.c * q.r - p.r * q.c) / det]; };
+  const support = (a: Pt, b: Pt) => {
+    const len = Math.hypot(b[0] - a[0], b[1] - a[1]), k = Math.max(2, Math.round(len));
+    let on = 0;
+    for (let j = 0; j <= k; j++) { const x = Math.round(a[0] + ((b[0] - a[0]) * j) / k), y = Math.round(a[1] + ((b[1] - a[1]) * j) / k); if (x >= 0 && y >= 0 && x < w && y < h && near[y * w + x]) on++; }
+    return on / (k + 1);
+  };
+  const adiff = (a: number, b: number) => { const d = Math.abs(a - b) % 180; return Math.min(d, 180 - d); };
+  const pairs: [number, number][] = [];
+  const cx0 = w / 2, cy0 = h / 2;
+  for (let i = 0; i < lines.length; i++)
+    for (let j = i + 1; j < lines.length; j++) {
+      if (adiff(lines[i].t, lines[j].t) > 10) continue;
+      // how far apart the two lines run, measured at the middle of the picture
+      const di = lines[i].c * cx0 + lines[i].s * cy0 - lines[i].r, flip = Math.abs(lines[i].t - lines[j].t) > 90 ? -1 : 1, dj = flip * (lines[j].c * cx0 + lines[j].s * cy0 - lines[j].r);
+      if (Math.abs(di - dj) >= Math.min(w, h) * 0.2) pairs.push([i, j]);
+    }
+  let best: Quad | null = null, bestScore = 0;
+  for (let a = 0; a < pairs.length; a++)
+    for (let b = a + 1; b < pairs.length; b++) {
+      const [p1, p2] = pairs[a], [q1, q2] = pairs[b];
+      if (Math.abs(adiff(lines[p1].t, lines[q1].t) - 90) > 20) continue;
+      const c = [meet(lines[p1], lines[q1]), meet(lines[q1], lines[p2]), meet(lines[p2], lines[q2]), meet(lines[q2], lines[p1])];
+      if (c.some((p) => !p || p[0] < -w * 0.04 || p[1] < -h * 0.04 || p[0] > w * 1.04 || p[1] > h * 1.04)) continue;
+      const q = c as Pt[];
+      const len = (i: number) => Math.hypot(q[i][0] - q[(i + 1) % 4][0], q[i][1] - q[(i + 1) % 4][1]);
+      const s1 = (len(0) + len(2)) / 2, s2 = (len(1) + len(3)) / 2, ratio = Math.max(s1, s2) / Math.min(s1, s2);
+      if (ratio < 1.2 || ratio > 2) continue;
+      const area = quadArea(q as Quad);
+      if (area < n * 0.08 || area > n * 0.9) continue;
+      const sup = [0, 1, 2, 3].map((i) => support(q[i], q[(i + 1) % 4]));
+      const mean = (sup[0] + sup[1] + sup[2] + sup[3]) / 4;
+      if (Math.min(...sup) < 0.4 || mean < 0.62) continue;
+      const score = mean * mean * Math.pow(area / n, 0.5);
+      if (score > bestScore) { bestScore = score; best = q as Quad; }
+    }
+  if (!best) return null;
+  const by = (f: (p: Pt) => number) => best!.reduce((m, p) => (f(p) < f(m) ? p : m));
+  const out: Quad = [by((p) => p[0] + p[1]), by((p) => -(p[0] - p[1])), by((p) => -(p[0] + p[1])), by((p) => p[0] - p[1])];
+  if (new Set(out).size !== 4) return null;
+  return out.map(([x, y]) => [Math.min(W - 1, Math.max(0, x / s)), Math.min(H - 1, Math.max(0, y / s))]) as Quad;
+}
+
+/**
+ * Does this four-sided shape plausibly hold the document whose words were read? It must be a real
+ * crop (under 80% of the picture) and nearly all the words must lie inside it. This is the check
+ * that makes `detectCard` safe to use after reading: a box printed inside a page fails it.
+ */
+export function quadHoldsWords(q: Quad, centres: Pt[], W: number, H: number): boolean {
+  if (centres.length < 4 || quadArea(q) > W * H * 0.8) return false;
+  const cx = (q[0][0] + q[1][0] + q[2][0] + q[3][0]) / 4, cy = (q[0][1] + q[1][1] + q[2][1] + q[3][1]) / 4;
+  const g = q.map(([x, y]) => [cx + (x - cx) * 1.08, cy + (y - cy) * 1.08] as Pt);
+  const inside = (x: number, y: number) => { for (let k = 0; k < 4; k++) { const a = g[k], b = g[(k + 1) % 4]; if ((b[0] - a[0]) * (y - a[1]) - (b[1] - a[1]) * (x - a[0]) < 0) return false; } return true; };
+  return centres.filter(([x, y]) => inside(x, y)).length >= centres.length * 0.85;
+}
+
+/**
  * The document in a photo. The outline finder goes first (95 of 100 made-up cards on five surfaces,
  * against 40 for the bright-page finder: scripts/eval-finder.ts); the bright-page finder still
  * catches a page on fabric or wood grain, where every pixel is an edge and no outline can be traced.

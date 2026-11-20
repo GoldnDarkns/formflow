@@ -97,7 +97,7 @@ export function ResultView(p: Props) {
       <section className={'answer ' + state} style={{ ['--c' as any]: typeColor(doc.docType) }}>
         <div className="answer-head">
           <div className="grow">
-            <span className="answer-type">{DOC_LABEL[doc.docType]}<small>{pct(doc.classification.confidence)} sure</small></span>
+            <span className="answer-type">{DOC_LABEL[doc.docType]}<small>type {pct(doc.classification.confidence)} sure</small></span>
             <h1>{name ?? doc.fileName}{nameTwice && <i className="twice" title="The name in the code line matches the printed name">seen twice</i>}</h1>
             {name && <p className="answer-file">{doc.fileName}{doc.turned ? ` · turned ${doc.turned}°` : ''}{doc.quad ? ' · cut out of a photo' : ''}</p>}
           </div>
