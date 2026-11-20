@@ -62,7 +62,7 @@ export function Camera({ onShots, onClose, onFallback }: Props) {
       <video ref={video} playsInline muted autoPlay />
       {state === 'live' && (
         <>
-          <div className={'cam-frame ' + shape}><i /><i /><i /><i /></div>
+          <div className={'cam-frame as-' + shape}><i /><i /><i /><i /></div>
           <p className="cam-hint">{shape === 'card' ? 'Fill the frame with the card. Avoid glare.' : 'Fit the whole page in the frame, flat and well lit.'}</p>
         </>
       )}

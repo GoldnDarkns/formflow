@@ -755,9 +755,9 @@ section:nth-of-type(4) > .trayhead, section:nth-of-type(4) > .grid { animation-d
 /* Camera */
 .camera { position: fixed; inset: 0; z-index: 320; background: #0b0a09; color: #fff; overflow: hidden; touch-action: manipulation; }
 .camera video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.cam-frame { position: absolute; left: 50%; top: 46%; translate: -50% -50%; box-shadow: 0 0 0 9999px rgb(0 0 0 / 0.45); border-radius: 10px; transition: width 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.2); pointer-events: none; }
-.cam-frame.card { width: min(88vw, 62vh * 1.586); aspect-ratio: 1.586; }
-.cam-frame.page { width: min(84vw, 66vh * 0.707); aspect-ratio: 0.707; }
+.cam-frame { background: transparent; padding: 0; position: absolute; left: 50%; top: 46%; translate: -50% -50%; box-shadow: 0 0 0 9999px rgb(0 0 0 / 0.45); border-radius: 10px; transition: width 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.2); pointer-events: none; }
+.cam-frame.as-card { width: min(88vw, 62vh * 1.586); aspect-ratio: 1.586; }
+.cam-frame.as-page { width: min(84vw, 66vh * 0.707); aspect-ratio: 0.707; }
 .cam-frame i { position: absolute; width: 30px; height: 30px; border: 4px solid var(--marker); }
 .cam-frame i:nth-child(1) { left: -2px; top: -2px; border-right: 0; border-bottom: 0; border-radius: 10px 0 0 0; }
 .cam-frame i:nth-child(2) { right: -2px; top: -2px; border-left: 0; border-bottom: 0; border-radius: 0 10px 0 0; }

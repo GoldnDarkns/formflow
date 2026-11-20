@@ -210,3 +210,4 @@ Exact numbers are in `public/eval/results.json`.
     - Development specimens after the change: sorted 107/108, code lines 43/43, key facts 321/338 (was 322).
     - `ui/FlowMap.tsx`: the whole path of a page as a tap-to-open diagram, shown on Help and at the top of the Model card. Keep it in step with the pipeline when steps change.
     - Not checked: the owner's original photo (only the cut-out he sent was available), and a real phone.
+    - Camera bug found by the owner on the live site: the frame guide was an opaque cream box hiding the view, because its modifier classes were `.card` / `.page` and `.card` is the app's paper-sheet style. They are now `.as-card` / `.as-page`. Do not reuse `.card`, `.sheet`, `.page`, `.review` or `.ghost` as modifier names.
