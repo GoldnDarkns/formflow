@@ -8,14 +8,18 @@ import { createPortal } from 'react-dom';
 import { useEffect, useRef, useState } from 'react';
 import { motion } from 'motion/react';
 import { ICheck, IX } from './icons';
-import { detectCard, detectObject, detectPage, type Pt, type Quad } from '../core/scan';
+import { detectCard, detectObject, detectPage, refineQuad, type Pt, type Quad } from '../core/scan';
 import { rgbaToGray } from '../core/preprocess';
 
 const TRACK_SIDE = 320; // the finder looks at a copy this many pixels on its long side
 const TRACK_EVERY = 110; // milliseconds between looks
 
-/** Find the document in a video frame or canvas; corners as fractions (0..1) of the picture. */
-function locate(src: CanvasImageSource, sw: number, sh: number, small: HTMLCanvasElement): Quad | null {
+/**
+ * Find the document in a video frame or canvas; corners as fractions (0..1) of the picture.
+ * It is found on a small copy, then each side is snapped onto the real edge in a larger copy
+ * (`sharp` pixels on the long side), which makes the corners about five times more exact.
+ */
+function locate(src: CanvasImageSource, sw: number, sh: number, small: HTMLCanvasElement, big?: HTMLCanvasElement, sharp = 960): Quad | null {
   const k = TRACK_SIDE / Math.max(sw, sh);
   const w = Math.max(8, Math.round(sw * k)), h = Math.max(8, Math.round(sh * k));
   if (small.width !== w || small.height !== h) { small.width = w; small.height = h; }
@@ -24,7 +28,14 @@ function locate(src: CanvasImageSource, sw: number, sh: number, small: HTMLCanva
   const d = ctx.getImageData(0, 0, w, h).data;
   // a clean outline on a plain surface first; then four straight edges (a card held in a hand); then a bright page on a grainy surface
   const q = detectObject(d, w, h) ?? detectCard(d, w, h) ?? detectPage({ width: w, height: h, data: rgbaToGray(d, w, h).data });
-  return q ? (q.map(([x, y]) => [x / w, y / h]) as Quad) : null;
+  if (!q) return null;
+  if (!big) return q.map(([x, y]) => [x / w, y / h]) as Quad;
+  const K = Math.min(1, sharp / Math.max(sw, sh)), bw = Math.round(sw * K), bh = Math.round(sh * K);
+  if (big.width !== bw || big.height !== bh) { big.width = bw; big.height = bh; }
+  const bx = big.getContext('2d', { willReadFrequently: true })!;
+  bx.drawImage(src, 0, 0, bw, bh);
+  const r = refineQuad(bx.getImageData(0, 0, bw, bh).data, bw, bh, q.map(([x, y]) => [(x / w) * bw, (y / h) * bh]) as Quad);
+  return r.map(([x, y]) => [x / bw, y / bh]) as Quad;
 }
 
 interface Props {
@@ -44,8 +55,9 @@ export function Camera({ onShots, onClose, onFallback }: Props) {
   const [shots, setShots] = useState<{ blob: Blob; url: string; quad?: Quad }[]>([]);
   // the outline being followed: where it is, whether it has stopped moving, and the frame size it refers to
   const [track, setTrack] = useState<{ q: Quad; steady: boolean; w: number; h: number } | null>(null);
-  const follow = useRef<{ q: Quad | null; miss: number; still: number }>({ q: null, miss: 0, still: 0 });
+  const follow = useRef<{ q: Quad | null; miss: number; still: number; jump: Quad | null }>({ q: null, miss: 0, still: 0, jump: null });
   const small = useRef<HTMLCanvasElement | null>(null);
+  const big = useRef<HTMLCanvasElement | null>(null);
   const [flash, setFlash] = useState(0);
   const [torch, setTorch] = useState<'none' | 'off' | 'on'>('none'); // the phone's light, where the browser lets a page switch it
 
@@ -72,19 +84,28 @@ export function Camera({ onShots, onClose, onFallback }: Props) {
   useEffect(() => {
     if (state !== 'live') return;
     small.current ??= document.createElement('canvas');
+    big.current ??= document.createElement('canvas');
     const id = setInterval(() => {
       const v = video.current, f = follow.current;
       if (!v || !v.videoWidth || v.readyState < 2) return;
       let q: Quad | null = null;
-      try { q = locate(v, v.videoWidth, v.videoHeight, small.current!); } catch { /* a frame that cannot be read is skipped */ }
+      try { q = locate(v, v.videoWidth, v.videoHeight, small.current!, big.current!); } catch { /* a frame that cannot be read is skipped */ }
       if (!q) {
         if (++f.miss > 3) { f.q = null; f.still = 0; setTrack(null); }
         return;
       }
       f.miss = 0;
-      const move = f.q ? Math.max(...q.map((p, i) => Math.hypot(p[0] - f.q![i][0], p[1] - f.q![i][1]))) : 1;
+      const dist = (a: Quad, b: Quad) => Math.max(...a.map((p, i) => Math.hypot(p[0] - b[i][0], p[1] - b[i][1])));
+      const move = f.q ? dist(q, f.q) : 1;
+      // a jump to somewhere else is only believed when the next look finds the same place:
+      // one stray frame (a hand, a shadow, a box in the background) no longer throws the outline around
+      if (f.q && move >= 0.12) {
+        const confirmed = f.jump && dist(q, f.jump) < 0.05;
+        f.jump = confirmed ? null : q;
+        if (!confirmed) return;
+      } else f.jump = null;
       // small movements are smoothed so the outline does not shiver; a jump is followed at once
-      f.q = f.q && move < 0.12 ? (q.map((p, i) => [f.q![i][0] * 0.4 + p[0] * 0.6, f.q![i][1] * 0.4 + p[1] * 0.6] as Pt) as Quad) : q;
+      f.q = f.q && move < 0.12 ? (q.map((p, i) => [f.q![i][0] * 0.35 + p[0] * 0.65, f.q![i][1] * 0.35 + p[1] * 0.65] as Pt) as Quad) : q;
       f.still = move < 0.015 ? f.still + 1 : 0;
       setTrack({ q: f.q, steady: f.still >= 4, w: v.videoWidth, h: v.videoHeight });
     }, TRACK_EVERY);
@@ -94,6 +115,12 @@ export function Camera({ onShots, onClose, onFallback }: Props) {
   const light = () => {
     const on = torch !== 'on';
     stream.current?.getVideoTracks()[0]?.applyConstraints({ advanced: [{ torch: on } as MediaTrackConstraintSet] }).then(() => setTorch(on ? 'on' : 'off')).catch(() => setTorch('none'));
+  };
+  const native = () => {
+    stream.current?.getTracks().forEach((t) => t.stop());
+    if (shots.length) onShots(shots.map((s, i) => ({ blob: s.blob, name: `Photo ${i + 1}`, quad: s.quad })));
+    onFallback();
+    onClose();
   };
   const shoot = () => {
     const v = video.current;
@@ -105,7 +132,7 @@ export function Camera({ onShots, onClose, onFallback }: Props) {
     navigator.vibrate?.(20);
     // the corners in this very picture; failing that, the outline that was on screen
     let quad: Quad | undefined;
-    try { quad = locate(c, c.width, c.height, small.current ?? (small.current = document.createElement('canvas'))) ?? follow.current.q ?? undefined; } catch { quad = follow.current.q ?? undefined; }
+    try { quad = locate(c, c.width, c.height, small.current ?? (small.current = document.createElement('canvas')), document.createElement('canvas'), 2400) ?? follow.current.q ?? undefined; } catch { quad = follow.current.q ?? undefined; }
     c.toBlob((blob) => { if (blob) setShots((s) => [...s, { blob, url: URL.createObjectURL(blob), quad }]); }, 'image/jpeg', 0.92);
   };
   const finish = () => {
@@ -142,7 +169,13 @@ export function Camera({ onShots, onClose, onFallback }: Props) {
           <button role="radio" aria-checked={shape === 'card'} className={shape === 'card' ? 'on' : ''} onClick={() => setShape('card')}>Card</button>
           <button role="radio" aria-checked={shape === 'page'} className={shape === 'page' ? 'on' : ''} onClick={() => setShape('page')}>Page</button>
         </div>
-        {torch === 'none' ? <span style={{ width: 44 }} /> : (
+        {torch === 'none' ? (
+          // Safari on iPhone does not let a web page switch the light on, but the phone's own camera has
+          // its flash: hand over to it (the photos taken so far are kept and read too)
+          <button className="cam-flashbtn" onClick={native} title="Opens the phone's own camera, which has the flash">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z" /></svg> Flash
+          </button>
+        ) : (
           <button className={'cam-round' + (torch === 'on' ? ' on' : '')} onClick={light} aria-pressed={torch === 'on'} aria-label={torch === 'on' ? 'Switch the light off' : 'Switch the light on'} title="Light">
             <svg width="22" height="22" viewBox="0 0 24 24" fill={torch === 'on' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z" /></svg>
           </button>

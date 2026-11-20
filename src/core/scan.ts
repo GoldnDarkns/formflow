@@ -405,6 +405,68 @@ export function detectCard(rgba: Uint8ClampedArray | Uint8Array, W: number, H: n
 }
 
 /**
+ * Sharpen corners found on a small copy, using the full picture: every side is sampled at many
+ * points, at each point the strongest change in brightness across the side (within about 2% of
+ * the picture) is taken as the true edge, a straight line is fitted through those points (twice,
+ * dropping the worst third the second time, so a finger or a shadow does not pull it), and the
+ * corners are where the new lines cross. A corner that would move further than that is left alone.
+ */
+export function refineQuad(rgba: Uint8ClampedArray | Uint8Array, W: number, H: number, q: Quad): Quad {
+  const lum = (x: number, y: number) => {
+    const xi = Math.min(W - 1, Math.max(0, Math.round(x))), yi = Math.min(H - 1, Math.max(0, Math.round(y))), i = (yi * W + xi) * 4;
+    return rgba[i] * 0.299 + rgba[i + 1] * 0.587 + rgba[i + 2] * 0.114;
+  };
+  const reach = Math.max(4, Math.hypot(W, H) * 0.02);
+  const lines: { nx: number; ny: number; c: number }[] = [];
+  for (let k = 0; k < 4; k++) {
+    const a = q[k], b = q[(k + 1) % 4];
+    const len = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    if (len < 8) return q;
+    const tx = (b[0] - a[0]) / len, ty = (b[1] - a[1]) / len, nx = -ty, ny = tx;
+    const pts: { x: number; y: number; s: number }[] = [];
+    for (let j = 1; j < 40; j++) {
+      const f = j / 40, px = a[0] + (b[0] - a[0]) * f, py = a[1] + (b[1] - a[1]) * f;
+      let best = 0, bestD = 0;
+      for (let d = -reach; d <= reach; d += 1) {
+        // brightness difference across the line, averaged over a short stretch along it
+        let g = 0;
+        for (const o of [-2, 0, 2]) g += lum(px + nx * (d + 1.5) + tx * o, py + ny * (d + 1.5) + ty * o) - lum(px + nx * (d - 1.5) + tx * o, py + ny * (d - 1.5) + ty * o);
+        if (Math.abs(g) > best) { best = Math.abs(g); bestD = d; }
+      }
+      if (best > 30) pts.push({ x: px + nx * bestD, y: py + ny * bestD, s: bestD });
+    }
+    if (pts.length < 10) return q;
+    // fit: the offset along the normal varies linearly along the side; least squares, then again without the worst third
+    const fit = (ps: typeof pts) => {
+      const u = ps.map((p) => (p.x - a[0]) * tx + (p.y - a[1]) * ty);
+      const m = u.reduce((t, v) => t + v, 0) / ps.length, ms = ps.reduce((t, p) => t + p.s, 0) / ps.length;
+      let sxy = 0, sxx = 0;
+      ps.forEach((p, i) => { sxy += (u[i] - m) * (p.s - ms); sxx += (u[i] - m) ** 2; });
+      const slope = sxx ? sxy / sxx : 0;
+      return { at: (uu: number) => ms + slope * (uu - m), slope };
+    };
+    let f = fit(pts);
+    const resid = pts.map((p) => Math.abs(p.s - f.at((p.x - a[0]) * tx + (p.y - a[1]) * ty)));
+    const cut = [...resid].sort((x, y) => x - y)[Math.floor(resid.length * 0.66)];
+    f = fit(pts.filter((_, i) => resid[i] <= cut));
+    const s0 = f.at(0), s1 = f.at(len);
+    const p0: Pt = [a[0] + nx * s0, a[1] + ny * s0], p1: Pt = [b[0] + nx * s1, b[1] + ny * s1];
+    const lx = p1[0] - p0[0], ly = p1[1] - p0[1], ll = Math.hypot(lx, ly);
+    const Nx = -ly / ll, Ny = lx / ll;
+    lines.push({ nx: Nx, ny: Ny, c: Nx * p0[0] + Ny * p0[1] });
+  }
+  const out: Pt[] = [];
+  for (let k = 0; k < 4; k++) {
+    const p = lines[(k + 3) % 4], r = lines[k];
+    const det = p.nx * r.ny - p.ny * r.nx;
+    if (Math.abs(det) < 1e-6) return q;
+    const c: Pt = [(p.c * r.ny - p.ny * r.c) / det, (p.nx * r.c - p.c * r.nx) / det];
+    out.push(Math.hypot(c[0] - q[k][0], c[1] - q[k][1]) > reach * 1.5 ? q[k] : [Math.min(W - 1, Math.max(0, c[0])), Math.min(H - 1, Math.max(0, c[1]))]);
+  }
+  return out as Quad;
+}
+
+/**
  * Does this four-sided shape plausibly hold the document whose words were read? It must be a real
  * crop (under 80% of the picture) and nearly all the words must lie inside it. This is the check
  * that makes `detectCard` safe to use after reading: a box printed inside a page fails it.
@@ -423,7 +485,8 @@ export function quadHoldsWords(q: Quad, centres: Pt[], W: number, H: number): bo
  * catches a page on fabric or wood grain, where every pixel is an edge and no outline can be traced.
  */
 export function findDocument(rgba: Uint8ClampedArray | Uint8Array, W: number, H: number, gray: GrayImage, outline = true): Quad | null {
-  return (outline ? detectObject(rgba, W, H) : null) ?? detectPage(gray);
+  const q = (outline ? detectObject(rgba, W, H) : null) ?? detectPage(gray);
+  return q && outline ? refineQuad(rgba, W, H, q) : q;
 }
 
 /** Solve the 3x3 homography that maps the unit-rectangle corners (dst) onto the quad (src). */

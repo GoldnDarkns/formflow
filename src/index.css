@@ -772,6 +772,7 @@ section:nth-of-type(4) > .trayhead, section:nth-of-type(4) > .grid { animation-d
 .cam-flash { position: absolute; inset: 0; background: #fff; pointer-events: none; }
 .cam-msg { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 1rem; text-align: center; padding: 2rem; margin: 0; }
 .cam-top { position: absolute; left: 0; right: 0; top: 0; display: flex; align-items: center; justify-content: space-between; padding: calc(0.8rem + env(safe-area-inset-top)) 0.9rem 0.8rem; }
+.cam-flashbtn { display: inline-flex; align-items: center; gap: 0.3rem; min-height: 44px; padding: 0 0.8rem; border: 0; border-radius: 6px; background: rgb(0 0 0 / 0.55); color: #fff; font-weight: 700; font-size: 0.9rem; }
 .cam-round.on { background: var(--marker); color: #191b18; }
 .cam-round { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%; border: 0; background: rgb(0 0 0 / 0.55); color: #fff; }
 .cam-seg { display: flex; padding: 3px; border-radius: 6px; background: rgb(0 0 0 / 0.55); }

@@ -378,6 +378,15 @@ export function alertsFor(type: DocType, typeConfidence: number, facts: Fact[], 
 
 /** The printed labels an identity document can carry, as they should be shown. */
 const ID_LABELS = ['Name', 'Surname', 'Given names', 'Nationality', 'Date of birth', 'Place of birth', 'Sex', 'Issue date', 'Date of issue', 'Expiry date', 'Date of expiry', 'Valid until', 'Place of issue', 'Issuing authority', 'Licensing authority', 'Authority', 'Licence no', 'License no', 'Passport no', 'Document no', 'Card number', 'ID number', 'Occupation', 'Profession', 'Employer', 'Sponsor', 'Blood group', 'Class', 'Category', 'Address', 'File no', 'UID no', 'Entry permit no', 'Visa type', 'Duration of stay', 'Plate no', 'Owner', 'Model', 'Colour', 'Chassis no', 'Engine no', 'Insurance', 'Traffic code no', 'Vehicle type', 'Origin', 'Type'];
+/** Printed labels that mean the same as a key fact shown at the top. */
+const SAME_AS_FACT: Record<string, string[]> = {
+  'Name': ['Full name'], 'Surname': ['Full name'], 'Given names': ['Full name'], 'Nationality': ['Nationality'],
+  'Date of birth': ['Date of birth'], 'Issue date': ['Issue date'], 'Date of issue': ['Issue date'],
+  'Expiry date': ['Expiry date'], 'Date of expiry': ['Expiry date'], 'Valid until': ['Expiry date'],
+  'Licence no': ['Licence number'], 'License no': ['Licence number'], 'Passport no': ['Passport number'],
+  'Document no': ['Document number', 'Passport number'], 'Card number': ['Document number', 'Emirates ID number'], 'ID number': ['Emirates ID number', 'Document number'],
+  'Place of issue': ['Place of issue'], 'Sex': ['Sex'], 'Plate no': ['Plate number'], 'Owner': ['Owner'], 'Chassis no': ['Chassis number'], 'Engine no': ['Engine number'],
+};
 const letters = (v: string) => v.toUpperCase().replace(/[^A-Z]/g, '');
 /**
  * On an identity document the label-and-value pairs found by the form models are mostly noise
@@ -397,8 +406,16 @@ export function tidyIdFields<T extends Field>(fields: T[], facts: Fact[]): T[] {
     let best = '', bestD = 1;
     for (const l of ID_LABELS) { const t = letters(l); const d = editDistance(k, t) / Math.max(k.length, t.length); if (d < bestD) { bestD = d; best = l; } }
     if (bestD > 0.3) continue;
+    // a detail already in the summary at the top is not listed twice, even when read differently
+    const fact = SAME_AS_FACT[best];
+    if (fact && facts.some((x) => fact.includes(x.key))) continue;
     if (known.has(flat(v)) || out.some((o) => o.key === best)) continue;
-    out.push({ ...f, key: best });
+    // keep only what the label asks for: a date for a date, and no half-read word stuck on the end
+    // (the Arabic beside each English label is often misread as Latin letters, e.g. "Dues4")
+    let value = v;
+    if (/date|valid/i.test(best)) { const d = parseDate(v); if (!d) continue; value = d; }
+    else value = v.split(/\s+/).filter((w, i, all) => i === 0 || !(i === all.length - 1 && /[a-z]/i.test(w) && /\d/.test(w))).join(' ');
+    out.push({ ...f, key: best, value });
   }
   return out;
 }

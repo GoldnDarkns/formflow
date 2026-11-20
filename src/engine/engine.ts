@@ -11,7 +11,7 @@ import type { OcrWord, SecondReading } from '../core/types';
 import type { PreprocessOptions } from '../core/preprocess';
 import { classifyDocument, DOC_LABEL, ID_TYPES, type Classification, type DocType } from '../core/classify';
 import { extractFacts, type Fact } from '../core/facts';
-import { detectCard, quadHoldsWords, type Pt, type Quad } from '../core/scan';
+import { detectCard, quadHoldsWords, refineQuad, type Pt, type Quad } from '../core/scan';
 import type { VisionOpinion } from '../core/critic-vision';
 import type { PreRequest, PreResponse } from './preprocess.worker';
 
@@ -433,7 +433,8 @@ export async function processDocument(file: Blob, fileName: string, opts: Prepro
   if (!page.quad && !manualQuad && classifyDocument(page.words, page.W, page.H, null).type !== 'form') {
     const c = turned ? turnedCanvas(turned) : src;
     const d = c.getContext('2d', { willReadFrequently: true })!.getImageData(0, 0, c.width, c.height).data;
-    const q = detectCard(d, c.width, c.height);
+    const found = detectCard(d, c.width, c.height);
+    const q = found && refineQuad(d, c.width, c.height, found);
     if (q && quadHoldsWords(q, page.words.map((w) => [(w.box[0] + w.box[2]) / 2, (w.box[1] + w.box[3]) / 2] as Pt), c.width, c.height)) {
       const alt = await readPage(d.buffer as ArrayBuffer, c.width, c.height, false, q.map(([x, y]) => [x / c.width, y / c.height]) as Quad);
       if (readingQuality(alt.words) >= readingQuality(page.words) * 0.7) { page = alt; onLive?.({ quad: alt.quad, flat: alt.viewUrl }); }

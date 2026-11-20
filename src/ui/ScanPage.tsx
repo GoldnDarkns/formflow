@@ -185,7 +185,7 @@ export function ScanPage(p: Props) {
             </div>
           )}
           {p.second.enabled && p.second.status === 'ready' && <p className="small" style={{ paddingBottom: '0.6rem' }}><span className="tag good">Ready on {p.second.device === 'webgpu' ? 'the GPU' : 'the CPU'}</span>{p.second.device !== 'webgpu' && <span className="muted"> Slower without WebGPU: 20 to 60 seconds a page.</span>}</p>}
-          {p.second.enabled && p.second.status === 'error' && <p className="small" style={{ paddingBottom: '0.6rem' }}><span className="tag bad">Could not load: {p.second.error}</span></p>}
+          {p.second.enabled && p.second.status === 'error' && <p className="small" style={{ paddingBottom: '0.6rem' }}><span className="tag bad" style={{ whiteSpace: 'normal', display: 'inline-block', maxWidth: '100%', overflowWrap: 'anywhere' }}>Florence-2 could not start. {p.second.error}</span></p>}
           <div className="toggle" style={{ flexDirection: 'column', gap: '0.4rem' }}>
             <div className="row" style={{ width: '100%' }}>
               <b className="grow">Text reader</b>

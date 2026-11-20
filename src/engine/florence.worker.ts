@@ -27,11 +27,24 @@ self.onmessage = async (e: MessageEvent<any>) => {
         const device = await pickDevice();
         post({ type: 'device', device });
         const files = new Map<string, { loaded: number; total: number }>();
-        loading = loadFlorence(device, (p) => {
+        const progress = (p: { file: string; loaded: number; total: number }) => {
           files.set(p.file, p);
           let l = 0, t = 0;
           for (const v of files.values()) { l += v.loaded; t += v.total; }
           post({ type: 'progress', loaded: l, total: t });
+        };
+        // Safari on iPhone now reports a graphics card, but ONNX Runtime cannot always start on it
+        // ("no available backend found"). Then the processor is tried instead, and if that fails too
+        // the phone has not given the page enough memory for a 275 MB model.
+        loading = loadFlorence(device, progress).catch(async (first) => {
+          if (device !== 'webgpu') throw first;
+          post({ type: 'device', device: 'wasm' });
+          files.clear();
+          return loadFlorence('wasm', progress);
+        }).catch((err) => {
+          throw new Error(/backend|memory|allocat|RangeError/i.test(String(err?.message ?? err))
+            ? 'This device would not start Florence-2 (it needs about 1 GB of memory for the page). It runs on a laptop. Everything else works without it.'
+            : String(err?.message ?? err));
         });
       }
       reader = await loading;

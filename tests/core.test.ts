@@ -500,6 +500,13 @@ test('identity documents: noise pairs are dropped, real printed labels are kept 
   assert.deepEqual(out.map((x) => [x.key, x.value]), [['Nationality', 'UTOPIA'], ['Place of issue', 'Port Sample']]);
 });
 
+test('identity documents: a field already shown as a key fact is not listed again, and a misread word is cut off a date', () => {
+  const f = (key: string, value: string) => ({ key, value, confidence: 0.8, status: 'ok' as const, reasons: [], source: 'layout' as const });
+  const facts = [{ key: 'Date of birth', value: '2000-06-18', from: 'text' } as any];
+  assert.deepEqual(tidyIdFields([f('Date of Birth', '18/06/2000 Dues4')], facts), []);
+  assert.deepEqual(tidyIdFields([f('Expiry Date', '29/04/2027 Dues4'), f('Occupation', 'Engineer Dues4')], facts).map((x) => [x.key, x.value]), [['Expiry date', '2027-04-29'], ['Occupation', 'Engineer']]);
+});
+
 import { detectCard, quadHoldsWords } from '../src/core/scan';
 
 test('four-edges finder: a card over a busy background with a finger across one edge is found', () => {

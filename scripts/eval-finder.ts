@@ -7,7 +7,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import sharp from 'sharp';
 import { rgbaToGray } from '../src/core/preprocess';
-import { detectCard, detectObject, detectPage, findDocument, type Pt } from '../src/core/scan';
+import { detectCard, detectObject, detectPage, findDocument, refineQuad, type Pt, type Quad } from '../src/core/scan';
 
 const DATA = path.resolve(import.meta.dirname, '../../data');
 const out = process.argv[2];
@@ -46,6 +46,9 @@ async function composite(card: string, bg: [number, number, number], W = 1200, H
 }
 
 const load = async (src: Buffer | string) => { const { data, info } = await sharp(src).rotate().flatten({ background: '#fff' }).ensureAlpha().raw().toBuffer({ resolveWithObject: true }); return { rgba: new Uint8ClampedArray(data.buffer, data.byteOffset, data.length), W: info.width, H: info.height }; };
+// mean distance of each true corner to the nearest found corner, in % of the photo diagonal
+const err = (q: Pt[], t: Pt[], diag: number) => (100 * t.reduce((s, p) => s + Math.min(...q.map((c) => Math.hypot(c[0] - p[0], c[1] - p[1]))), 0)) / t.length / diag;
+const errs = { raw: [] as number[], refined: [] as number[] };
 const close = (q: Pt[], t: Pt[], diag: number) => {
   // corners may come back in a different starting order when the card is turned: match each to its nearest
   return t.every((p) => Math.min(...q.map((c) => Math.hypot(c[0] - p[0], c[1] - p[1]))) < diag * 0.04);
@@ -66,6 +69,7 @@ for (const [name, bg] of Object.entries(SURFACES)) {
     const old = detectPage(g), both = findDocument(rgba, W, H, g);
     total++;
     if (o && close(o, truth, diag)) hitObj++;
+    if (o && close(o, truth, diag)) { errs.raw.push(err(o, truth, diag)); errs.refined.push(err(refineQuad(rgba, W, H, o as Quad), truth, diag)); }
     if (old && close(old, truth, diag)) hitOld++;
     if (both && close(both, truth, diag)) hitBoth++;
     if (out && saved < 10 && total <= 2) { fs.mkdirSync(out, { recursive: true }); const q = both; const svg = Buffer.from(`<svg width="${W}" height="${H}">${q ? `<polygon points="${q.map((p) => p.join(',')).join(' ')}" fill="none" stroke="#f0f" stroke-width="6"/>` : ''}</svg>`); await sharp(await sharp(buf).composite([{ input: svg }]).toBuffer()).resize(500).jpeg().toFile(path.join(out, `${name.replace(' ', '-')}-${total}.jpg`)); saved++; }
@@ -88,9 +92,15 @@ console.log(`outline finder: ${(ms / runs).toFixed(1)} ms a photo`);
     total++;
     if (a && close(a, truth, diag)) plain++;
     if (b && close(b, truth, diag)) edges++;
+    if (b && close(b, truth, diag)) { errs.raw.push(err(b, truth, diag)); errs.refined.push(err(refineQuad(rgba, W, H, b as Quad), truth, diag)); }
     if (out && total <= 6) { fs.mkdirSync(out, { recursive: true }); const svg = Buffer.from(`<svg width="${W}" height="${H}">${b ? `<polygon points="${b.map((p) => p.join(',')).join(' ')}" fill="none" stroke="#f0f" stroke-width="6"/>` : ''}</svg>`); await sharp(await sharp(buf).composite([{ input: svg }]).toBuffer()).resize(500).jpeg().toFile(path.join(out, `held-${total}.jpg`)); }
   }
   console.log(`held in a hand  outline and bright-page finders ${plain}/${total}   four-edges finder ${edges}/${total}   (${(t / total).toFixed(1)} ms a photo)`);
+}
+{
+  const mean = (v: number[]) => (v.reduce((a, b) => a + b, 0) / v.length).toFixed(2);
+  const med = (v: number[]) => [...v].sort((a, b) => a - b)[v.length >> 1].toFixed(2);
+  console.log(`corner error on found cards (% of diagonal): as found mean ${mean(errs.raw)} median ${med(errs.raw)}   sharpened mean ${mean(errs.refined)} median ${med(errs.refined)}   (${errs.raw.length} cards)`);
 }
 
 // scans: nothing should be cut

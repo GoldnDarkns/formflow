@@ -145,10 +145,10 @@ export function ResultView(p: Props) {
           <div className="sheet stack" style={{ gap: '0.7rem' }}>
             <div className="row">
               <h2 className="grow">{review ? `${review} to check` : doc.kind === 'id' ? 'Other printed details' : 'All fields'} {s.fields.length > 0 && <span className="muted small" style={{ fontFamily: 'var(--body)', fontWeight: 500 }}>of {s.fields.filter((f) => f.value).length}</span>}</h2>
-              {s.second === 'none' && <button className="btn sm" disabled={!p.secondAvailable} title={p.secondAvailable ? '' : 'Turn on the second reader on the Scan tab first'} onClick={p.onSecond}><ISpark /> Second read</button>}
+              {s.second === 'none' && doc.kind !== 'id' && <button className="btn sm" disabled={!p.secondAvailable} title={p.secondAvailable ? '' : 'Turn on the second reader on the Scan tab first'} onClick={p.onSecond}><ISpark /> Second read</button>}
               {s.second === 'running' && <span className="tag">Florence-2 is reading</span>}
               {s.second === 'done' && <span className="tag good">Read twice, {((doc.secondMs ?? 0) / 1000).toFixed(0)}s</span>}
-              {s.second === 'error' && <span className="tag bad" title={s.secondError}>Second read failed</span>}
+              {s.second === 'error' && <span className="tag bad" title={s.secondError}>Florence-2 could not read this</span>}
               <button className="btn sm" onClick={confirmAll}><ICheck /> Confirm the sure ones</button>
             </div>
             <div className="fields" ref={listRef}>

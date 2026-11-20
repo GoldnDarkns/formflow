@@ -104,7 +104,8 @@ export default function App() {
         st.fields = markMrz(st);
         setDocs((ds) => [st, ...ds]);
         lookAgain(doc);
-        if (secondRef.current.enabled) runSecond(st);
+        // Florence-2 was measured on forms; identity documents get the neural reader's second look instead
+        if (secondRef.current.enabled && doc.kind !== 'id') runSecond(st);
         if (criticRef.current) criticLook(doc).then((vision) => patch(doc.id, (d) => ({ ...d, vision }))).catch((e) => console.warn('critic', e));
       })
       .catch((e) => {
