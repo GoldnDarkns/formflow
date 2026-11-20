@@ -8,7 +8,7 @@ import { PNG } from 'pngjs';
 import { createWorker, PSM } from 'tesseract.js';
 import type { GrayImage } from '../src/core/types';
 import { rgbaToGray, grayToRgba, preprocess, resize, ocrScale, backgroundUnevenness } from '../src/core/preprocess';
-import { detectPage, flattenLighting, warpQuad } from '../src/core/scan';
+import { findDocument, flattenLighting, warpQuad } from '../src/core/scan';
 import { wordsFromTesseract, cleanWords } from '../src/core/ocr';
 import { readingQuality } from '../src/core/orient';
 
@@ -28,7 +28,7 @@ let W = info.width, H = info.height;
 lap(`open ${W}x${H}`, t);
 t = Date.now();
 const g0 = rgbaToGray(color, W, H);
-const quad = process.env.NOCUT ? null : detectPage(g0);
+const quad = process.env.NOCUT ? null : findDocument(color, W, H, g0, process.env.FINDER !== 'bright');
 lap('find page', t);
 console.log('page corners (pixels):', quad ? quad.map((p) => p.map((v) => +v.toFixed(3)).join(',')).join('  ') : 'none (whole image kept)');
 if (quad) { const w = warpQuad(color, W, H, quad); color = w.data as Uint8ClampedArray<ArrayBuffer>; W = w.width; H = w.height; console.log(`cut-out ${W}x${H}`); }

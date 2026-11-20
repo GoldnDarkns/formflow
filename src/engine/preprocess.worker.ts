@@ -2,7 +2,7 @@
 // Image work runs off the main thread so the interface stays smooth:
 // find the page -> flatten it -> even out the light -> deskew -> binarise.
 import { preprocess, resize, rgbaToGray, grayToRgba, ocrScale, backgroundUnevenness, type PreprocessOptions } from '../core/preprocess';
-import { detectPage, flattenLighting, warpQuad, type Quad } from '../core/scan';
+import { findDocument, flattenLighting, warpQuad, type Quad } from '../core/scan';
 import { photoQuality, type PhotoQuality } from '../core/quality';
 
 export interface PreRequest {
@@ -38,7 +38,7 @@ self.onmessage = (e: MessageEvent<PreRequest>) => {
   let quality: PhotoQuality | null = null;
   if (opts.magic || e.data.quad) {
     const g0 = rgbaToGray(color, W, H);
-    quad = e.data.quad ?? detectPage(g0);
+    quad = e.data.quad ?? findDocument(color, W, H, g0);
     if (quad) {
       const w = warpQuad(color, W, H, quad);
       color = w.data as Uint8ClampedArray<ArrayBuffer>;

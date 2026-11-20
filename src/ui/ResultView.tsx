@@ -70,8 +70,11 @@ export function ResultView(p: Props) {
   const verified = doc.facts.filter((f) => f.proof && f.valid).length;
   const failed = doc.facts.filter((f) => f.proof && f.valid === false).length;
   const problem = alerts.find((a) => a.level === 'bad');
-  const state: 'bad' | 'warn' | 'good' = failed || problem ? 'bad' : review ? 'warn' : 'good';
-  const headline = failed ? `${failed} check digit${failed === 1 ? '' : 's'} failed: look closely`
+  // an identity document from which not one detail could be worked out: say so plainly, do not list noise
+  const unread = doc.kind === 'id' && doc.facts.length === 0;
+  const state: 'bad' | 'warn' | 'good' = failed || problem || unread ? 'bad' : review ? 'warn' : 'good';
+  const headline = unread ? 'Could not read this document clearly'
+    : failed ? `${failed} check digit${failed === 1 ? '' : 's'} failed: look closely`
     : problem ? problem.text.split('.')[0]
     : review ? `${review} field${review === 1 ? '' : 's'} to check`
     : verified ? `${verified} value${verified === 1 ? '' : 's'} verified by check digits` : 'Read. Nothing flagged.';
@@ -115,6 +118,7 @@ export function ResultView(p: Props) {
             ))}
           </div>
         )}
+        {unread && <p className="answer-note"><span className="grow"><b>Nothing was saved from this photo.</b> Look at "Cut out" below: if the outline is not on the edges of the document, drag its corners there and it is read again. Otherwise take the photo again, closer, flat, and away from glare.</span></p>}
         {alerts.filter((a) => a !== problem).length > 0 && <div className="alerts">{alerts.filter((a) => a !== problem).map((a) => <span key={a.text} className={'tag ' + a.level} style={{ whiteSpace: 'normal' }}>{a.text}</span>)}</div>}
         {doc.template && (
           <p className="answer-note tplnote"><span className="grow"><b>Read with a template:</b> {doc.template.template.name}. Each box is read directly and keeps its proper label.</span>
@@ -140,7 +144,7 @@ export function ResultView(p: Props) {
         <div className="stack">
           <div className="sheet stack" style={{ gap: '0.7rem' }}>
             <div className="row">
-              <h2 className="grow">{review ? `${review} to check` : 'All fields'} <span className="muted small" style={{ fontFamily: 'var(--body)', fontWeight: 500 }}>of {s.fields.filter((f) => f.value).length}</span></h2>
+              <h2 className="grow">{review ? `${review} to check` : doc.kind === 'id' ? 'Other printed details' : 'All fields'} {s.fields.length > 0 && <span className="muted small" style={{ fontFamily: 'var(--body)', fontWeight: 500 }}>of {s.fields.filter((f) => f.value).length}</span>}</h2>
               {s.second === 'none' && <button className="btn sm" disabled={!p.secondAvailable} title={p.secondAvailable ? '' : 'Turn on the second reader on the Scan tab first'} onClick={p.onSecond}><ISpark /> Second read</button>}
               {s.second === 'running' && <span className="tag">Florence-2 is reading</span>}
               {s.second === 'done' && <span className="tag good">Read twice, {((doc.secondMs ?? 0) / 1000).toFixed(0)}s</span>}
@@ -148,7 +152,8 @@ export function ResultView(p: Props) {
               <button className="btn sm" onClick={confirmAll}><ICheck /> Confirm the sure ones</button>
             </div>
             <div className="fields" ref={listRef}>
-              {sorted.length === 0 && <p className="muted small">No label and value pairs found. Switch the viewer to "Before / after" to judge the scan, or add fields by hand.</p>}
+              {sorted.length === 0 && doc.kind === 'id' && <p className="muted small">{unread ? 'Nothing readable yet.' : 'The details of this document are in the summary at the top: tap one to copy it. Nothing else on it was read clearly enough to list.'}</p>}
+              {sorted.length === 0 && doc.kind !== 'id' && <p className="muted small">No label and value pairs found. Switch the viewer to "Before / after" to judge the scan, or add fields by hand.</p>}
               {sorted.map((f) => {
                 const sel = p.selected === f.uid;
                 const crop = sel ? cropOf(f) : null;

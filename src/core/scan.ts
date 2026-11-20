@@ -173,6 +173,135 @@ export function detectPage(g: GrayImage): Quad | null {
   return q.map(([x, y]) => [x / scale, y / scale]) as Quad;
 }
 
+/**
+ * Find a card or page by its outline instead of its brightness: for a pale card on a white table,
+ * a dark booklet on a light desk, anything `detectPage` cannot see. Strong colour changes are
+ * marked as edges; whatever the plain surface cannot reach from the border of the photo without
+ * crossing an edge is an object, and the largest one with four straight sides is the document.
+ * To stay off scans (a boxed table printed on a page is also a closed outline), the inside must
+ * be a different colour from the surface just outside it. Works on a small copy, so it is fast
+ * enough to run on every camera frame. Corners are returned in pixels of the image given.
+ */
+export function detectObject(rgba: Uint8ClampedArray | Uint8Array, W: number, H: number, max = 320): Quad | null {
+  const s = Math.min(1, max / Math.max(W, H));
+  const w = Math.max(8, Math.round(W * s)), h = Math.max(8, Math.round(H * s)), n = w * h;
+  // block-mean shrink of the three colour planes
+  const sum = [new Float32Array(n), new Float32Array(n), new Float32Array(n)], cnt = new Uint16Array(n);
+  const step = Math.max(1, Math.floor(1 / s / 3)); // a few samples per block are enough
+  for (let y = 0; y < H; y += step) {
+    const row = Math.min(h - 1, Math.floor(y * s)) * w;
+    for (let x = 0; x < W; x += step) {
+      const i = row + Math.min(w - 1, Math.floor(x * s)), j = (y * W + x) * 4;
+      sum[0][i] += rgba[j]; sum[1][i] += rgba[j + 1]; sum[2][i] += rgba[j + 2]; cnt[i]++;
+    }
+  }
+  const ch = sum.map((p) => { const d = new Uint8Array(n); for (let i = 0; i < n; i++) d[i] = cnt[i] ? p[i] / cnt[i] : 255; return boxBlur({ width: w, height: h, data: d }, 1).data; });
+  // colour change at every pixel: the largest of the three channels
+  const grad = new Uint8Array(n);
+  for (let y = 1; y < h - 1; y++)
+    for (let x = 1; x < w - 1; x++) {
+      const i = y * w + x;
+      let m = 0;
+      for (const c of ch) { const v = Math.abs(c[i + 1] - c[i - 1]) + Math.abs(c[i + w] - c[i - w]); if (v > m) m = v; }
+      grad[i] = Math.min(255, m);
+    }
+  const hist = new Uint32Array(256);
+  for (let i = 0; i < n; i++) hist[grad[i]]++;
+  let acc = 0, med = 0;
+  for (; med < 255; med++) { acc += hist[med]; if (acc >= n / 2) break; }
+  const thr = Math.min(40, Math.max(7, med * 3 + 4));
+  // edges, thickened by one pixel so small gaps in the outline close
+  const edge = new Uint8Array(n);
+  for (let y = 1; y < h - 1; y++)
+    for (let x = 1; x < w - 1; x++) {
+      const i = y * w + x;
+      if (grad[i] >= thr) { edge[i] = edge[i - 1] = edge[i + 1] = edge[i - w] = edge[i + w] = 1; }
+    }
+  // the surface: everything reachable from the border without crossing an edge
+  const bg = new Uint8Array(n);
+  const stack: number[] = [];
+  const push = (i: number) => { if (!bg[i] && !edge[i]) { bg[i] = 1; stack.push(i); } };
+  for (let x = 0; x < w; x++) { push(x); push((h - 1) * w + x); }
+  for (let y = 0; y < h; y++) { push(y * w); push(y * w + w - 1); }
+  while (stack.length) {
+    const i = stack.pop()!, x = i % w, y = (i / w) | 0;
+    if (x > 0) push(i - 1);
+    if (x < w - 1) push(i + 1);
+    if (y > 0) push(i - w);
+    if (y < h - 1) push(i + w);
+  }
+  // largest object the surface could not reach
+  const lab = new Int32Array(n);
+  let best = 0, bestN = 0, cur = 0;
+  for (let s0 = 0; s0 < n; s0++) {
+    if (bg[s0] || lab[s0]) continue;
+    cur++;
+    let k = 0;
+    stack.push(s0);
+    lab[s0] = cur;
+    while (stack.length) {
+      const i = stack.pop()!, x = i % w, y = (i / w) | 0;
+      k++;
+      if (x > 0 && !bg[i - 1] && !lab[i - 1]) { lab[i - 1] = cur; stack.push(i - 1); }
+      if (x < w - 1 && !bg[i + 1] && !lab[i + 1]) { lab[i + 1] = cur; stack.push(i + 1); }
+      if (y > 0 && !bg[i - w] && !lab[i - w]) { lab[i - w] = cur; stack.push(i - w); }
+      if (y < h - 1 && !bg[i + w] && !lab[i + w]) { lab[i + w] = cur; stack.push(i + w); }
+    }
+    if (k > bestN) { bestN = k; best = cur; }
+  }
+  if (bestN < n * 0.06) return null;
+  const outline: Pt[] = [];
+  for (let y = 0; y < h; y++)
+    for (let x = 0; x < w; x++) {
+      const i = y * w + x;
+      if (lab[i] !== best) continue;
+      if (x === 0 || y === 0 || x === w - 1 || y === h - 1 || lab[i - 1] !== best || lab[i + 1] !== best || lab[i - w] !== best || lab[i + w] !== best) outline.push([x, y]);
+    }
+  const q = sidesQuad(outline, w, h);
+  if (!q) return null;
+  const area = quadArea(q);
+  if (area < n * 0.06 || area > n * 0.94 || bestN / area < 0.8 || bestN / area > 1.15) return null;
+  // the two pairs of opposite sides must be about the same length: a card seen at an angle, not a wedge
+  const len = (a: Pt, b: Pt) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+  const top = len(q[0], q[1]), bot = len(q[3], q[2]), lft = len(q[0], q[3]), rgt = len(q[1], q[2]);
+  if (Math.min(top, bot) / Math.max(top, bot) < 0.55 || Math.min(lft, rgt) / Math.max(lft, rgt) < 0.55) return null;
+  // inside and just outside must differ in colour (median of the flat, edge-free pixels of each)
+  const cx = (q[0][0] + q[1][0] + q[2][0] + q[3][0]) / 4, cy = (q[0][1] + q[1][1] + q[2][1] + q[3][1]) / 4;
+  const grow = q.map(([x, y]) => [cx + (x - cx) * 1.25, cy + (y - cy) * 1.25] as Pt);
+  const grow0 = q.map(([x, y]) => [cx + (x - cx) * 1.06, cy + (y - cy) * 1.06] as Pt);
+  const inQuad = (g: Pt[], x: number, y: number) => { for (let k = 0; k < 4; k++) { const a = g[k], b = g[(k + 1) % 4]; if ((b[0] - a[0]) * (y - a[1]) - (b[1] - a[1]) * (x - a[0]) < 0) return false; } return true; };
+  const hi = [0, 1, 2].map(() => new Uint32Array(256)), ho = [0, 1, 2].map(() => new Uint32Array(256));
+  let ni = 0, no = 0;
+  for (let y = 0; y < h; y++)
+    for (let x = 0; x < w; x++) {
+      const i = y * w + x;
+      if (edge[i]) continue;
+      if (lab[i] === best) { ni++; for (let c = 0; c < 3; c++) hi[c][ch[c][i]]++; }
+      else if (bg[i] && inQuad(grow, x, y)) { no++; for (let c = 0; c < 3; c++) ho[c][ch[c][i]]++; }
+    }
+  if (ni < 20 || no < 20) return null;
+  // the surface around a document is plain; around a panel printed inside a scanned page there is more print
+  let outN = 0, outEdge = 0;
+  for (let y = 0; y < h; y++)
+    for (let x = 0; x < w; x++) { if (inQuad(grow0, x, y)) continue; outN++; if (edge[y * w + x]) outEdge++; }
+  if (outN && outEdge / outN > 0.05) return null;
+  const median = (hh: Uint32Array, total: number) => { let a = 0, v = 0; for (; v < 255; v++) { a += hh[v]; if (a >= total / 2) break; } return v; };
+  let diff = 0;
+  for (let c = 0; c < 3; c++) diff = Math.max(diff, Math.abs(median(hi[c], ni) - median(ho[c], no)));
+  if (diff < 6) return null;
+  // the thickened edge sits one pixel outside the true outline: pull the corners in by that much
+  return q.map(([x, y]) => { const d = Math.hypot(x - cx, y - cy) || 1; return [(x - ((x - cx) / d) * 1.5) / s, (y - ((y - cy) / d) * 1.5) / s]; }) as Quad;
+}
+
+/**
+ * The document in a photo. The outline finder goes first (95 of 100 made-up cards on five surfaces,
+ * against 40 for the bright-page finder: scripts/eval-finder.ts); the bright-page finder still
+ * catches a page on fabric or wood grain, where every pixel is an edge and no outline can be traced.
+ */
+export function findDocument(rgba: Uint8ClampedArray | Uint8Array, W: number, H: number, gray: GrayImage, outline = true): Quad | null {
+  return (outline ? detectObject(rgba, W, H) : null) ?? detectPage(gray);
+}
+
 /** Solve the 3x3 homography that maps the unit-rectangle corners (dst) onto the quad (src). */
 function homography(dst: Pt[], src: Pt[]): number[] {
   const A: number[][] = [];

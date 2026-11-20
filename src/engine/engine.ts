@@ -304,7 +304,7 @@ function shrink(c: HTMLCanvasElement, max: number) {
   return o;
 }
 
-export async function processDocument(file: Blob, fileName: string, opts: PreprocessOptions, onStep: (s: Step[]) => void, onLive?: (l: Live) => void, manualQuad?: Quad, turn = 0): Promise<DocResult> {
+export async function processDocument(file: Blob, fileName: string, opts: PreprocessOptions, onStep: (s: Step[]) => void, onLive?: (l: Live) => void, manualQuad?: Quad, turn = 0, camQuad?: Quad): Promise<DocResult> {
   const t0 = performance.now();
   const steps: Step[] = [
     { name: 'Open image', state: 'running' },
@@ -337,7 +337,9 @@ export async function processDocument(file: Blob, fileName: string, opts: Prepro
   // one full reading of the page as it stands: find it, flatten it, clean it, read it
   const readPage = async (buf: ArrayBuffer, w0: number, h0: number, first: boolean) => {
     // corners dragged by the person (0..1 of the photo) replace the automatic page finder
-    const p = await runPre({ rgba: buf, width: w0, height: h0, opts, quad: manualQuad ? (manualQuad.map(([x, y]) => [x * w0, y * h0]) as Quad) : undefined });
+    // so do the corners the camera was showing when the picture was taken (upright reading only)
+    const given = manualQuad ?? (first && !turn ? camQuad : undefined);
+    const p = await runPre({ rgba: buf, width: w0, height: h0, opts, quad: given ? (given.map(([x, y]) => [x * w0, y * h0]) as Quad) : undefined });
     const W = p.baseW, H = p.baseH;
     const quad = p.quad ? (p.quad.map(([x, y]) => [x / w0, y / h0]) as Quad) : null;
     // colour view of the flattened page, rotated by the skew angle so overlays line up

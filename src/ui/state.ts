@@ -5,7 +5,7 @@ import { similarity } from '../core/ocr';
 import { DOC_LABEL, EID_RE, type DocType } from '../core/classify';
 import type { VisionOpinion } from '../core/critic-vision';
 import { critique } from '../core/critic';
-import { alertsFor } from '../core/facts';
+import { alertsFor, tidyIdFields } from '../core/facts';
 
 export interface EField extends Field {
   uid: string;
@@ -50,6 +50,9 @@ export function markMrz(state: DocState): EField[] {
     return mrz.valid ? { ...f, mrzMatch: t.key, confidence: Math.max(f.confidence, 0.99), status: 'ok' as const, reasons: [] } : { ...f, mrzMatch: t.key };
   });
 }
+
+/** The fields worth listing for this document: everything on a form, only the readable printed pairs on an identity document. */
+export const shown = (doc: DocResult, fields: Field[]): Field[] => (doc.kind === 'id' && !doc.template ? tidyIdFields(fields, doc.facts) : fields);
 
 export function needsReview(fs: EField[]) {
   return fs.filter((f) => !f.confirmed && f.status === 'review').length;

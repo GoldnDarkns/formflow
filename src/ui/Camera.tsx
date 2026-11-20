@@ -1,5 +1,6 @@
-// Camera capture for phones: a live view with a frame to line the document up
-// in, a large shutter, and a strip of what has been taken so far. Several pages
+// Camera capture for phones: a live view that finds the document while you aim and
+// draws its outline (the same finder that cuts the page out afterwards, run on a small
+// copy of each frame), a large shutter, and a strip of what has been taken so far. Several pages
 // can be shot in a row and handed over together. The picture never leaves the
 // device. If the camera cannot be opened the person is sent to the ordinary
 // photo picker instead.
@@ -7,9 +8,26 @@ import { createPortal } from 'react-dom';
 import { useEffect, useRef, useState } from 'react';
 import { motion } from 'motion/react';
 import { ICheck, IX } from './icons';
+import { findDocument, type Pt, type Quad } from '../core/scan';
+import { rgbaToGray } from '../core/preprocess';
+
+const TRACK_SIDE = 320; // the finder looks at a copy this many pixels on its long side
+const TRACK_EVERY = 110; // milliseconds between looks
+
+/** Find the document in a video frame or canvas; corners as fractions (0..1) of the picture. */
+function locate(src: CanvasImageSource, sw: number, sh: number, small: HTMLCanvasElement): Quad | null {
+  const k = TRACK_SIDE / Math.max(sw, sh);
+  const w = Math.max(8, Math.round(sw * k)), h = Math.max(8, Math.round(sh * k));
+  if (small.width !== w || small.height !== h) { small.width = w; small.height = h; }
+  const ctx = small.getContext('2d', { willReadFrequently: true })!;
+  ctx.drawImage(src, 0, 0, w, h);
+  const d = ctx.getImageData(0, 0, w, h).data;
+  const q = findDocument(d, w, h, rgbaToGray(d, w, h));
+  return q ? (q.map(([x, y]) => [x / w, y / h]) as Quad) : null;
+}
 
 interface Props {
-  onShots: (files: { blob: Blob; name: string }[]) => void;
+  onShots: (files: { blob: Blob; name: string; quad?: Quad }[]) => void;
   onClose: () => void;
   onFallback: () => void; // open the system photo picker
 }
@@ -22,7 +40,11 @@ export function Camera({ onShots, onClose, onFallback }: Props) {
   const [state, setState] = useState<'starting' | 'live' | 'error'>('starting');
   const [error, setError] = useState('');
   const [shape, setShape] = useState<'card' | 'page'>('card');
-  const [shots, setShots] = useState<{ blob: Blob; url: string }[]>([]);
+  const [shots, setShots] = useState<{ blob: Blob; url: string; quad?: Quad }[]>([]);
+  // the outline being followed: where it is, whether it has stopped moving, and the frame size it refers to
+  const [track, setTrack] = useState<{ q: Quad; steady: boolean; w: number; h: number } | null>(null);
+  const follow = useRef<{ q: Quad | null; miss: number; still: number }>({ q: null, miss: 0, still: 0 });
+  const small = useRef<HTMLCanvasElement | null>(null);
   const [flash, setFlash] = useState(0);
 
   useEffect(() => {
@@ -41,6 +63,29 @@ export function Camera({ onShots, onClose, onFallback }: Props) {
     return () => { cancelled = true; stream.current?.getTracks().forEach((t) => t.stop()); document.body.style.overflow = o; };
   }, []);
 
+  // follow the document while the camera is live
+  useEffect(() => {
+    if (state !== 'live') return;
+    small.current ??= document.createElement('canvas');
+    const id = setInterval(() => {
+      const v = video.current, f = follow.current;
+      if (!v || !v.videoWidth || v.readyState < 2) return;
+      let q: Quad | null = null;
+      try { q = locate(v, v.videoWidth, v.videoHeight, small.current!); } catch { /* a frame that cannot be read is skipped */ }
+      if (!q) {
+        if (++f.miss > 3) { f.q = null; f.still = 0; setTrack(null); }
+        return;
+      }
+      f.miss = 0;
+      const move = f.q ? Math.max(...q.map((p, i) => Math.hypot(p[0] - f.q![i][0], p[1] - f.q![i][1]))) : 1;
+      // small movements are smoothed so the outline does not shiver; a jump is followed at once
+      f.q = f.q && move < 0.12 ? (q.map((p, i) => [f.q![i][0] * 0.4 + p[0] * 0.6, f.q![i][1] * 0.4 + p[1] * 0.6] as Pt) as Quad) : q;
+      f.still = move < 0.015 ? f.still + 1 : 0;
+      setTrack({ q: f.q, steady: f.still >= 4, w: v.videoWidth, h: v.videoHeight });
+    }, TRACK_EVERY);
+    return () => clearInterval(id);
+  }, [state]);
+
   const shoot = () => {
     const v = video.current;
     if (!v || !v.videoWidth) return;
@@ -49,10 +94,13 @@ export function Camera({ onShots, onClose, onFallback }: Props) {
     c.getContext('2d')!.drawImage(v, 0, 0);
     setFlash((n) => n + 1);
     navigator.vibrate?.(20);
-    c.toBlob((blob) => { if (blob) setShots((s) => [...s, { blob, url: URL.createObjectURL(blob) }]); }, 'image/jpeg', 0.92);
+    // the corners in this very picture; failing that, the outline that was on screen
+    let quad: Quad | undefined;
+    try { quad = locate(c, c.width, c.height, small.current ?? (small.current = document.createElement('canvas'))) ?? follow.current.q ?? undefined; } catch { quad = follow.current.q ?? undefined; }
+    c.toBlob((blob) => { if (blob) setShots((s) => [...s, { blob, url: URL.createObjectURL(blob), quad }]); }, 'image/jpeg', 0.92);
   };
   const finish = () => {
-    onShots(shots.map((s, i) => ({ blob: s.blob, name: `Photo ${i + 1}` })));
+    onShots(shots.map((s, i) => ({ blob: s.blob, name: `Photo ${i + 1}`, quad: s.quad })));
     shots.forEach((s) => URL.revokeObjectURL(s.url));
     onClose();
   };
@@ -62,8 +110,13 @@ export function Camera({ onShots, onClose, onFallback }: Props) {
       <video ref={video} playsInline muted autoPlay />
       {state === 'live' && (
         <>
-          <div className={'cam-frame as-' + shape}><i /><i /><i /><i /></div>
-          <p className="cam-hint">{shape === 'card' ? 'Fill the frame with the card. Avoid glare.' : 'Fit the whole page in the frame, flat and well lit.'}</p>
+          {track
+            ? <svg className={'cam-track' + (track.steady ? ' steady' : '')} viewBox={`0 0 ${track.w} ${track.h}`} preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                <polygon points={track.q.map(([x, y]) => `${(x * track.w).toFixed(1)},${(y * track.h).toFixed(1)}`).join(' ')} />
+                {track.q.map(([x, y], i) => <circle key={i} cx={x * track.w} cy={y * track.h} r={Math.max(track.w, track.h) / 110} />)}
+              </svg>
+            : <div className={'cam-frame as-' + shape}><i /><i /><i /><i /></div>}
+          <p className="cam-hint">{track ? (track.steady ? 'Document found. Take the picture.' : 'Document found. Hold still.') : shape === 'card' ? 'Looking for the card. Lay it flat on a plain surface, away from glare.' : 'Looking for the page. Fit all of it in view, flat and well lit.'}</p>
         </>
       )}
       {flash > 0 && <motion.div key={flash} className="cam-flash" initial={{ opacity: 0.85 }} animate={{ opacity: 0 }} transition={{ duration: 0.25 }} />}

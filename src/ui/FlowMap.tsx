@@ -34,8 +34,8 @@ const STAGES: Stage[] = [
   {
     name: 'Clean', note: 'classical computer vision, no model',
     nodes: [
-      { n: '3', title: 'Find the page', kind: 'cv', by: 'Bright region, hull, four sides', out: 'four corners of the page',
-        more: 'The page is the largest bright region the darker surface cannot reach from the edge of the photo. Its outline is wrapped in a convex hull, the four long straight sides are found, and the corners are where the sides cross. That keeps the corners right even when a dark photo or a thumb eats into one of them. If the page is not lighter than the surface, the whole photo is kept and you can drag the corners yourself.' },
+      { n: '3', title: 'Find the document', kind: 'cv', by: 'Colour edges, closed outline, four sides', out: 'four corners of the card or page',
+        more: 'Strong colour changes are marked as edges. Whatever the plain surface cannot reach from the border of the photo without crossing an edge is an object, and the largest one with four straight sides is the document. This works for a pale card on a white table as well as a white page on a dark one. On fabric or wood grain, where everything is an edge, the older bright-page finder takes over. In the camera the same finder runs on every frame and draws the outline before you take the picture. If nothing is found the whole photo is kept and you can drag the corners yourself.' },
       { n: '4', title: 'Flatten and light', kind: 'cv', by: 'Perspective warp (homography), paper estimate', out: 'a flat, evenly lit page',
         more: 'The four corners define a 3 by 3 perspective transform; every pixel of an upright rectangle is sampled from the photo. Then the paper brightness around each pixel is estimated and divided out, so shadows turn white and ink stays dark.' },
       { n: '5', title: 'Straighten', kind: 'cv', by: 'Projection profile, -6 to +6 degrees', out: 'upright text lines',

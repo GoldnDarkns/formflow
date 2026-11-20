@@ -448,3 +448,54 @@ test('clean-up: a grainy surface is recognised as speckle, plain print is not', 
   assert.ok(inkShare(binariseAuto({ width: W, height: H, data: grain }).img) > SPECKLED);
   assert.ok(inkShare(binariseAuto({ width: W, height: H, data: print }).img) < SPECKLED);
 });
+
+import { detectObject } from '../src/core/scan';
+import { tidyIdFields } from '../src/core/facts';
+
+// a flat-coloured picture with a tilted four-sided patch painted on it
+function paint(W: number, H: number, bg: number[], card: number[] | null, extra?: (x: number, y: number) => number[] | null): Uint8ClampedArray {
+  const px = new Uint8ClampedArray(W * H * 4);
+  const a = 0.14, cx = W / 2, cy = H / 2, hw = W * 0.32, hh = H * 0.2;
+  for (let y = 0; y < H; y++)
+    for (let x = 0; x < W; x++) {
+      const dx = x - cx, dy = y - cy, u = dx * Math.cos(a) + dy * Math.sin(a), v = -dx * Math.sin(a) + dy * Math.cos(a);
+      const c = extra?.(x, y) ?? (card && Math.abs(u) < hw && Math.abs(v) < hh ? card : bg);
+      px.set([c[0], c[1], c[2], 255], (y * W + x) * 4);
+    }
+  return px;
+}
+
+test('outline finder: a pale card on a white table is found, where the bright-page finder sees nothing', () => {
+  const W = 600, H = 800, px = paint(W, H, [250, 250, 248], [226, 232, 214]);
+  const g: GrayImage = { width: W, height: H, data: new Uint8Array(W * H).map((_, i) => px[i * 4 + 1]) };
+  assert.equal(detectPage(g), null);
+  const q = detectObject(px, W, H);
+  assert.ok(q, 'the card was not found');
+  // corners within 3% of the diagonal of where they were painted
+  const a = 0.14, hw = W * 0.32, hh = H * 0.2;
+  const truth = [[-hw, -hh], [hw, -hh], [hw, hh], [-hw, hh]].map(([u, v]) => [W / 2 + u * Math.cos(a) - v * Math.sin(a), H / 2 + u * Math.sin(a) + v * Math.cos(a)]);
+  for (const t of truth) assert.ok(Math.min(...q!.map((p) => Math.hypot(p[0] - t[0], p[1] - t[1]))) < Math.hypot(W, H) * 0.03);
+});
+
+test('outline finder: a dark card on a light desk is found too, and an empty table gives nothing', () => {
+  assert.ok(detectObject(paint(600, 800, [214, 208, 196], [40, 52, 96]), 600, 800));
+  assert.equal(detectObject(paint(600, 800, [214, 208, 196], null), 600, 800), null);
+});
+
+test('outline finder: a box printed on a scanned page is not cut out', () => {
+  // white page, a boxed panel of the same white inside it, and lines of "text" all over the page
+  const W = 600, H = 800;
+  const px = paint(W, H, [255, 255, 255], null, (x, y) => {
+    const box = x > 120 && x < 480 && y > 250 && y < 520;
+    if (box && (x < 123 || x > 477 || y < 253 || y > 517)) return [0, 0, 0];
+    if (y % 22 < 5 && x > 40 && x < 560 && (x >> 3) % 3) return [20, 20, 20];
+    return null;
+  });
+  assert.equal(detectObject(px, W, H), null);
+});
+
+test('identity documents: noise pairs are dropped, real printed labels are kept and spelled properly', () => {
+  const f = (key: string, value: string, confidence = 0.8) => ({ key, value, confidence, status: 'ok' as const, reasons: [], source: 'layout' as const });
+  const out = tidyIdFields([f('FUND! A! GOGETT 92', 'o ag', 0.42), f('HIJ', 'J!', 0.69), f('LICEN®', 'LL', 0.54), f('ATIONALIT', 'UTOPIA'), f('Place of Issue', 'Port Sample'), f('Date of Birth', '1990-01-01')], [{ key: 'Date of birth', value: '1990-01-01', from: 'text' } as any]);
+  assert.deepEqual(out.map((x) => [x.key, x.value]), [['Nationality', 'UTOPIA'], ['Place of issue', 'Port Sample']]);
+});

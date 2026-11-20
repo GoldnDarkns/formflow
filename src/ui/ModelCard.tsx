@@ -1,4 +1,5 @@
 import { FlowMap } from './FlowMap';
+import { Explain } from './Explain';
 import { useEffect, useState } from 'react';
 
 const f = (x?: number, d = 1) => (x === undefined || Number.isNaN(x) ? '—' : (x * 100).toFixed(d) + '%');
@@ -95,6 +96,11 @@ export function ModelCard() {
         </div>
       </div>
 
+      <div className="card">
+        <h2>The project from A to Z</h2>
+        <p className="small">The problem, how each part of it is answered, and for every piece of the system: what we used, why, how it works and what we measured. Open a letter to read it.</p>
+        <Explain />
+      </div>
       <div className="card">
         <h2>The whole path of one page</h2>
         <p className="small">What happens to a page, in order, and what does each piece of work. Tap a step for the detail; the measurements for each step follow below.</p>

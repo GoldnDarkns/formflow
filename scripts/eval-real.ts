@@ -17,7 +17,7 @@ import { PNG } from 'pngjs';
 import { createWorker, PSM } from 'tesseract.js';
 import type { GrayImage, OcrWord } from '../src/core/types';
 import { rgbaToGray, grayToRgba, preprocess, resize, ocrScale, backgroundUnevenness } from '../src/core/preprocess';
-import { detectPage, flattenLighting, warpQuad } from '../src/core/scan';
+import { findDocument, flattenLighting, warpQuad } from '../src/core/scan';
 import { wordsFromTesseract, cleanWords } from '../src/core/ocr';
 import { findMrzLines, parseMrz, type MrzResult } from '../src/core/mrz';
 import { classifyDocument, DOC_TYPES, ID_TYPES } from '../src/core/classify';
@@ -100,7 +100,7 @@ for (const label of types) {
       let color = new Uint8ClampedArray(data.buffer, data.byteOffset, data.length);
       let W = info.width, H = info.height;
       const g0 = rgbaToGray(color, W, H);
-      const quad = detectPage(g0);
+      const quad = findDocument(color, W, H, g0, process.env.FINDER !== 'bright');
       if (quad) { const w = warpQuad(color, W, H, quad); color = w.data as Uint8ClampedArray<ArrayBuffer>; W = w.width; H = w.height; }
       if (quad || backgroundUnevenness(quad ? rgbaToGray(color, W, H) : g0) > 12) flattenLighting(color, W, H);
       const scale = ocrScale(W, H);

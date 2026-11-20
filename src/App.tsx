@@ -15,7 +15,7 @@ import { ResultView } from './ui/ResultView';
 import { ModelCard } from './ui/ModelCard';
 import { Help } from './ui/Help';
 import { IChart, IHelp, IList, IScan } from './ui/icons';
-import { download, exportCsv, exportFunsd, exportJson, markMrz, needsReview, sidesOf, toEditable, type DocState, type EField } from './ui/state';
+import { download, exportCsv, exportFunsd, exportJson, markMrz, needsReview, sidesOf, shown, toEditable, type DocState, type EField } from './ui/state';
 
 type Tab = 'scan' | 'sorted' | 'model' | 'help';
 
@@ -36,7 +36,7 @@ export default function App() {
   const [open, setOpen] = useState<string | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const [active, setActive] = useState<Active | null>(null);
-  const [queue, setQueue] = useState<{ blob: Blob; name: string }[]>([]);
+  const [queue, setQueue] = useState<{ blob: Blob; name: string; quad?: Quad }[]>([]);
   const [toast, setToast] = useState('');
   const secondRef = useRef(second);
   secondRef.current = second;
@@ -67,7 +67,7 @@ export default function App() {
       const latest = docsRef.current.find((d) => d.doc.id === s.doc.id) ?? s;
       const analysis = await reanalyse(latest.doc, regions);
       patch(s.doc.id, (d) => {
-        const nd: DocState = { ...d, doc: { ...d.doc, second: regions, secondMs: ms }, analysis, second: 'done', fields: toEditable(analysis.fields, d.fields) };
+        const nd: DocState = { ...d, doc: { ...d.doc, second: regions, secondMs: ms }, analysis, second: 'done', fields: toEditable(shown(d.doc, analysis.fields), d.fields) };
         return { ...nd, fields: markMrz(nd) };
       });
     } catch (e: any) {
@@ -98,9 +98,9 @@ export default function App() {
     const [next, ...rest] = queue;
     setQueue(rest);
     setActive({ name: next.name, steps: [] });
-    processDocument(next.blob, next.name, pre, (steps) => setActive((a) => a && { ...a, steps }), (live) => setActive((a) => a && { ...a, ...live }))
+    processDocument(next.blob, next.name, pre, (steps) => setActive((a) => a && { ...a, steps }), (live) => setActive((a) => a && { ...a, ...live }), undefined, 0, next.quad)
       .then((doc) => {
-        const st: DocState = { doc, analysis: doc.analysis, fields: toEditable(doc.analysis.fields), second: 'none' };
+        const st: DocState = { doc, analysis: doc.analysis, fields: toEditable(shown(doc, doc.analysis.fields)), second: 'none' };
         st.fields = markMrz(st);
         setDocs((ds) => [st, ...ds]);
         lookAgain(doc);
@@ -121,7 +121,7 @@ export default function App() {
   const onRetype = async (t: DocType) => {
     if (!current) return;
     const doc = await retype(current.doc, t, current.doc.second);
-    patch(doc.id, (d) => { const nd = { ...d, doc, analysis: doc.analysis, fields: toEditable(doc.analysis.fields) }; return { ...nd, fields: markMrz(nd) }; });
+    patch(doc.id, (d) => { const nd = { ...d, doc, analysis: doc.analysis, fields: toEditable(shown(doc, doc.analysis.fields)) }; return { ...nd, fields: markMrz(nd) }; });
     setToast('Sorted again');
   };
 
@@ -130,7 +130,7 @@ export default function App() {
     saveUserTemplate(t);
     const doc = applyTemplate(current.doc, t);
     if (!doc) { setToast('Template saved. It did not line up with this page well enough to read it.'); return; }
-    patch(doc.id, (d) => ({ ...d, doc, analysis: doc.analysis, fields: toEditable(doc.analysis.fields) }));
+    patch(doc.id, (d) => ({ ...d, doc, analysis: doc.analysis, fields: toEditable(shown(doc, doc.analysis.fields)) }));
     setToast(`Template "${t.name}" saved. The next copy of this form will be read with it.`);
   };
   const onCorners = async (q: Quad) => {
@@ -139,7 +139,7 @@ export default function App() {
     setToast('Reading the page again…');
     try {
       const doc = await processDocument(current.doc.source, current.doc.fileName, pre, () => {}, undefined, q, current.doc.turned);
-      const st: DocState = { doc, analysis: doc.analysis, fields: toEditable(doc.analysis.fields), second: 'none' };
+      const st: DocState = { doc, analysis: doc.analysis, fields: toEditable(shown(doc, doc.analysis.fields)), second: 'none' };
       st.fields = markMrz(st);
       setDocs((ds) => ds.map((d) => (d.doc.id === old ? st : d)));
       lookAgain(doc);
@@ -155,7 +155,7 @@ export default function App() {
     if (!current) return;
     deleteUserTemplate(id);
     const doc = await retype(current.doc, 'form', current.doc.second);
-    patch(doc.id, (d) => ({ ...d, doc: { ...doc, classification: current.doc.classification }, analysis: doc.analysis, fields: toEditable(doc.analysis.fields) }));
+    patch(doc.id, (d) => ({ ...d, doc: { ...doc, classification: current.doc.classification }, analysis: doc.analysis, fields: toEditable(shown(doc, doc.analysis.fields)) }));
     setToast('Template forgotten');
   };
 

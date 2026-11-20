@@ -6,6 +6,7 @@ import type { DocState } from './state';
 import { CutOut, Stamp } from './bits';
 import { ICamera, IShield, ISpark, IUpload } from './icons';
 import { Camera, cameraAvailable } from './Camera';
+import type { Quad } from '../core/scan';
 
 export interface SecondReaderState {
   enabled: boolean;
@@ -30,7 +31,7 @@ interface Props {
   active: Active | null;
   queue: number;
   recent: DocState[];
-  onFiles: (files: { blob: Blob; name: string }[]) => void;
+  onFiles: (files: { blob: Blob; name: string; quad?: Quad }[]) => void;
   onOpen: (id: string) => void;
   onSorted: () => void;
   onTour: () => void;
@@ -49,7 +50,7 @@ const SAMPLES = [
 ];
 export const SAMPLE_COUNT = SAMPLES.length;
 /** The made-up sample documents shipped with the app. */
-export async function sampleFiles(): Promise<{ blob: Blob; name: string }[]> {
+export async function sampleFiles(): Promise<{ blob: Blob; name: string; quad?: Quad }[]> {
   return Promise.all(SAMPLES.map(async ([f, name]) => ({ blob: await (await fetch(import.meta.env.BASE_URL + f)).blob(), name })));
 }
 const FAN = [
@@ -73,7 +74,7 @@ export function ScanPage(p: Props) {
 
   const pick = async (fl: FileList | null) => {
     if (!fl?.length) return;
-    const out: { blob: Blob; name: string }[] = [];
+    const out: { blob: Blob; name: string; quad?: Quad }[] = [];
     for (const f of [...fl]) {
       if (/\.zip$/i.test(f.name) || f.type === 'application/zip' || f.type === 'application/x-zip-compressed') {
         // a ZIP of scans: every image and PDF inside is read, in name order

@@ -375,3 +375,30 @@ export function alertsFor(type: DocType, typeConfidence: number, facts: Fact[], 
   if (typeConfidence < 0.7) out.push({ level: 'warn', text: 'Not sure about the document type. Check it' });
   return out;
 }
+
+/** The printed labels an identity document can carry, as they should be shown. */
+const ID_LABELS = ['Name', 'Surname', 'Given names', 'Nationality', 'Date of birth', 'Place of birth', 'Sex', 'Issue date', 'Date of issue', 'Expiry date', 'Date of expiry', 'Valid until', 'Place of issue', 'Issuing authority', 'Licensing authority', 'Authority', 'Licence no', 'License no', 'Passport no', 'Document no', 'Card number', 'ID number', 'Occupation', 'Profession', 'Employer', 'Sponsor', 'Blood group', 'Class', 'Category', 'Address', 'File no', 'UID no', 'Entry permit no', 'Visa type', 'Duration of stay', 'Plate no', 'Owner', 'Model', 'Colour', 'Chassis no', 'Engine no', 'Insurance', 'Traffic code no', 'Vehicle type', 'Origin', 'Type'];
+const letters = (v: string) => v.toUpperCase().replace(/[^A-Z]/g, '');
+/**
+ * On an identity document the label-and-value pairs found by the form models are mostly noise
+ * (background patterns, half a word of Arabic, a hologram). Keep a pair only when its label is
+ * one a document really prints and its value looks like text; show the label spelled properly;
+ * and drop a pair that only repeats a key fact. What is left is short and readable, or empty.
+ */
+export function tidyIdFields<T extends Field>(fields: T[], facts: Fact[]): T[] {
+  const flat = (v: string) => v.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  const known = new Set(facts.map((f) => flat(f.value)));
+  const out: T[] = [];
+  for (const f of fields) {
+    const v = f.value.trim(), k = letters(f.key);
+    if (!v || k.length < 3 || f.confidence < 0.5) continue;
+    const clean = v.replace(/[^A-Za-z0-9 .,\/-]/g, '');
+    if (flat(v).length < 2 || clean.length / v.length < 0.85) continue;
+    let best = '', bestD = 1;
+    for (const l of ID_LABELS) { const t = letters(l); const d = editDistance(k, t) / Math.max(k.length, t.length); if (d < bestD) { bestD = d; best = l; } }
+    if (bestD > 0.3) continue;
+    if (known.has(flat(v)) || out.some((o) => o.key === best)) continue;
+    out.push({ ...f, key: best });
+  }
+  return out;
+}
