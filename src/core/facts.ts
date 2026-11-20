@@ -13,6 +13,8 @@ export interface Fact {
   from: 'mrz' | 'text';
   /** the same value was found in two independent places on the page (code line and printed text) */
   twice?: boolean;
+  /** what the other reader saw, where the two readings differ */
+  alt?: string;
 }
 
 /** Edit distance between two short strings (insert, delete, substitute). */
@@ -25,6 +27,8 @@ export function editDistance(a: string, b: string): number {
   }
   return prev[b.length];
 }
+/** words printed on a document that are never part of a holder's name */
+const NOT_A_NAME = /^(DATE|DATA|NAMES?|GIVEN|SURNAME|BIRTH|PLACE|SEX|EXPIRY|ISSUE[D]?|NATIONALITY|NUMBER|CARD|HOLDER|SIGNATURE|AUTHORITY|VALID|UNTIL|PASSPORT|LICEN[CS]E|IDENTITY|SPECIMEN|REPUBLIC|KINGDOM|TYPE|CODE|COUNTRY)$/;
 const lettersOnly = (s: string) => s.toLowerCase().replace(/[^a-z]/g, '');
 
 /**
@@ -35,33 +39,43 @@ const lettersOnly = (s: string) => s.toLowerCase().replace(/[^a-z]/g, '');
  * close and at least as long, that word is used instead.
  */
 export function mendName(name: string, words: OcrWord[]): { name: string; twice: boolean } {
-  // pool: every word on the page (an exact match confirms a name part); sure: the ones read clearly enough to correct with
-  const pool = new Set<string>(), sure = new Set<string>();
+  // printed: every word on the page outside the code lines (an exact match confirms a name part);
+  // sure: the printed ones read clearly enough to correct with; code: name parts as any reader saw them in a code line
+  const printed = new Set<string>(), sure = new Set<string>(), code = new Set<string>();
   for (const w of words) {
     const up = w.text.toUpperCase();
-    for (const t of up.split(/[^A-Z]+/)) if (t.length >= 2) { pool.add(t); if (w.conf >= 75 && !up.includes('<')) sure.add(t); }
+    if (!up.includes('<')) { for (const t of up.split(/[^A-Z]+/)) if (t.length >= 2) { printed.add(t); if (w.conf >= 75) sure.add(t); } continue; }
     // a code line read by the first pass: its padding is often misread as K and L stuck to the name
-    if (up.includes('<')) for (const t of up.split('<')) { const v = t.replace(/[^A-Z]/g, '').replace(/^[KL]+(?=[A-Z]{3})/, ''); if (v.length >= 2) { pool.add(v); if (v.length >= 6) pool.add(v.slice(3)); } }
+    for (const t of up.split('<')) { const v = t.replace(/[^A-Z]/g, '').replace(/^[KL]+(?=[A-Z]{3})/, ''); if (v.length >= 2) { code.add(v); if (v.length >= 6) code.add(v.slice(3)); } }
   }
+  const isSub = (short: string, long: string) => { let k = 0; for (const ch of long) if (ch === short[k]) k++; return k === short.length; };
   let confirmed = 0;
   const parts = name.split(' ').filter(Boolean);
   const out = parts.map((tok) => {
-    if (pool.has(tok)) { confirmed++; return tok; }
+    if (printed.has(tok)) { confirmed++; return tok; }
     if (tok.length < 2) return tok;
     // padding or the country code stuck to the front of the name: the printed word is the end of this one
     const tails = [...sure].filter((c) => c.length >= 3 && tok.length - c.length >= 1 && tok.length - c.length <= 3 && tok.endsWith(c));
     if (tails.length === 1) return tails[0];
+    // padding misread as K or L stuck to the end
+    const heads = [...sure].filter((c) => c.length >= 3 && tok.startsWith(c) && /^[KL]{1,3}$/.test(tok.slice(c.length)));
+    if (heads.length === 1) return heads[0];
     let best: string[] = [], bd = Infinity;
     for (const c of sure) {
-      if (c.length < Math.max(3, tok.length) || c.length > tok.length * 2 + 1) continue;
+      if (c.length < Math.max(3, tok.length) || c.length > tok.length * 2 + 1 || NOT_A_NAME.test(c)) continue;
       // letters dropped by the reader: everything it did read appears, in order, in the printed word
-      let k = 0; for (const ch of c) if (ch === tok[k]) k++;
-      const sub = k === tok.length;
+      const sub = isSub(tok, c);
       const d = sub ? c.length - tok.length : editDistance(tok, c);
-      if (!sub && (c.length > tok.length + 3 || d > Math.max(1, Math.round(c.length * 0.4)))) continue;
+      // a part a reader saw in the code line exactly like this is only ever missing letters, never holding wrong ones
+      if (sub ? d > (tok.length < 3 ? 0 : tok.length < 4 ? 2 : 3) : code.has(tok) || tok.length < 4 || c.length > tok.length + 3 || d > Math.max(1, Math.round(c.length * 0.4))) continue;
       if (d < bd) { bd = d; best = [c]; } else if (d === bd) best.push(c);
     }
-    return best.length === 1 ? best[0] : tok;
+    if (best.length === 1) return best[0];
+    if (code.has(tok)) return tok;
+    // the other reader saw a longer form of this part in the code line: a dropped letter, not padding
+    const extra = (c: string) => { let k = 0, x = ''; for (const ch of c) { if (ch === tok[k]) k++; else x += ch; } return x; };
+    const longer = [...code].filter((c) => c.length > tok.length && c.length - tok.length <= 2 && isSub(tok, c) && !/^[KLC]+$/.test(extra(c)));
+    return longer.length === 1 ? longer[0] : tok;
   });
   return { name: out.join(' '), twice: parts.length > 0 && confirmed === parts.length };
 }
@@ -89,6 +103,8 @@ function fuzzyLabelled<T>(lines: string[], labels: string[], pick: (s: string) =
 }
 const HEADER_WORDS = /REPUBLI|BUNDES|DEUTSCH|REINO|ESPANA|FRANCAISE|ITALIANA|KINGDOM|STATES|UNITED|EMIRATES|IDENTITY|NATIONAL|CARD|LICEN[CS]E|PERMI[TS]|PASSPORT|PASSEPORT|SPECIMEN|FEDERA|ISLAMIC|DRIVING|AUTHORITY|REGISTRY|MINISTRY|RESIDEN|TRAFFIC|VISA|ENTRY|TOURIST|FICTIONAL/;
 
+/** the line every international driving permit carries: "Convention on Road Traffic of 8 November 1968" */
+const CONVENTION = /convention|road\s+traffic|(?<!\d)19(49|68)(?!\d)/i;
 const MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
 const iso = (y: number, m: number, d: number) => (m >= 1 && m <= 12 && d >= 1 && d <= 31 && y > 1900 && y < 2100 ? `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}` : null);
 
@@ -147,7 +163,39 @@ const nameValue = (s: string) => {
 /** a document number: letters and digits with at least one digit, so a word such as "IDENTITY" is never taken for one */
 const codeValue = (min: number) => (s: string) => (s.replace(/^[\s:./-]+/, '').match(new RegExp('\\b[A-Z0-9][A-Z0-9-]{' + (min - 1) + ',}\\b', 'g')) ?? []).find((v) => /\d/.test(v)) ?? null;
 
-export function extractFacts(type: DocType, words: OcrWord[], fields: Field[], mrz: MrzResult | null): Fact[] {
+const COMPARED = /number|^Full name$/i;
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+const sameValue = (a: string, b: string) => a.toUpperCase().replace(/[^A-Z0-9]/g, '') === b.toUpperCase().replace(/[^A-Z0-9]/g, '');
+
+/**
+ * Key facts of an identity document. `second` is the same page read by the other reader
+ * (the neural one). Facts are worked out from each reading separately and compared:
+ * a value both readers give is marked as seen twice, a value only one found is used, and
+ * where they differ the reading of `prefer` is kept and the other is remembered as `alt`.
+ * Values proven by a check digit are never replaced.
+ */
+export function extractFacts(type: DocType, words: OcrWord[], fields: Field[], mrz: MrzResult | null, second: OcrWord[] = [], prefer: 'first' | 'second' = 'second'): Fact[] {
+  const a = factsFrom(type, words, fields, mrz, second);
+  if (!second.length || type === 'form' || type === 'other') return a;
+  const b = factsFrom(type, second, [], mrz, words);
+  const out = a.map((f): Fact => {
+    if (f.from === 'mrz') return f;
+    const g = b.find((x) => x.key === f.key);
+    if (!g || g.from === 'mrz') return f;
+    if (sameValue(f.value, g.value)) return { ...f, twice: true };
+    // Two different dates under one label: a reader that lost the label picks up a neighbouring date.
+    // The birth date is the earliest date on a document and the expiry the latest.
+    const isDate = ISO_DATE.test(f.value) && ISO_DATE.test(g.value);
+    // free text (a place, a nationality) is left to the first reader: only numbers, names and dates were measured
+    if (!isDate && !COMPARED.test(f.key)) return f;
+    const useSecond = isDate ? (f.key === 'Date of birth' ? g.value < f.value : f.key === 'Expiry date' ? g.value > f.value : false) : prefer === 'second';
+    return useSecond ? { ...g, alt: f.value } : { ...f, alt: g.value };
+  });
+  for (const g of b) if ((COMPARED.test(g.key) || ISO_DATE.test(g.value)) && !out.some((f) => f.key === g.key)) out.push(g);
+  return out;
+}
+
+function factsFrom(type: DocType, words: OcrWord[], fields: Field[], mrz: MrzResult | null, also: OcrWord[]): Fact[] {
   const lines = linesOf(words);
   const facts: Fact[] = [];
   const have = (k: string) => facts.some((f) => f.key === k);
@@ -156,7 +204,7 @@ export function extractFacts(type: DocType, words: OcrWord[], fields: Field[], m
   if (mrz) {
     const g = (k: string) => mrz.fields.find((f) => f.key === k);
     const name = [g('Given names')?.value, g('Surname')?.value].filter(Boolean).join(' ');
-    const mended = mendName(name, words);
+    const mended = mendName(name, also.length ? [...words, ...also] : words);
     add({ key: 'Full name', value: mended.name, from: 'mrz', twice: mended.twice });
     const num = g('Document number');
     if (num) add({ key: type === 'passport' ? 'Passport number' : 'Document number', value: num.value, proof: 'check digit', valid: num.valid, from: 'mrz' });
@@ -279,7 +327,7 @@ export function extractFacts(type: DocType, words: OcrWord[], fields: Field[], m
   if (type !== 'form' && type !== 'other' && type !== 'vehicle_licence') {
     // Dates nobody labelled: on an identity document the earliest date is the birth date and the
     // latest is the expiry, with the issue date between them. Used only for dates still missing.
-    const dates = [...new Set(lines.map(parseDate).filter((d): d is string => !!d))].sort();
+    const dates = [...new Set(lines.filter((l) => !CONVENTION.test(l)).map(parseDate).filter((d): d is string => !!d))].sort();
     if (dates.length >= 2) {
       const first = dates[0], last = dates[dates.length - 1];
       const years = +last.slice(0, 4) - +first.slice(0, 4);

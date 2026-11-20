@@ -188,6 +188,32 @@ function samePerson(a: string, b: string) {
   const inter = [...A].filter((t) => B.has(t)).length;
   return inter / Math.min(A.size, B.size) >= 0.6 && inter >= 2;
 }
+export interface Side { side: 'front' | 'back'; other: DocState; why: string }
+/**
+ * The two sides of one card. An Emirates ID, a national ID card or a licence is scanned as two
+ * pages: the front with the photo and the back with the code lines. Two pages of the same type
+ * are taken for one card when one has code lines and the other does not, and they carry the
+ * same card number or the same name. Each page is paired at most once.
+ */
+export function sidesOf(docs: DocState[]): Map<string, Side> {
+  const out = new Map<string, Side>();
+  const digits = (s: DocState) => (fact(s, 'Emirates ID number') || fact(s, 'Document number') || fact(s, 'Licence number')).replace(/\W/g, '').toUpperCase();
+  for (const back of docs) {
+    if (!['emirates_id', 'id_card', 'driving_licence'].includes(back.doc.docType) || !back.doc.mrz || out.has(back.doc.id)) continue;
+    for (const front of docs) {
+      if (front === back || front.doc.docType !== back.doc.docType || front.doc.mrz || out.has(front.doc.id)) continue;
+      const sameNumber = digits(front).length >= 6 && digits(front) === digits(back);
+      const sameName = samePerson(fact(front, 'Full name'), fact(back, 'Full name'));
+      if (!sameNumber && !sameName) continue;
+      const why = sameNumber ? 'same card number on both' : 'same name on both';
+      out.set(back.doc.id, { side: 'back', other: front, why });
+      out.set(front.doc.id, { side: 'front', other: back, why });
+      break;
+    }
+  }
+  return out;
+}
+
 export function packetsOf(docs: DocState[]): Packet[] {
   const groups: DocState[][] = [];
   for (const d of docs) {

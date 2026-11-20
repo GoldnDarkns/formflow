@@ -24,7 +24,7 @@ for (const d of docs) {
   const mrz = j.mrzFull ?? null;
   const cls = classifyDocument(j.words, j.width, j.height, mrz);
   const an = await analyse(j.words, j.width, j.height, clf, undefined, ID_TYPES.includes(cls.type) ? 'id' : 'form', 'tesseract');
-  const facts = extractFacts(cls.type, j.words, an.fields, mrz);
+  const facts = extractFacts(cls.type, j.words, an.fields, mrz, process.env.SECOND === '0' ? [] : j.second ?? [], (process.env.PREFER as any) ?? 'second');
   for (const [k, v] of Object.entries(d.fields as Record<string, string>)) {
     const got = facts.find((x) => x.key === k) ?? (/^(Passport|Document) number$/.test(k) ? facts.find((x) => /^(Passport|Document) number$/.test(x.key)) : undefined);
     if (process.env.DEBUG && (!got || nrm(got.value) !== nrm(v))) console.log(`${d.type}|${cls.type}|${k}|want=${v}|got=${got?.value ?? '-'}|src=${got?.proof ?? ''}${got?.valid ? ' VALID' : ''}|mrz=${mrz ? (mrz.valid ? 'ok' : 'bad') : 'none'}`);

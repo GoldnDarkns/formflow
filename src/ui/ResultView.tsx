@@ -4,7 +4,7 @@ import { Review } from './Review';
 import { DOC_LABEL, DOC_TYPES, type DocType } from '../core/classify';
 import { alertsFor } from '../core/facts';
 import { union } from '../core/layout';
-import type { DocState, EField } from './state';
+import type { DocState, EField, Side } from './state';
 import type { Template } from '../core/template';
 import type { Quad } from '../core/scan';
 import { critiqueOf, needsReview, trustOf } from './state';
@@ -23,6 +23,9 @@ interface Props {
   onCopy: () => void;
   onExportLabelled: () => void;
   onReport: () => void;
+  onScanPdf: () => void;
+  side?: Side;
+  onOpenOther?: () => void;
   criticOn: boolean;
   onSecond: () => void;
   secondAvailable: boolean;
@@ -105,7 +108,7 @@ export function ResultView(p: Props) {
           <div className="answer-facts">
             {shownFacts.map((f) => (
               <button className="afact" key={f.key} onClick={() => copyFact(f.key, f.value)} title="Tap to copy">
-                <span>{f.key}{f.proof && (f.valid ? <i className="ok">verified</i> : <i className="no">check failed</i>)}{f.twice && <i className="ok" title="Found in the code line and in the printed text">seen twice</i>}</span>
+                <span>{f.key}{f.proof && (f.valid ? <i className="ok">verified</i> : <i className="no">check failed</i>)}{f.twice && <i className="ok" title="Found twice: in the code line and the printed text, or by both readers">seen twice</i>}{f.alt && <i className="no" title={`The other reader saw: ${f.alt}`}>readers differ</i>}</span>
                 <b>{f.value}</b>
                 {copied === f.key && <motion.em initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}>copied</motion.em>}
               </button>
@@ -117,13 +120,18 @@ export function ResultView(p: Props) {
           <p className="answer-note tplnote"><span className="grow"><b>Read with a template:</b> {doc.template.template.name}. Each box is read directly and keeps its proper label.</span>
             {doc.template.template.id.startsWith('user-') && <button className="btn sm" onClick={() => p.onForgetTemplate(doc.template!.template.id)}>Forget this template</button>}</p>
         )}
+        {p.side && (
+          <p className="answer-note sidenote"><span className="grow"><b>{p.side.side === 'front' ? 'Front of the card.' : 'Back of the card.'}</b> The {p.side.side === 'front' ? 'back' : 'front'} is {p.side.other.doc.fileName} ({p.side.why}). The two are saved together as one PDF.</span>
+            <button className="btn sm" onClick={p.onOpenOther}>Open the {p.side.side === 'front' ? 'back' : 'front'}</button></p>
+        )}
         <div className="answer-actions">
           {review > 0
             ? <button className="btn primary big" onClick={() => setReviewing(true)}><ICheck /> Check {review} field{review === 1 ? '' : 's'}</button>
             : <button className="btn primary big" onClick={p.onCopy}><ICopy /> Copy everything</button>}
           {review > 0 && <button className="btn" onClick={p.onCopy}><ICopy /> Copy</button>}
           <button className="btn" onClick={p.onExportJson}><IDownload /> JSON</button>
-          <button className="btn" onClick={p.onReport}><IDownload /> PDF</button>
+          <button className="btn" onClick={p.onScanPdf} title="The scan as a PDF you can search and copy text from, named after the document"><IDownload /> Scan PDF</button>
+          <button className="btn" onClick={p.onReport} title="A report of what was read, with the checks"><IDownload /> Report</button>
         </div>
       </section>
 

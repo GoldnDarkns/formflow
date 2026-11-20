@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from 'motion/react';
 import { DOC_LABEL, DOC_TYPES, type DocType } from '../core/classify';
 import { alertsFor } from '../core/facts';
-import { critiqueOf, needsReview, packetsOf, trustOf, type DocState } from './state';
+import { critiqueOf, needsReview, packetsOf, sidesOf, trustOf, type DocState } from './state';
 import { Ring, Stamp, typeColor } from './bits';
 import { ICopy, IDownload } from './icons';
 
@@ -28,6 +28,7 @@ export function Sorted({ docs, onOpen, onExportCsv, onReport, onScan, onZip, onT
   const types = DOC_TYPES.filter((t) => docs.some((d) => d.doc.docType === t));
   const review = docs.reduce((a, d) => a + needsReview(d.fields), 0);
   const packets = packetsOf(docs);
+  const sides = sidesOf(docs);
   const plural = (n: number, w: string) => `${n} ${w}${n === 1 ? '' : 's'}`;
 
   return (
@@ -104,8 +105,9 @@ export function Sorted({ docs, onOpen, onExportCsv, onReport, onScan, onZip, onT
                         <div className="row" style={{ gap: '0.3rem' }}>
                           {alerts.slice(0, 2).map((a) => <span key={a.text} className={'tag ' + a.level} style={{ whiteSpace: 'normal' }}>{a.text.split('.')[0]}</span>)}
                           {critiqueOf(d).verdict === 'challenged' && <span className="tag bad">Critic doubts the type</span>}
+                          {sides.get(d.doc.id) && <span className="tag">{sides.get(d.doc.id)!.side === 'front' ? 'Front' : 'Back'} · other side: {sides.get(d.doc.id)!.other.doc.fileName}</span>}
                           {n > 0 && <span className="tag warn">{n} to check</span>}
-                          {!alerts.length && !n && <span className="tag good">Ready</span>}
+                          {!alerts.length && !n && !sides.get(d.doc.id) && <span className="tag good">Ready</span>}
                         </div>
                       </div>
                     </motion.button>

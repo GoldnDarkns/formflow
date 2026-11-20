@@ -59,6 +59,9 @@ export interface DocResult {
   mrz: MrzResult | null;
   second?: SecondReading[];
   secondMs?: number;
+  /** the same page read by the neural reader, for comparing key facts (identity documents only) */
+  words2?: OcrWord[];
+  words2Ms?: number;
   steps: Step[];
   totalMs: number;
   ocrScale: number;
@@ -449,11 +452,26 @@ export async function processDocument(file: Blob, fileName: string, opts: Prepro
   };
 }
 
+/**
+ * Second look at an identity document: the neural reader reads the whole page as well, and the
+ * key facts worked out from the two readings are compared (see extractFacts). Runs after the
+ * first answer is on screen, so it never delays it. Null when there is nothing to compare.
+ */
+export async function secondLook(doc: DocResult): Promise<{ words2: OcrWord[]; ms: number } | null> {
+  if (doc.kind !== 'id' || doc.reader === 'ppocr' || doc.words2) return null;
+  const t = performance.now();
+  const r = await ppRead(doc.grayRgba.slice(0), doc.grayW, doc.grayH);
+  const words2 = cleanWords(r.words.map((w) => ({ ...w, box: w.box.map((v) => v / doc.ocrScale) as OcrWord['box'] })));
+  return { words2, ms: performance.now() - t };
+}
+/** Key facts of a document as it stands now, using the second look when there is one. */
+export const factsOf = (doc: DocResult, fields: Analysis['fields'], words2 = doc.words2) => extractFacts(doc.docType, doc.words, fields, doc.mrz, words2);
+
 /** The clerk corrected the document type: redo layout analysis and key facts for it. */
 export async function retype(doc: DocResult, type: DocType, second?: SecondReading[]): Promise<DocResult> {
   const kind = ID_TYPES.includes(type) ? 'id' : 'form';
   const analysis = addMarks(await analyse(doc.words, doc.width, doc.height, await classifiers(), second, kind, doc.reader), { ...doc, kind });
-  return { ...doc, template: undefined, kind, docType: type, analysis, facts: extractFacts(type, doc.words, analysis.fields, doc.mrz), classification: { ...doc.classification, type, confidence: 1, evidence: [{ type, weight: 9, why: 'Set by you' }], all: [{ type, weight: 9, why: 'Set by you' }] } };
+  return { ...doc, template: undefined, kind, docType: type, analysis, facts: extractFacts(type, doc.words, analysis.fields, doc.mrz, doc.words2), classification: { ...doc.classification, type, confidence: 1, evidence: [{ type, weight: 9, why: 'Set by you' }], all: [{ type, weight: 9, why: 'Set by you' }] } };
 }
 
 // ---------------- PP-OCRv5 reader ----------------

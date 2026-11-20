@@ -806,3 +806,5 @@ section:nth-of-type(4) > .trayhead, section:nth-of-type(4) > .grid { animation-d
 .answer h1 .twice::before { content: "✓ "; }
 .profile { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); border-top: 1.5px solid var(--ink); border-left: 1px dashed var(--line); }
 @media (max-width: 720px) { .profile { grid-template-columns: 1fr 1fr; } }
+.sidenote { background: var(--desk); border-left: 6px solid var(--ink); border-radius: 3px; }
+@media (max-width: 720px) { .answer-actions { grid-template-columns: 1fr 1fr; } }

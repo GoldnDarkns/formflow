@@ -135,17 +135,19 @@ for (const label of types) {
       if (believableMrz(m, !!band) && mrzScore(m) > mrzScore(mrz)) mrz = m;
       if (mrz?.valid) break;
     }
-      return { W, H, words, mrz, pageFound: !!quad, turned, ms: Date.now() - t0 };
+      // second reading of the whole page with the neural reader, for comparing the two (as the app does for identity documents)
+      const second = cleanWords((await pp.read(grayToRgba(gray), gray.width, gray.height)).map((w) => ({ ...w, box: w.box.map((v) => v / scale) as OcrWord['box'] })));
+      return { W, H, words, second, mrz, pageFound: !!quad, turned, ms: Date.now() - t0 };
     };
     let got: Awaited<ReturnType<typeof read>>;
     if (REUSE && fs.existsSync(cacheFile)) {
       const j = JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
-      got = { W: j.width, H: j.height, words: j.words, mrz: j.mrzFull ?? null, pageFound: !!j.meta?.pageFound, turned: j.meta?.turned ?? 0, ms: j.meta?.ms ?? 0 };
+      got = { W: j.width, H: j.height, words: j.words, second: j.second ?? [], mrz: j.mrzFull ?? null, pageFound: !!j.meta?.pageFound, turned: j.meta?.turned ?? 0, ms: j.meta?.ms ?? 0 };
     } else {
       got = await read();
       fs.mkdirSync(path.join(cacheDir, label), { recursive: true });
       const m = got.mrz;
-      fs.writeFileSync(cacheFile, JSON.stringify({ width: got.W, height: got.H, words: got.words, meta: { pageFound: got.pageFound, turned: got.turned, ms: got.ms }, mrzFull: m, mrz: m ? { format: m.format, docType: m.docType, valid: m.valid, checks: m.checks.length, checksOk: m.checks.filter((c) => c.ok).length, country: m.fields.find((x) => x.key === 'Issuing country')?.value } : null }));
+      fs.writeFileSync(cacheFile, JSON.stringify({ width: got.W, height: got.H, words: got.words, second: got.second, meta: { pageFound: got.pageFound, turned: got.turned, ms: got.ms }, mrzFull: m, mrz: m ? { format: m.format, docType: m.docType, valid: m.valid, checks: m.checks.length, checksOk: m.checks.filter((c) => c.ok).length, country: m.fields.find((x) => x.key === 'Issuing country')?.value } : null }));
     }
     const { W, H, words, mrz, turned } = got;
     const cls = classifyDocument(words, W, H, mrz);
@@ -154,7 +156,7 @@ for (const label of types) {
     const tr = truth[`${label}/${f}`];
     if (tr) {
       const an = await analyse(words, W, H, clf, undefined, ID_TYPES.includes(cls.type) ? 'id' : 'form', 'tesseract');
-      const facts = extractFacts(cls.type, words, an.fields, mrz);
+      const facts = extractFacts(cls.type, words, an.fields, mrz, got.second ?? []);
       const nrm = (v: string) => v.toUpperCase().replace(/[^A-Z0-9]/g, '');
       factHits = {};
       for (const [k, v] of Object.entries(tr.fields as Record<string, string>)) {

@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, MotionConfig, motion } from 'motion/react';
-import { applyTemplate, criticLook, deleteUserTemplate, loadCritic, loadPpReader, loadSecondReader, processDocument, reanalyse, retype, saveUserTemplate, secondRead, warmUp } from './engine/engine';
+import { applyTemplate, criticLook, deleteUserTemplate, loadCritic, loadPpReader, loadSecondReader, processDocument, reanalyse, retype, secondLook, factsOf, saveUserTemplate, secondRead, warmUp } from './engine/engine';
 import type { Template } from './core/template';
 import type { Quad } from './core/scan';
 import { downloadReport } from './ui/report';
-import { downloadTypePdf, downloadZip } from './ui/bundle';
+import { downloadSearchablePdf, downloadTypePdf, downloadZip, niceName } from './ui/bundle';
 import { DEFAULT_PRE, type PreprocessOptions } from './core/preprocess';
 import type { DocType } from './core/classify';
 import { SAMPLE_COUNT, ScanPage, sampleFiles, type Active, type SecondReaderState } from './ui/ScanPage';
@@ -15,7 +15,7 @@ import { ResultView } from './ui/ResultView';
 import { ModelCard } from './ui/ModelCard';
 import { Help } from './ui/Help';
 import { IChart, IHelp, IList, IScan } from './ui/icons';
-import { download, exportCsv, exportFunsd, exportJson, markMrz, needsReview, toEditable, type DocState, type EField } from './ui/state';
+import { download, exportCsv, exportFunsd, exportJson, markMrz, needsReview, sidesOf, toEditable, type DocState, type EField } from './ui/state';
 
 type Tab = 'scan' | 'sorted' | 'model' | 'help';
 
@@ -75,6 +75,23 @@ export default function App() {
     }
   }, []);
 
+  // Identity documents get a second look by the neural reader. It shares that reader with the
+  // code-line step, so it waits until the pile has been read and then takes one document at a time.
+  const looks = useRef<DocState['doc'][]>([]);
+  const looking = useRef(false);
+  const [lookTick, setLookTick] = useState(0);
+  const lookAgain = useCallback((doc: DocState['doc']) => { if (doc.kind === 'id') { looks.current.push(doc); setLookTick((t) => t + 1); } }, []);
+  useEffect(() => {
+    if (active || queue.length || looking.current) return;
+    const doc = looks.current.shift();
+    if (!doc) return;
+    looking.current = true;
+    secondLook(doc)
+      .then((r) => { if (r) patch(doc.id, (d) => (d.doc.kind === 'id' ? { ...d, doc: { ...d.doc, words2: r.words2, words2Ms: r.ms, facts: factsOf(d.doc, d.analysis.fields, r.words2) } } : d)); })
+      .catch((e) => console.warn('second look', e))
+      .finally(() => { looking.current = false; setLookTick((t) => t + 1); });
+  }, [active, queue, lookTick]);
+
   // one document at a time, in the order they were dropped
   useEffect(() => {
     if (active || !queue.length) return;
@@ -86,6 +103,7 @@ export default function App() {
         const st: DocState = { doc, analysis: doc.analysis, fields: toEditable(doc.analysis.fields), second: 'none' };
         st.fields = markMrz(st);
         setDocs((ds) => [st, ...ds]);
+        lookAgain(doc);
         if (secondRef.current.enabled) runSecond(st);
         if (criticRef.current) criticLook(doc).then((vision) => patch(doc.id, (d) => ({ ...d, vision }))).catch((e) => console.warn('critic', e));
       })
@@ -94,10 +112,11 @@ export default function App() {
         setToast(`Could not read ${next.name}: ${e.message ?? e}`);
       })
       .finally(() => setActive(null));
-  }, [queue, active, pre, runSecond]);
+  }, [queue, active, pre, runSecond, lookAgain]);
 
   const current = docs.find((d) => d.doc.id === open);
   const totalReview = docs.reduce((a, d) => a + needsReview(d.fields), 0);
+  const sides = useMemo(() => sidesOf(docs), [docs]);
   const openDoc = (id: string) => { setOpen(id); setSelected(null); setTab('sorted'); window.scrollTo({ top: 0 }); };
   const onRetype = async (t: DocType) => {
     if (!current) return;
@@ -123,6 +142,7 @@ export default function App() {
       const st: DocState = { doc, analysis: doc.analysis, fields: toEditable(doc.analysis.fields), second: 'none' };
       st.fields = markMrz(st);
       setDocs((ds) => ds.map((d) => (d.doc.id === old ? st : d)));
+      lookAgain(doc);
       setOpen(doc.id);
       setSelected(null);
       setToast('Read again with your corners');
@@ -205,12 +225,15 @@ export default function App() {
                   selected={selected}
                   onSelect={setSelected}
                   onBack={() => setOpen(null)}
+                  side={sides.get(current.doc.id)}
+                  onOpenOther={() => { const o = sides.get(current.doc.id)?.other; if (o) openDoc(o.doc.id); }}
                   onRetype={onRetype}
                   onChange={(fields: EField[]) => patch(current.doc.id, (d) => ({ ...d, fields }))}
-                  onExportJson={() => download(current.doc.fileName.replace(/\.[^.]+$/, '') + '.json', JSON.stringify(exportJson(current), null, 2), 'application/json')}
+                  onExportJson={() => download(niceName(current) + '.json', JSON.stringify(exportJson(current), null, 2), 'application/json')}
                   onCopy={() => navigator.clipboard.writeText(JSON.stringify(exportJson(current), null, 2)).then(() => setToast('Copied'))}
                   onExportLabelled={() => download(current.doc.fileName.replace(/\.[^.]+$/, '') + '.labels.json', JSON.stringify(exportFunsd(current), null, 1), 'application/json')}
-                  onReport={() => downloadReport([current], current.doc.fileName.replace(/\.[^.]+$/, '') + '-report.pdf')}
+                  onReport={() => downloadReport([current], niceName(current) + ' - report.pdf')}
+                  onScanPdf={() => downloadSearchablePdf(current, sides.get(current.doc.id)).catch((e) => setToast(`Could not build the PDF: ${e.message ?? e}`))}
                   criticOn={critic}
                   onSecond={() => runSecond(current)}
                   secondAvailable={second.enabled && second.status !== 'error'}

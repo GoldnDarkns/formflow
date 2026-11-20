@@ -402,3 +402,25 @@ test('photo check: a blurred page scores lower than a sharp one, and a burnt-out
   assert.match(alertsFor('passport', 0.99, [], null, new Date(), { blurry: true, glary: false })[0].text, /blurry/);
   assert.equal(alertsFor('form', 0.99, [], null, new Date(), { blurry: false, glary: true }).length, 0);
 });
+
+test('two readings of one card: agreement is marked, a gap is filled, and dates follow birth-first, expiry-last', () => {
+  const first = lineWords(['DRIVING LICENCE', 'Surname BIANCHI', 'Given names MARCO', 'Date of birth 12.03.1990', 'Date of expiry 01.07.2029', 'Licence Mo. AB12345']);
+  const other = lineWords(['DRIVING LICENCE', 'Surname BIANCHI', 'Given names MARCO', 'Date of birth 02.07.2019', 'Date of expiry 02.07.2019', 'Licence No. AB123456', 'Convention on Road Traffic of 8 November 1968']);
+  const f = extractFacts('driving_licence', first, [], null, other);
+  const get = (k: string) => f.find((x) => x.key === k);
+  assert.equal(get('Full name')?.value, 'MARCO BIANCHI');
+  assert.equal(get('Full name')?.twice, true);
+  assert.equal(get('Licence number')?.value, 'AB123456'); // only the second reader got the label
+  assert.equal(get('Date of birth')?.value, '1990-03-12'); // the earlier of two candidates
+  assert.equal(get('Expiry date')?.value, '2029-07-01'); // the later of two candidates
+  assert.equal(get('Expiry date')?.alt, '2019-07-02');
+  // without a second reading nothing changes
+  assert.equal(extractFacts('driving_licence', first, [], null).find((x) => x.key === 'Full name')?.twice, undefined);
+});
+
+test('a code line cannot confirm its own misreading of a name', () => {
+  const page = lineWords(['PASSPORT', 'ALMEIDA', 'YUKI', 'KARIM', 'P<UTOALMEIDA<<UKI<KARIMK<<<<<<<<']);
+  assert.deepEqual(mendName('UKI KARIMK ALMEIDA', page), { name: 'YUKI KARIM ALMEIDA', twice: false });
+  // a label word is never taken for part of a name
+  assert.equal(mendName('ANA DE SOUZA', lineWords(['DATA', 'DATE', 'SOUZA', 'I<UTO<<<', 'SOUZA<<ANA<DE<<<'])).name, 'ANA DE SOUZA');
+});
