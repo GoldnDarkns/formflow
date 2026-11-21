@@ -29,11 +29,13 @@ export default defineConfig({
       },
       workbox: {
         // app shell + OCR engine + small ONNX models are precached for offline use
-        globPatterns: ['**/*.{js,css,html,svg,png,jpg,onnx,gz,json,mjs}'],
-        globIgnores: ['**/ort/*.wasm'],
+        globPatterns: ['**/*.{js,css,html,svg,png,jpg,onnx,gz,json,mjs,txt}'],
+        // the Arabic reader (8 MB) is fetched the first time an identity document needs it, then kept
+        globIgnores: ['**/ort/*.wasm', '**/models/ppocr/arabic_*'],
         maximumFileSizeToCacheInBytes: 30 * 1024 * 1024,
         runtimeCaching: [
           { urlPattern: /\/ort\/.*\.wasm$/, handler: 'CacheFirst', options: { cacheName: 'ort-wasm', expiration: { maxEntries: 4 } } },
+          { urlPattern: /\/models\/ppocr\/arabic_/, handler: 'CacheFirst', options: { cacheName: 'arabic-reader', expiration: { maxEntries: 4 } } },
         ],
       },
     }),

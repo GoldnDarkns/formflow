@@ -34,8 +34,8 @@ const STAGES: Stage[] = [
   {
     name: 'Clean', note: 'classical computer vision, no model',
     nodes: [
-      { n: '3', title: 'Find the document', kind: 'cv', by: 'Colour edges, closed outline, four sides', out: 'four corners of the card or page',
-        more: 'Strong colour changes are marked as edges. Whatever the plain surface cannot reach from the border of the photo without crossing an edge is an object, and the largest one with four straight sides is the document. This works for a pale card on a white table as well as a white page on a dark one. On fabric or wood grain, where everything is an edge, the older bright-page finder takes over. In the camera the same finder runs on every frame and draws the outline before you take the picture. If nothing is found the whole photo is kept and you can drag the corners yourself.' },
+      { n: '3', title: 'Find the document', kind: 'cv', by: 'Colour edges, closed outline, four sides; in the camera also a small learned corner finder', out: 'four corners of the card or page',
+        more: 'Strong colour changes are marked as edges. Whatever the plain surface cannot reach from the border of the photo without crossing an edge is an object, and the largest one with four straight sides is the document. This works for a pale card on a white table as well as a white page on a dark one. On fabric or wood grain, where everything is an edge, the older bright-page finder takes over. In the camera the same finder runs on every frame, together with DocCornerNet, a 1.8 MB network that finds the corners on striped, gridded or grained surfaces where the classical finders fail. The network is believed only when the surface just outside its outline differs from just inside. The outline is smoothed between frames, and when the document is still, sharp and free of glare the picture is taken by itself (Auto). If nothing is found the whole photo is kept and you can drag the corners yourself.' },
       { n: '4', title: 'Flatten and light', kind: 'cv', by: 'Perspective warp (homography), paper estimate', out: 'a flat, evenly lit page',
         more: 'The four corners define a 3 by 3 perspective transform; every pixel of an upright rectangle is sampled from the photo. Then the paper brightness around each pixel is estimated and divided out, so shadows turn white and ink stays dark.' },
       { n: '5', title: 'Straighten', kind: 'cv', by: 'Projection profile, -6 to +6 degrees', out: 'upright text lines',
@@ -45,10 +45,12 @@ const STAGES: Stage[] = [
     ],
   },
   {
-    name: 'Read', note: 'three readers with different strengths',
+    name: 'Read', note: 'four readers with different strengths',
     nodes: [
       { n: '7', title: 'Read the text', kind: 'model', by: 'Tesseract (fast) or PP-OCRv5 (neural)', out: 'words, each with a box and a confidence',
         more: 'Tesseract reads the cleaned page in a second or two. A grainy page, or one Tesseract has not finished in 20 seconds, is read by PP-OCRv5 instead. If almost no clean words come out, the page is turned 90, 270 and 180 degrees and read again.' },
+      { n: '7b', title: 'Read the Arabic', kind: 'model', by: 'Arabic PP-OCRv5 recogniser (8 MB), identity documents only', out: 'the name and nationality as printed in Arabic',
+        more: 'After the first answer is on screen, every text segment on an identity document is read again by the Arabic model. A segment counts as Arabic when most of what it reads is Arabic letters. The name and nationality are taken only from beside their printed Arabic labels, and are marked "read once" because nothing on the card can prove them. The model is downloaded the first time it is needed, then kept on the device.' },
       { n: '8', title: 'Read the code lines', kind: 'model', by: 'PP-OCRv5 on crops, then ICAO 9303 check digits', out: 'number, birth date, expiry: "verified" when the digits add up',
         more: 'The lines of "<<<" at the bottom of passports and ID cards are read from several crops. Each attempt is parsed and the one with the most passing check digits wins. A check digit is arithmetic: no model can fake it.' },
     ],
@@ -80,9 +82,9 @@ const STAGES: Stage[] = [
   {
     name: 'Decide and save', note: 'a person stays in charge',
     nodes: [
-      { n: '14', title: 'You review', kind: 'person', by: 'One doubtful field at a time', out: 'confirmed or corrected values',
-        more: 'Each doubtful field is shown with that part of the page enlarged. Correct, Skip or Not a field. Nothing doubtful is accepted without you.' },
-      { n: '15', title: 'Export', kind: 'rule', by: 'jsPDF, fflate, made on the device', out: 'JSON, CSV, report, searchable PDF, ZIP by type, redacted copy',
+      { n: '14', title: 'You review', kind: 'person', by: 'The digital copy, under the scan', out: 'every line checked right, marked wrong or corrected',
+        more: 'Under the scan, the document is drawn again from what was read: every line where it was printed, the Arabic, the code lines and the photo. Verified values are green, doubtful ones amber. Tap any line: it lights up on the scan, a close-up opens, and you say Right, or Wrong and type the correct text. A correction to a key fact or a field changes it everywhere, including the exports. Nothing doubtful is accepted without you.' },
+      { n: '15', title: 'Export', kind: 'rule', by: 'jsPDF, fflate, made on the device', out: 'JSON, CSV, report, searchable PDF, digital copy (picture or PDF), ZIP by type, redacted copy',
         more: 'Files are built in the tab and saved only when you press a button, to wherever your device keeps downloads. They are named after what was read. Scan PDFs carry the text invisibly on top of the picture so they can be searched. Values nobody confirmed are marked "review" in every export.' },
       { n: '16', title: 'Close the page', kind: 'person', by: 'The browser', out: 'the document and everything read from it are gone',
         more: 'The document was only ever in the tab\'s memory. Nothing was written to storage and nothing was sent anywhere, so closing or reloading the tab leaves no copy behind. Only your settings, any form templates you taught (printed labels and box positions, never the values) and the cached model files remain.' },

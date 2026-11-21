@@ -15,6 +15,18 @@ export interface Fact {
   twice?: boolean;
   /** what the other reader saw, where the two readings differ */
   alt?: string;
+  /** a person looked at it on the digital copy: right, or wrong (then usually corrected) */
+  checked?: 'right' | 'wrong';
+  /** the value was typed by a person */
+  edited?: boolean;
+  /** what the reader gave, before the person's correction */
+  read?: string;
+}
+/** Facts worked out again (the second look finished, the type changed) keep what a person checked or typed. */
+export function keepFactChecks(next: Fact[], prev: Fact[]): Fact[] {
+  const out = next.map((f) => { const p = prev.find((x) => x.key === f.key && (x.checked || x.edited)); return p ? { ...f, value: p.edited ? p.value : f.value, checked: p.checked, edited: p.edited, read: p.read } : f; });
+  for (const p of prev) if (p.edited && !out.some((f) => f.key === p.key)) out.push(p);
+  return out;
 }
 
 /** Edit distance between two short strings (insert, delete, substitute). */
@@ -416,6 +428,71 @@ export function tidyIdFields<T extends Field>(fields: T[], facts: Fact[]): T[] {
     if (/date|valid/i.test(best)) { const d = parseDate(v); if (!d) continue; value = d; }
     else value = v.split(/\s+/).filter((w, i, all) => i === 0 || !(i === all.length - 1 && /[a-z]/i.test(w) && /\d/.test(w))).join(' ');
     out.push({ ...f, key: best, value });
+  }
+  return out;
+}
+
+// ---------------- Arabic ----------------
+/** Arabic as compared: no short vowel marks or stretching, one form of alef, final yeh/alef maqsura alike. */
+export const plainArabic = (s: string) => s.replace(/[ً-ْٰـ]/g, '').replace(/[أإآٱ]/g, 'ا').replace(/ى/g, 'ي').replace(/\s+/g, ' ').trim();
+const ARABIC_WORD = /^[ء-يٱ-ۓۺ-ۿ]+$/;
+/** the labels an Arabic-and-English card prints beside each value */
+const AR_LABELS: [string, string, number][] = [
+  ['Name in Arabic', 'الاسم', 2], // al-ism, name
+  ['Nationality in Arabic', 'الجنسية', 1], // al-jinsiyya, nationality
+];
+const AR_OTHER_LABELS = ['تاريخ', 'رقم', 'الجنس', 'مكان']; // date, number, sex, place
+interface ArabicText { text: string; box: [number, number, number, number] }
+/**
+ * The reader sometimes drops the narrow space between two Arabic words. Two cases can be undone safely:
+ * a label read stuck to its value, and the article "al-" stuck to a word ending in a letter that never
+ * joins the next one (so the break is visible on the card). Compounds such as Abdullah stay as written.
+ */
+function unglue(w: string): string[] {
+  for (const [, l] of AR_LABELS) if (w.length > l.length + 1 && w.startsWith(l)) return [l, ...unglue(w.slice(l.length))];
+  const m = w.match(/^(.{2,}?[اأإآدذرزوؤةى])(ال.{3,})$/);
+  return m && !/^عبد?$/.test(m[1]) && !m[1].endsWith('عبد') ? [m[1], ...unglue(m[2])] : [w];
+}
+
+/**
+ * Key facts from the Arabic lines of a card: the holder's name and nationality as printed in Arabic.
+ * A value is taken only from beside its printed Arabic label (after it on the same line, or the
+ * nearest Arabic segment to its left on the same row, or just below it), so a heading or a
+ * misread pattern is never offered as a name.
+ */
+export function arabicFacts(lines: ArabicText[]): Fact[] {
+  const out: Fact[] = [];
+  const words = (s: string) => plainArabic(s).split(/[\s:.،؛]+/).filter(Boolean).flatMap(unglue);
+  // a label may be read with one letter wrong, but only when no line has it exactly: a family name such
+  // as al-Qasim is one letter away from al-ism ("name")
+  let fuzzy = false;
+  // (a letter misread or lost, never one added: the name al-Qasim is al-ism with one letter more)
+  const isLabel = (w: string, label: string) => w === label || (fuzzy && label.length > 4 && w.length <= label.length && editDistance(w, label) <= 1);
+  const anyLabel = (w: string) => AR_LABELS.some(([, l]) => w === l) || AR_OTHER_LABELS.some((l) => w === l);
+  const valueOf = (ws: string[]) => {
+    const v: string[] = [];
+    for (const w of ws) { if (anyLabel(w)) break; if (ARABIC_WORD.test(w)) v.push(w); }
+    return v;
+  };
+  const h = (b: ArabicText['box']) => b[3] - b[1];
+  for (const [key, label, min] of AR_LABELS) {
+    let found: string[] | null = null;
+    for (const pass of [false, true]) for (const l of found ? [] : lines) {
+      fuzzy = pass;
+      const ws = words(l.text);
+      const i = ws.findIndex((w) => isLabel(w, label));
+      if (i < 0) continue;
+      let v = valueOf(ws.slice(i + 1));
+      if (v.length < min) {
+        // the value is a separate segment: to the left on the same row (Arabic runs right to left), or just below
+        const sameRow = lines.filter((o) => o !== l && o.box[2] <= l.box[0] + h(l.box) && Math.min(o.box[3], l.box[3]) - Math.max(o.box[1], l.box[1]) > 0.5 * Math.min(h(o.box), h(l.box)));
+        const left = sameRow.sort((a, b) => b.box[2] - a.box[2])[0];
+        const below = lines.filter((o) => o !== l && o.box[1] >= l.box[1] + h(l.box) * 0.5 && o.box[1] - l.box[3] < h(l.box) * 1.2 && Math.min(o.box[2], l.box[2]) - Math.max(o.box[0], l.box[0]) > 0).sort((a, b) => a.box[1] - b.box[1])[0];
+        for (const o of [left, below]) if (o && v.length < min) { const w2 = words(o.text); if (!w2.some(anyLabel)) v = valueOf(w2); }
+      }
+      if (v.length >= min) { found = v; break; }
+    }
+    if (found) out.push({ key, value: found.join(' '), from: 'text' });
   }
   return out;
 }

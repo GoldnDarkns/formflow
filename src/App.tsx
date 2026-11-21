@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, MotionConfig, motion } from 'motion/react';
 import { applyTemplate, criticLook, deleteUserTemplate, loadCritic, loadPpReader, loadSecondReader, processDocument, reanalyse, retype, secondLook, factsOf, saveUserTemplate, secondRead, warmUp } from './engine/engine';
 import type { Template } from './core/template';
+import { keepFactChecks } from './core/facts';
 import type { Quad } from './core/scan';
 import { downloadReport } from './ui/report';
 import { downloadSearchablePdf, downloadTypePdf, downloadZip, niceName } from './ui/bundle';
@@ -87,7 +88,7 @@ export default function App() {
     if (!doc) return;
     looking.current = true;
     secondLook(doc)
-      .then((r) => { if (r) patch(doc.id, (d) => (d.doc.kind === 'id' ? { ...d, doc: { ...d.doc, words2: r.words2, words2Ms: r.ms, facts: factsOf(d.doc, d.analysis.fields, r.words2) } } : d)); })
+      .then((r) => { if (r) patch(doc.id, (d) => (d.doc.kind === 'id' ? { ...d, doc: { ...d.doc, words2: r.words2, words2Ms: r.ms, arabic: r.arabic, facts: keepFactChecks(factsOf(d.doc, d.analysis.fields, r.words2, r.arabic), d.doc.facts) } } : d)); })
       .catch((e) => console.warn('second look', e))
       .finally(() => { looking.current = false; setLookTick((t) => t + 1); });
   }, [active, queue, lookTick]);
@@ -122,7 +123,7 @@ export default function App() {
   const onRetype = async (t: DocType) => {
     if (!current) return;
     const doc = await retype(current.doc, t, current.doc.second);
-    patch(doc.id, (d) => { const nd = { ...d, doc, analysis: doc.analysis, fields: toEditable(shown(doc, doc.analysis.fields)) }; return { ...nd, fields: markMrz(nd) }; });
+    patch(doc.id, (d) => { const nd = { ...d, doc: { ...doc, facts: keepFactChecks(doc.facts, d.doc.facts) }, analysis: doc.analysis, fields: toEditable(shown(doc, doc.analysis.fields), d.fields) }; return { ...nd, fields: markMrz(nd) }; });
     setToast('Sorted again');
   };
 
@@ -241,6 +242,7 @@ export default function App() {
                   onTeach={onTeach}
                   onForgetTemplate={onForgetTemplate}
                   onCorners={onCorners}
+                  onPatch={(fn) => patch(current.doc.id, fn)}
                   onRemove={() => { setDocs((ds) => ds.filter((d) => d !== current)); setOpen(null); }}
                 />
               )}

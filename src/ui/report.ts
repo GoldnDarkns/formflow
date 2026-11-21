@@ -48,7 +48,8 @@ export async function buildReport(states: DocState[]) {
     for (const a of alertsFor(d.docType, d.classification.confidence, d.facts, d.mrz, undefined, d.quality)) { text(`${a.level === 'good' ? 'OK' : a.level === 'warn' ? 'CHECK' : 'PROBLEM'}  ${a.text}`, L, 10, 'normal', a.level === 'good' ? [10, 143, 91] : a.level === 'warn' ? [178, 94, 0] : [211, 52, 42]); line(5.5); }
     if (d.facts.length) {
       line(4); text('Key facts', L, 12, 'bold'); line(6);
-      for (const f of d.facts) { text(f.key, L, 10, 'normal', grey); text(f.value + (f.proof ? (f.valid ? `   (${f.proof} passes)` : `   (${f.proof} FAILS)`) : ''), L + 48, 10, 'bold'); line(5.5); }
+      // the PDF's built-in font has no Arabic letters: say where the Arabic value is instead of printing question marks
+      for (const f of d.facts) { text(f.key, L, 10, 'normal', grey); text((/[؀-ۿ]/.test(f.value) ? '(in Arabic: see the JSON or CSV export)' : f.value) +(f.proof ? (f.valid ? `   (${f.proof} passes)` : `   (${f.proof} FAILS)`) : ''), L + 48, 10, 'bold'); line(5.5); }
     }
     line(4); text('Fields', L, 12, 'bold'); line(6);
     for (const f of s.fields.filter((f) => f.value)) {

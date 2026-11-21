@@ -56,7 +56,7 @@ export function Sorted({ docs, onOpen, onExportCsv, onReport, onScan, onZip, onT
             {p.profile.map((f) => (
               <button key={f.key} className="afact" title={`From the ${f.from.toLowerCase()}. Tap to copy`} onClick={() => onCopyText(f.value, f.key)}>
                 <span>{f.key}{f.verified && <i className="ok">verified</i>}</span>
-                <b>{f.value}</b>
+                <b dir="auto">{f.value}</b>
               </button>
             ))}
           </div>

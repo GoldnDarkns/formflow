@@ -525,3 +525,95 @@ test('four-edges finder: a card over a busy background with a finger across one 
   assert.equal(quadHoldsWords(q!, [[250, 180], [300, 200], [350, 240], [420, 300], [230, 290]], W, H), true);
   assert.equal(quadHoldsWords(q!, [[50, 40], [600, 60], [350, 240], [80, 440], [590, 430]], W, H), false);
 });
+
+// ---------------- Arabic reading, corner finder choice, outline smoother ----------------
+import { toReadingOrder, arabicShare } from '../src/core/ppocr';
+import { arabicFacts } from '../src/core/facts';
+import { chooseOutline, QuadFilter, frameProblem } from '../src/core/track';
+import { edgeContrast, plausibleQuad } from '../src/core/corners';
+import type { Quad } from '../src/core/scan';
+
+test('Arabic reading is turned into reading order, keeping digits and Latin runs the right way round', () => {
+  // the recogniser reads left to right in picture order: "ABC 123" stays, Arabic letters are reversed
+  assert.equal(toReadingOrder('مسالا'), 'الاسم');
+  assert.equal(toReadingOrder('2026 با'), 'اب 2026');
+  assert.ok(arabicShare('الاسم') === 1 && arabicShare('Name: JOHN') === 0);
+});
+
+test('Arabic name and nationality are taken only from beside their printed labels', () => {
+  const NAME = 'الاسم', NAT = 'الجنسية';
+  const SARA = 'سارة', QASIM = 'القاسم', INDIA = 'الهند';
+  const b = (x0: number, y0: number, x1: number, y1: number) => [x0, y0, x1, y1] as [number, number, number, number];
+  // label and value in one segment, a label stuck to its value, and a value in its own segment to the left
+  let f = arabicFacts([{ text: `${NAME}: ${SARA} ${QASIM}`, box: b(500, 100, 900, 130) }, { text: `${NAT}${INDIA}`, box: b(600, 150, 900, 180) }]);
+  assert.equal(f.find((x) => x.key === 'Name in Arabic')?.value, `${SARA} ${QASIM}`);
+  assert.equal(f.find((x) => x.key === 'Nationality in Arabic')?.value, INDIA);
+  f = arabicFacts([{ text: NAME, box: b(820, 100, 900, 130) }, { text: `${SARA} ${QASIM}`, box: b(500, 102, 800, 132) }]);
+  assert.equal(f.find((x) => x.key === 'Name in Arabic')?.value, `${SARA} ${QASIM}`);
+  // al-Qasim is one letter from al-ism ("name"): it must not be taken for the label
+  f = arabicFacts([{ text: `${QASIM} ${SARA} ${SARA}`, box: b(500, 100, 900, 130) }]);
+  assert.equal(f.length, 0);
+});
+
+test('the camera believes the outline finder first, then the network, and never the edge finder alone on an empty view', () => {
+  const card: Quad = [[0.2, 0.3], [0.8, 0.3], [0.8, 0.7], [0.2, 0.7]];
+  const other: Quad = [[0.1, 0.1], [0.5, 0.1], [0.5, 0.4], [0.1, 0.4]];
+  const net = (score: number, contrast = 0.9) => ({ quad: card, score, plausible: true, contrast });
+  assert.equal(chooseOutline({ outline: other, edges: null, page: null, net: net(0.99) })?.how, 'outline');
+  assert.deepEqual(chooseOutline({ outline: null, edges: other, page: null, net: net(0.99) })?.q, card); // edges disagree: the network wins
+  assert.equal(chooseOutline({ outline: null, edges: other, page: null, net: net(0.02) }), null); // the network sees nothing
+  assert.equal(chooseOutline({ outline: null, edges: other, page: null, net: net(0.3) })?.strong, false); // shown, but not enough for Auto
+  assert.equal(chooseOutline({ outline: null, edges: null, page: null, net: net(0.99, 0.2) }), null); // same surface inside and out: a box inside a page
+  assert.equal(plausibleQuad(card), true);
+  assert.equal(plausibleQuad([[0.2, 0.3], [0.8, 0.7], [0.8, 0.3], [0.2, 0.7]]), false); // crossed
+});
+
+test('outline contrast tells a card on a table from a box drawn inside a page', () => {
+  const W = 200, H = 160, rgba = new Uint8ClampedArray(W * H * 4);
+  const q: Quad = [[50, 40], [150, 40], [150, 120], [50, 120]];
+  const fill = (inside: number[], outside: number[]) => { for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) { const c = x >= 50 && x < 150 && y >= 40 && y < 120 ? inside : outside; rgba.set([...c, 255], (y * W + x) * 4); } };
+  fill([235, 235, 230], [70, 50, 35]);
+  assert.ok(edgeContrast(rgba, W, H, q) > 0.9);
+  fill([235, 235, 230], [235, 235, 230]);
+  assert.ok(edgeContrast(rgba, W, H, q) < 0.1);
+});
+
+test('the outline smoother follows a moving card and settles on a still one', () => {
+  const f = new QuadFilter();
+  const at = (dx: number): Quad => [[0.2 + dx, 0.3], [0.8 + dx, 0.3], [0.8 + dx, 0.7], [0.2 + dx, 0.7]];
+  for (let i = 0; i < 20; i++) f.update(at(i * 0.005), i * 110);
+  const q = f.quad!;
+  assert.ok(Math.abs(q[0][0] - (0.2 + 19 * 0.005)) < 0.01, 'lags too far behind a steady movement');
+  for (let i = 20; i < 50; i++) f.update(at(0.1), i * 110);
+  assert.ok(Math.abs(f.quad![0][0] - 0.3) < 0.002, 'does not settle');
+  assert.match(frameProblem([[0.45, 0.45], [0.55, 0.45], [0.55, 0.55], [0.45, 0.55]], null, 1) ?? '', /closer/);
+  assert.match(frameProblem(at(0), { sharpness: 0.5, glary: true, blurry: false, paper: 200 }, 0.5) ?? '', /Glare/);
+});
+
+// ---------------- digital copy ----------------
+import { piecesOf } from '../src/core/copy';
+import { keepFactChecks } from '../src/core/facts';
+
+test('the digital copy keeps every line in place, splits columns, and links each key fact to its own line', () => {
+  const w = (text: string, x0: number, y0: number, x1: number, conf = 90): OcrWord => ({ text, box: [x0, y0, x1, y0 + 20], conf, line: 0 });
+  const words = [
+    w('Country', 10, 10, 90), w('code', 95, 10, 140), w('UTO', 400, 10, 450),
+    w('Nationality', 10, 50, 120), w('UTOPIAN', 400, 50, 500),
+    w('Born', 10, 90, 60), w('12', 400, 90, 425), w('AUG', 430, 90, 470), w('1974', 475, 90, 520),
+    w('xx', 10, 130, 40, 20), // read where the Arabic is: noise from the English reader
+  ];
+  const arabic = [{ text: 'الاسم', box: [5, 125, 60, 150] as Box, conf: 0.9 }];
+  const facts = [{ key: 'Nationality', value: 'UTO', from: 'mrz' as const }, { key: 'Date of birth', value: '1974-08-12', from: 'text' as const }];
+  const ps = piecesOf(words, arabic, facts, null);
+  assert.ok(ps.some((p) => p.text === 'Country code') && ps.some((p) => p.text === 'UTO'), 'label and value printed far apart stay separate lines');
+  assert.equal(ps.find((p) => p.fact === 'Nationality')?.text, 'UTO'); // not "UTOPIAN"
+  assert.equal(ps.find((p) => p.fact === 'Date of birth')?.valueText, '12 AUG 1974');
+  assert.ok(!ps.some((p) => p.text === 'xx') && ps.some((p) => p.kind === 'arabic'));
+});
+
+test('facts worked out again keep what a person checked or corrected', () => {
+  const prev = [{ key: 'Full name', value: 'ANNA ERIKSON', read: 'ANNA ERIKSSON', edited: true, checked: 'right' as const, from: 'text' as const }, { key: 'Sex', value: 'F', from: 'mrz' as const, checked: 'right' as const }];
+  const next = keepFactChecks([{ key: 'Full name', value: 'ANNA ERIKSSON', from: 'text' }, { key: 'Sex', value: 'F', from: 'mrz' }], prev);
+  assert.equal(next[0].value, 'ANNA ERIKSON');
+  assert.equal(next[1].checked, 'right');
+});

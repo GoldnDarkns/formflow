@@ -18,7 +18,7 @@ async function loadImage(src: string) {
 }
 
 /** Guess where the portrait photo is on an ID page (null for forms or when nothing fits). */
-async function guessPhoto(s: DocState): Promise<Box | null> {
+export async function guessPhoto(s: DocState): Promise<Box | null> {
   if (!ID_TYPES.includes(s.doc.docType)) return null;
   const img = await loadImage(s.doc.view);
   const k = Math.min(1, 640 / img.width);

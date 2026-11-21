@@ -6,6 +6,7 @@ import { DOC_LABEL, EID_RE, type DocType } from '../core/classify';
 import type { VisionOpinion } from '../core/critic-vision';
 import { critique } from '../core/critic';
 import { alertsFor, tidyIdFields } from '../core/facts';
+import { correctedText, piecesOf, type Correction, type Piece } from '../core/copy';
 
 export interface EField extends Field {
   uid: string;
@@ -21,6 +22,26 @@ export interface DocState {
   second: 'none' | 'running' | 'done' | 'error';
   vision?: VisionOpinion | null; // the vision critic's opinion of the type
   secondError?: string;
+  /** a person's checks and corrections of lines on the digital copy that carry no key fact or field */
+  copy?: Record<string, Correction>;
+}
+export const MARKED_WRONG = 'Marked wrong by you';
+
+/** Every line read from the document, placed where it was printed and linked to its key fact or field (the digital copy). */
+export function piecesOfState(s: DocState): Piece[] {
+  const d = s.doc;
+  const words = d.kind === 'id' && d.words2?.length ? d.words2 : d.words;
+  const fields = s.fields.map((f) => ({ uid: f.uid, key: f.key, value: f.value, confidence: f.confidence, box: f.aId !== undefined ? s.analysis.entities[f.aId]?.box ?? null : null, mark: f.source === 'mark' }));
+  return piecesOf(words, d.arabic ?? [], d.facts, d.mrz, fields);
+}
+/** The digital copy as plain data for the exports: each line, where it is, and whether a person checked it. */
+export function copyLines(s: DocState) {
+  return piecesOfState(s).map((p) => {
+    const f = p.fact ? s.doc.facts.find((x) => x.key === p.fact) : undefined, fl = p.field ? s.fields.find((x) => x.uid === p.field) : undefined, c = s.copy?.[p.id];
+    const text = f?.edited && p.valueText ? (p.text.includes(p.valueText) ? p.text.replace(p.valueText, f.value) : f.value) : fl?.edited && p.kind !== 'mark' ? fl.value : correctedText(p, c);
+    const checked = f?.checked ?? (fl?.confirmed ? 'right' : fl?.reasons.includes(MARKED_WRONG) ? 'wrong' : c?.verdict);
+    return { text, ...(text !== p.text ? { asRead: p.text } : {}), box: p.box.map(Math.round), kind: p.kind, confidence: Math.round(p.conf * 100) / 100, ...(p.fact ? { keyFact: p.fact } : {}), ...(fl ? { field: fl.key } : {}), ...(p.verified ? { verified: true } : {}), ...(checked ? { checkedByPerson: checked } : {}) };
+  });
 }
 
 let n = 0;
@@ -67,6 +88,7 @@ export function exportJson(s: DocState) {
     documentTypeConfidence: Math.round(d.classification.confidence * 100) / 100,
     trustScore: Math.round(trust.score * 100) / 100,
     keyFacts: Object.fromEntries(d.facts.map((f) => [f.key, f.value])),
+    keyFactChecks: Object.fromEntries(d.facts.filter((f) => f.checked || f.edited).map((f) => [f.key, f.edited ? 'corrected by a person' : f.checked === 'right' ? 'checked right by a person' : 'marked wrong by a person'])),
     alerts: alertsFor(d.docType, d.classification.confidence, d.facts, d.mrz, undefined, d.quality).filter((a) => a.level !== 'good').map((a) => a.text),
     processedAt: new Date().toISOString(),
     engine: { ocr: 'tesseract.js (eng)', layout: 'FormFlow GBDT (ONNX)', secondReader: s.second === 'done' ? 'Florence-2-base-ft' : null },
@@ -80,6 +102,8 @@ export function exportJson(s: DocState) {
       ...(f.alt ? { secondReaderValue: f.alt } : {}),
       ...(f.mrzMatch ? { matchesMrz: f.mrzMatch } : {}),
     })),
+    // the digital copy: every line read, where it is on the page (pixels of the cut-out image), and its check
+    digitalCopy: { width: d.width, height: d.height, lines: copyLines(s) },
   };
 }
 
@@ -88,11 +112,13 @@ export function exportCsv(states: DocState[]) {
   const rows = [['document', 'source', 'key', 'value', 'confidence', 'status', 'edited_by_human']];
   for (const s of states) {
     rows.push([s.doc.fileName, 'type', 'Document type', DOC_LABEL[s.doc.docType], s.doc.classification.confidence.toFixed(2), 'ok', 'false']);
-    for (const f of s.doc.facts) rows.push([s.doc.fileName, 'key_fact', f.key, f.value, f.valid === false ? '0' : f.proof ? '1' : '', f.valid === false ? 'check_failed' : 'ok', 'false']);
+    for (const f of s.doc.facts) rows.push([s.doc.fileName, 'key_fact', f.key, f.value, f.valid === false ? '0' : f.proof ? '1' : '', f.valid === false ? 'check_failed' : f.checked === 'wrong' && !f.edited ? 'marked_wrong' : f.checked || f.edited ? 'confirmed' : 'ok', String(!!f.edited)]);
     for (const f of s.doc.mrz?.fields ?? []) rows.push([s.doc.fileName, 'mrz', f.key, f.value, f.valid === false ? '0' : '1', f.valid === false ? 'check_failed' : 'ok', 'false']);
     for (const f of s.fields) rows.push([s.doc.fileName, 'layout', f.key, f.value, f.confidence.toFixed(2), f.confirmed ? 'confirmed' : f.status, String(!!f.edited)]);
+    copyLines(s).forEach((l, i) => rows.push([s.doc.fileName, 'line', `Line ${i + 1}`, l.text, l.confidence.toFixed(2), l.checkedByPerson === 'right' ? 'confirmed' : l.checkedByPerson === 'wrong' ? 'marked_wrong' : 'ok', String(!!l.asRead)]));
   }
-  return rows.map((r) => r.map(csvCell).join(',')).join('\n');
+  // the byte-order mark tells Excel the file is UTF-8, so names in Arabic (or with accents) open correctly
+  return '﻿' + rows.map((r) => r.map(csvCell).join(',')).join('\n');
 }
 
 export function download(name: string, data: string, type: string) {

@@ -9,6 +9,7 @@ import type { Template } from '../core/template';
 import type { Quad } from '../core/scan';
 import { critiqueOf, needsReview, trustOf } from './state';
 import { DocViewer } from './DocViewer';
+import { DigitalCopy } from './DigitalCopy';
 import { Ring, pct, typeColor } from './bits';
 import { ICheck, ICopy, IDownload, IPlus, ISpark, IX } from './icons';
 
@@ -33,6 +34,7 @@ interface Props {
   onTeach: (t: Template) => void;
   onForgetTemplate: (id: string) => void;
   onCorners: (q: Quad) => void;
+  onPatch: (fn: (s: DocState) => DocState) => void;
 }
 
 const confClass = (c: number) => (c >= 0.8 ? 'hi' : c >= 0.6 ? 'mid' : 'lo');
@@ -111,8 +113,8 @@ export function ResultView(p: Props) {
           <div className="answer-facts">
             {shownFacts.map((f) => (
               <button className="afact" key={f.key} onClick={() => copyFact(f.key, f.value)} title="Tap to copy">
-                <span>{f.key}{f.proof && (f.valid ? <i className="ok">verified</i> : <i className="no">check failed</i>)}{f.twice && <i className="ok" title="Found twice: in the code line and the printed text, or by both readers">seen twice</i>}{f.alt && <i className="no" title={`The other reader saw: ${f.alt}`}>readers differ</i>}</span>
-                <b>{f.value}</b>
+                <span>{f.key}{f.proof && (f.valid ? <i className="ok">verified</i> : <i className="no">check failed</i>)}{f.twice && <i className="ok" title="Found twice: in the code line and the printed text, or by both readers">seen twice</i>}{f.alt && <i className="no" title={`The other reader saw: ${f.alt}`}>readers differ</i>}{/Arabic$/.test(f.key) && !f.checked && <i title="Read by the Arabic model. Nothing on the card can prove it, so compare it with the card.">read once</i>}{f.edited ? <i className="ok">corrected by you</i> : f.checked === 'right' ? <i className="ok">checked by you</i> : f.checked === 'wrong' ? <i className="no">marked wrong</i> : null}</span>
+                <b dir="auto">{f.value}</b>
                 {copied === f.key && <motion.em initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}>copied</motion.em>}
               </button>
             ))}
@@ -138,6 +140,8 @@ export function ResultView(p: Props) {
           <button className="btn" onClick={p.onReport} title="A report of what was read, with the checks"><IDownload /> Report</button>
         </div>
       </section>
+
+      <DigitalCopy s={s} onPatch={p.onPatch} />
 
       <div className="results">
         <DocViewer s={s} selected={p.selected} onSelect={p.onSelect} onTeach={p.onTeach} onCorners={p.onCorners} />

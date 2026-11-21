@@ -8,8 +8,85 @@ interface OrtLike {
   InferenceSession: { create(src: any, opts?: any): Promise<any> };
   Tensor: new (type: 'float32', data: Float32Array, dims: number[]) => any;
 }
+/** A line of Arabic text: logical (reading) order, with the box it was found in. */
+export interface ArabicLine { text: string; box: Box; conf: number }
 export interface PpOcr {
   read(rgba: Uint8ClampedArray | Uint8Array, w: number, h: number): Promise<OcrWord[]>;
+  /**
+   * Read with the English recogniser and, when an Arabic one is given, read every text segment with it
+   * too. A segment whose Arabic reading is mostly Arabic letters is returned in `arabic` and its English
+   * reading (which is only noise) is left out of `words`.
+   */
+  readAll(rgba: Uint8ClampedArray | Uint8Array, w: number, h: number, arabic?: Recogniser): Promise<{ words: OcrWord[]; arabic: ArabicLine[] }>;
+  recognise: Recogniser['recognise'];
+}
+type Rec = { text: string; conf: number; spans: [number, number][] };
+export interface Recogniser {
+  recognise(rgba: Uint8ClampedArray | Uint8Array, w: number, boxes: Box[]): Promise<Rec[]>;
+}
+
+const ARABIC = /[؀-ۿݐ-ݿﭐ-﷿ﹰ-﻿]/;
+// a segment counts as Arabic when at least this share of its reading is Arabic letters and the model's
+// mean confidence is at least this (both checked on made-up lines with scripts/eval-arabic.ts)
+export const ARABIC_SHARE = 0.6, ARABIC_CONF = 0.5;
+/** Share of the letters and digits in a reading that are Arabic letters. */
+export const arabicShare = (s: string) => {
+  const cs = [...s].filter((c) => /\S/.test(c) && !/[.,:;'"()\-_/\\|*+]/.test(c));
+  return cs.length ? cs.filter((c) => ARABIC.test(c)).length / cs.length : 0;
+};
+/**
+ * The Arabic recogniser reads left to right in picture order; Arabic is written right to left. Turn the
+ * reading round, keeping runs of Latin letters and digits the right way (PaddleOCR's own pred_reverse).
+ */
+export function toReadingOrder(s: string): string {
+  const parts: string[] = [];
+  let run = '';
+  // a run keeps its own order, but the spaces at its two ends change sides along with everything else
+  const flip = (r: string) => { const m = r.match(/^(\s*)(.*?)(\s*)$/s)!; return m[3] + m[2] + m[1]; };
+  for (const c of s) {
+    if (/[a-zA-Z0-9 :*./%+-]/.test(c)) run += c;
+    else { if (run) parts.push(flip(run)); parts.push(c); run = ''; }
+  }
+  if (run) parts.push(flip(run));
+  return parts.reverse().join('').replace(/\s+/g, ' ').trim();
+}
+
+/**
+ * A line recogniser (PP-OCRv5 SVTR + CTC). `widen` stretches each crop sideways before reading: Arabic
+ * letters are joined and narrow, and at the normal width the model runs out of time steps on long lines
+ * (PaddleOCR issue #18349 measured 37-42% character errors at normal width against 10-13% widened).
+ */
+export async function loadRecogniser(ort: OrtLike, src: any, dictText: string, sessionOpts?: any, opt: { widen?: number; minW?: number } = {}): Promise<Recogniser> {
+  const rec = await ort.InferenceSession.create(src, sessionOpts);
+  const chars = ['', ...dictText.split(/\r?\n/).filter((l, i, a) => !(i === a.length - 1 && l === '')), ' '];
+  const widen = opt.widen ?? 1, minW = opt.minW ?? 16;
+  return {
+    /** Recognise several segments in one run: crops are resized to height 48 and right-padded to the widest. */
+    async recognise(rgba, w, boxes) {
+      if (!boxes.length) return [];
+      const tws = boxes.map((b) => Math.max(minW, Math.min(1600, Math.round((widen * 48 * Math.max(2, b[2] - b[0])) / Math.max(2, b[3] - b[1])))));
+      const padW = Math.max(...tws), N = boxes.length;
+      const input = new Float32Array(N * 3 * 48 * padW);
+      boxes.forEach((b, i) => input.set(toTensor(rgba, w, b[0], b[1], Math.max(2, b[2] - b[0]), Math.max(2, b[3] - b[1]), tws[i], 48, padW, [0.5, 0.5, 0.5], [0.5, 0.5, 0.5]), i * 3 * 48 * padW));
+      const out = await rec.run({ [rec.inputNames[0]]: new ort.Tensor('float32', input, [N, 3, 48, padW]) });
+      const t = out[rec.outputNames[0]];
+      const [, T, C] = t.dims as number[];
+      const d = t.data as Float32Array;
+      return boxes.map((_, bi) => {
+        const frac = tws[bi] / padW; // the part of the time axis that holds real pixels
+        let text = '', last = 0, sum = 0, n = 0;
+        const spans: [number, number][] = [];
+        for (let i = 0; i < T; i++) {
+          const o = (bi * T + i) * C;
+          let k = 0, m = -Infinity;
+          for (let c = 0; c < C; c++) if (d[o + c] > m) { m = d[o + c]; k = c; }
+          if (k !== 0 && k !== last && i / T <= frac + 0.02) { text += chars[k] ?? ''; spans.push([Math.min(1, i / T / frac), m]); sum += m; n++; }
+          last = k;
+        }
+        return { text, conf: n ? sum / n : 0, spans };
+      });
+    },
+  };
 }
 export interface PpOptions {
   maxSide?: number; // detector input size (long side)
@@ -36,8 +113,7 @@ function toTensor(rgba: Uint8ClampedArray | Uint8Array, w: number, sx: number, s
 }
 
 export async function loadPpOcr(ort: OrtLike, detSrc: any, recSrc: any, dictText: string, sessionOpts?: any, opt: PpOptions = {}): Promise<PpOcr> {
-  const [det, rec] = await Promise.all([ort.InferenceSession.create(detSrc, sessionOpts), ort.InferenceSession.create(recSrc, sessionOpts)]);
-  const chars = ['', ...dictText.split(/\r?\n/).filter((l, i, a) => !(i === a.length - 1 && l === '')), ' '];
+  const [det, english] = await Promise.all([ort.InferenceSession.create(detSrc, sessionOpts), loadRecogniser(ort, recSrc, dictText, sessionOpts)]);
   // unclip 0.8 was chosen on 12 FUNSD training pages: on dense forms a larger growth makes neighbouring lines bleed into each crop
   const maxSide = opt.maxSide ?? 1600, boxThresh = opt.boxThresh ?? 0.55, unclip = opt.unclip ?? 0.8;
 
@@ -76,34 +152,27 @@ export async function loadPpOcr(ort: OrtLike, detSrc: any, recSrc: any, dictText
     return boxes;
   }
 
-  type Rec = { text: string; conf: number; spans: [number, number][] };
-  /** Recognise several segments in one run: crops are resized to height 48 and right-padded to the widest. */
-  async function recogniseBatch(rgba: Uint8ClampedArray | Uint8Array, w: number, boxes: Box[]): Promise<Rec[]> {
-    const tws = boxes.map((b) => Math.max(16, Math.min(1600, Math.round((48 * Math.max(2, b[2] - b[0])) / Math.max(2, b[3] - b[1])))));
-    const padW = Math.max(...tws), N = boxes.length;
-    const input = new Float32Array(N * 3 * 48 * padW);
-    boxes.forEach((b, i) => input.set(toTensor(rgba, w, b[0], b[1], Math.max(2, b[2] - b[0]), Math.max(2, b[3] - b[1]), tws[i], 48, padW, [0.5, 0.5, 0.5], [0.5, 0.5, 0.5]), i * 3 * 48 * padW));
-    const out = await rec.run({ [rec.inputNames[0]]: new ort.Tensor('float32', input, [N, 3, 48, padW]) });
-    const t = out[rec.outputNames[0]];
-    const [, T, C] = t.dims as number[];
-    const d = t.data as Float32Array;
-    return boxes.map((_, bi) => {
-      const frac = tws[bi] / padW; // the part of the time axis that holds real pixels
-      let text = '', last = 0, sum = 0, n = 0;
-      const spans: [number, number][] = [];
-      for (let i = 0; i < T; i++) {
-        const o = (bi * T + i) * C;
-        let k = 0, m = -Infinity;
-        for (let c = 0; c < C; c++) if (d[o + c] > m) { m = d[o + c]; k = c; }
-        if (k !== 0 && k !== last && i / T <= frac + 0.02) { text += chars[k] ?? ''; spans.push([Math.min(1, i / T / frac), m]); sum += m; n++; }
-        last = k;
-      }
-      return { text, conf: n ? sum / n : 0, spans };
-    });
+  /** run a recogniser over all segments, in batches of similar width so padding stays small */
+  async function recogniseAll(r: Recogniser, rgba: Uint8ClampedArray | Uint8Array, w: number, dets: { box: Box }[]): Promise<Rec[]> {
+    const ar = (i: number) => (dets[i].box[2] - dets[i].box[0]) / (dets[i].box[3] - dets[i].box[1]);
+    const order = dets.map((_, i) => i).sort((a, b) => ar(a) - ar(b));
+    const recs: Rec[] = [];
+    for (let s0 = 0; s0 < order.length; ) {
+      let e = s0 + 1;
+      while (e < order.length && e - s0 < 12 && ar(order[e]) <= ar(order[s0]) * 1.35 + 0.5) e++;
+      const ids = order.slice(s0, e);
+      (await r.recognise(rgba, w, ids.map((i) => dets[i].box))).forEach((x, k) => (recs[ids[k]] = x));
+      s0 = e;
+    }
+    return recs;
   }
 
-  return {
+  const api: PpOcr = {
+    recognise: english.recognise,
     async read(rgba, w, h) {
+      return (await api.readAll(rgba, w, h)).words;
+    },
+    async readAll(rgba, w, h, arabicRec) {
       const dets = await detect(rgba, w, h);
       // assign text lines by vertical overlap, top to bottom
       dets.sort((a, b) => (a.box[1] + a.box[3]) / 2 - (b.box[1] + b.box[3]) / 2);
@@ -114,22 +183,22 @@ export async function loadPpOcr(ort: OrtLike, detSrc: any, recSrc: any, dictText
         if (line < 0 || cy > ly1 - (ly1 - ly0) * 0.3) { line++; ly0 = d.box[1]; ly1 = d.box[3]; }
         lineOf[i] = line;
       });
-      // batch segments of similar width so padding stays small
-      const order = dets.map((_, i) => i).sort((a, b) => (dets[a].box[2] - dets[a].box[0]) / (dets[a].box[3] - dets[a].box[1]) - (dets[b].box[2] - dets[b].box[0]) / (dets[b].box[3] - dets[b].box[1]));
-      const recs: Rec[] = [];
-      for (let s0 = 0; s0 < order.length; ) {
-        const ar = (i: number) => (dets[i].box[2] - dets[i].box[0]) / (dets[i].box[3] - dets[i].box[1]);
-        let e = s0 + 1;
-        while (e < order.length && e - s0 < 12 && ar(order[e]) <= ar(order[s0]) * 1.35 + 0.5) e++;
-        const ids = order.slice(s0, e);
-        (await recogniseBatch(rgba, w, ids.map((i) => dets[i].box))).forEach((r, k) => (recs[ids[k]] = r));
-        s0 = e;
+      const recs = await recogniseAll(english, rgba, w, dets);
+      // the same segments read by the Arabic model; kept as Arabic when that reading is mostly Arabic letters
+      const arabic: ArabicLine[] = [];
+      const isArabic = new Set<number>();
+      if (arabicRec) {
+        const ars = await recogniseAll(arabicRec, rgba, w, dets);
+        ars.forEach((r, i) => {
+          const text = toReadingOrder(r.text);
+          if (arabicShare(text) >= ARABIC_SHARE && r.conf >= ARABIC_CONF) { arabic.push({ text, box: dets[i].box, conf: r.conf }); isArabic.add(i); }
+        });
       }
       const words: OcrWord[] = [];
       for (let i = 0; i < dets.length; i++) {
         const { box } = dets[i];
         const r = recs[i];
-        if (!r.text.trim()) continue;
+        if (!r.text.trim() || isArabic.has(i)) continue;
         // split the segment into words; x positions come from the CTC time steps
         const W = box[2] - box[0];
         let start = -1, conf = 0, cnt = 0, buf = '';
@@ -146,7 +215,8 @@ export async function loadPpOcr(ort: OrtLike, detSrc: any, recSrc: any, dictText
         });
         flush(1);
       }
-      return words;
+      return { words, arabic };
     },
   };
+  return api;
 }

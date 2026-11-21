@@ -10,7 +10,9 @@ import { parseMrz, findMrzLines, type MrzResult } from '../core/mrz';
 import type { OcrWord, SecondReading } from '../core/types';
 import type { PreprocessOptions } from '../core/preprocess';
 import { classifyDocument, DOC_LABEL, ID_TYPES, type Classification, type DocType } from '../core/classify';
-import { extractFacts, type Fact } from '../core/facts';
+import { arabicFacts, extractFacts, type Fact } from '../core/facts';
+import type { ArabicLine } from '../core/ppocr';
+import { loadCornerModel, type CornerModel } from '../core/corners';
 import { detectCard, quadHoldsWords, refineQuad, type Pt, type Quad } from '../core/scan';
 import type { VisionOpinion } from '../core/critic-vision';
 import type { PreRequest, PreResponse } from './preprocess.worker';
@@ -72,6 +74,8 @@ export interface DocResult {
   /** the same page read by the neural reader, for comparing key facts (identity documents only) */
   words2?: OcrWord[];
   words2Ms?: number;
+  /** Arabic lines found by the second look (identity documents only), in the coordinates of `words` */
+  arabic?: ArabicLine[];
   steps: Step[];
   totalMs: number;
   ocrScale: number;
@@ -185,6 +189,12 @@ export function applyTemplate(doc: DocResult, t: Template): DocResult | null {
   if (!m) return null;
   const analysis = addMarks(templateAnalysis(m, doc), { ...doc, kind: 'form' }, m);
   return { ...doc, kind: 'form', docType: 'form', template: m, analysis, classification: templateClass(doc.classification, m), facts: extractFacts('form', doc.words, analysis.fields, doc.mrz) };
+}
+
+let corners: Promise<CornerModel> | null = null;
+/** The learned corner finder for the live camera (1.8 MB), loaded the first time the camera opens. */
+export function cornerModel(): Promise<CornerModel> {
+  return (corners ??= loadCornerModel(ort as any, BASE + 'models/corner/doccornernet_lean.onnx', { executionProviders: ['wasm'] }).catch((e) => { corners = null; throw e; }));
 }
 
 export function classifiers(): Promise<Classifiers> {
@@ -504,21 +514,29 @@ export async function processDocument(file: Blob, fileName: string, opts: Prepro
  * key facts worked out from the two readings are compared (see extractFacts). Runs after the
  * first answer is on screen, so it never delays it. Null when there is nothing to compare.
  */
-export async function secondLook(doc: DocResult): Promise<{ words2: OcrWord[]; ms: number } | null> {
-  if (doc.kind !== 'id' || doc.reader === 'ppocr' || doc.words2) return null;
+export async function secondLook(doc: DocResult): Promise<{ words2?: OcrWord[]; arabic: ArabicLine[]; ms: number } | null> {
+  if (doc.kind !== 'id' || doc.arabic) return null;
   const t = performance.now();
-  const r = await ppRead(doc.grayRgba.slice(0), doc.grayW, doc.grayH);
-  const words2 = cleanWords(r.words.map((w) => ({ ...w, box: w.box.map((v) => v / doc.ocrScale) as OcrWord['box'] })));
-  return { words2, ms: performance.now() - t };
+  // the same reading also gives the Arabic lines (name and nationality as printed in Arabic)
+  const r = await ppRead(doc.grayRgba.slice(0), doc.grayW, doc.grayH, true);
+  const down = (b: Box) => b.map((v) => v / doc.ocrScale) as Box;
+  const arabic = r.arabic.map((a) => ({ ...a, box: down(a.box) }));
+  // when the neural reader was already the main one, its words are not a second opinion
+  const words2 = doc.reader === 'ppocr' || doc.words2 ? doc.words2 : cleanWords(r.words.map((w) => ({ ...w, box: down(w.box) })));
+  return { words2, arabic: r.arabicRead ? arabic : [], ms: performance.now() - t };
 }
-/** Key facts of a document as it stands now, using the second look when there is one. */
-export const factsOf = (doc: DocResult, fields: Analysis['fields'], words2 = doc.words2) => extractFacts(doc.docType, doc.words, fields, doc.mrz, words2);
+/** Key facts of a document as it stands now, using the second look (and its Arabic lines) when there is one. */
+export const factsOf = (doc: DocResult, fields: Analysis['fields'], words2 = doc.words2, arabic = doc.arabic): Fact[] => {
+  const f = extractFacts(doc.docType, doc.words, fields, doc.mrz, words2);
+  return doc.kind === 'id' && arabic?.length ? [...f, ...arabicFacts(arabic).filter((a) => !f.some((x) => x.key === a.key))] : f;
+};
 
 /** The clerk corrected the document type: redo layout analysis and key facts for it. */
 export async function retype(doc: DocResult, type: DocType, second?: SecondReading[]): Promise<DocResult> {
   const kind = ID_TYPES.includes(type) ? 'id' : 'form';
   const analysis = addMarks(await analyse(doc.words, doc.width, doc.height, await classifiers(), second, kind, doc.reader), { ...doc, kind });
-  return { ...doc, template: undefined, kind, docType: type, analysis, facts: extractFacts(type, doc.words, analysis.fields, doc.mrz, doc.words2), classification: { ...doc.classification, type, confidence: 1, evidence: [{ type, weight: 9, why: 'Set by you' }], all: [{ type, weight: 9, why: 'Set by you' }] } };
+  const next: DocResult = { ...doc, kind, docType: type };
+  return { ...doc, template: undefined, kind, docType: type, analysis, facts: factsOf(next, analysis.fields), classification: { ...doc.classification, type, confidence: 1, evidence: [{ type, weight: 9, why: 'Set by you' }], all: [{ type, weight: 9, why: 'Set by you' }] } };
 }
 
 // ---------------- PP-OCRv5 reader ----------------
@@ -543,12 +561,12 @@ export function loadPpReader(): Promise<string> {
   ow.postMessage({ type: 'load', base: BASE });
   return oReady;
 }
-async function ppRead(rgba: ArrayBuffer, width: number, height: number): Promise<{ words: OcrWord[]; ms: number; device: string }> {
+async function ppRead(rgba: ArrayBuffer, width: number, height: number, arabic = false): Promise<{ words: OcrWord[]; arabic: ArabicLine[]; arabicRead: boolean; ms: number; device: string }> {
   await loadPpReader();
   const id = ++oId;
   return new Promise((res, rej) => {
     oPending.set(id, { res, rej });
-    ow!.postMessage({ type: 'read', id, rgba, width, height }, [rgba]);
+    ow!.postMessage({ type: 'read', id, rgba, width, height, arabic, base: BASE }, [rgba]);
   });
 }
 

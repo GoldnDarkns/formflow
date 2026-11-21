@@ -31,5 +31,10 @@ Third-party components and data (see README "Licences"):
 - PP-OCRv5 models in public/models/ppocr (PaddleOCR, Apache-2.0; ONNX conversions
   from github.com/GreatV/oar-ocr and huggingface.co/monkt/paddleocr-onnx).
   MobileCLIP-S0 (Apple, downloaded at runtime) has its own licence: check it before any reuse.
+- Arabic recogniser public/models/ppocr/arabic_rec.onnx and arabic_dict.txt: PaddlePaddle
+  arabic_PP-OCRv5_mobile_rec (official ONNX, huggingface.co/PaddlePaddle/arabic_PP-OCRv5_mobile_rec_onnx),
+  Apache-2.0.
+- Corner finder public/models/corner/doccornernet_lean.onnx: DocCornerNet LEAN from the scanic
+  project (github.com/marquaye/scanic, MIT; architecture from github.com/mapo80/DocCornerNet-CoordClass, MIT).
 - Tesseract / tesseract.js: Apache-2.0. ONNX Runtime Web: MIT.
   Transformers.js: Apache-2.0. Florence-2-base-ft: MIT (downloaded at runtime).
